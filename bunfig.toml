@@ -1,0 +1,23 @@
+# Bun configuration file
+# https://bun.sh/docs/runtime/bunfig
+
+[install]
+# Enable workspaces
+auto = true
+# Install peer dependencies
+peer = true
+
+[install.cache]
+# Cache directory
+dir = ".bun-cache"
+
+[test]
+# Test configuration
+preload = []
+coverage = true
+coverageDir = "./coverage"
+
+[run]
+# Automatically install dependencies when running a script
+autoInstall = true
+

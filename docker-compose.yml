@@ -1,0 +1,111 @@
+version: '3.9'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: ouncetracker-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ouncetracker
+      POSTGRES_PASSWORD: ouncetracker_dev_password
+      POSTGRES_DB: ouncetracker
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ouncetracker']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ouncetracker-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: ouncetracker-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ouncetracker-network
+
+  # API Backend
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: ouncetracker-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      HOST: 0.0.0.0
+      DATABASE_URL: postgresql://ouncetracker:ouncetracker_dev_password@postgres:5432/ouncetracker
+      REDIS_URL: redis://redis:6379
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - '4000:4000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ouncetracker-network
+
+  # Worker (Background Jobs)
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    container_name: ouncetracker-worker
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://ouncetracker:ouncetracker_dev_password@postgres:5432/ouncetracker
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ouncetracker-network
+
+  # Web Frontend
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:4000
+    container_name: ouncetracker-web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://api:4000
+    ports:
+      - '3000:3000'
+    depends_on:
+      - api
+    networks:
+      - ouncetracker-network
+
+networks:
+  ouncetracker-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+
