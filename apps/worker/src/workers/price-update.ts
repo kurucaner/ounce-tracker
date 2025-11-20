@@ -51,9 +51,7 @@ export class PriceUpdateWorker {
       };
 
       // TODO: Save to database
-      this.logger.info(
-        `Updated ${metal} spot price: $${spotPrice.price.toFixed(2)} per oz`
-      );
+      this.logger.info(`Updated ${metal} spot price: $${spotPrice.price.toFixed(2)} per oz`);
     } catch (error) {
       this.logger.error({ error, metal }, `Failed to update price for ${metal}`);
       throw error;
@@ -66,10 +64,10 @@ export class PriceUpdateWorker {
    */
   private getMockPrice(metal: Metal): number {
     const basePrices: Record<Metal, number> = {
-      [Metal.GOLD]: 2050.0,
+      [Metal.GOLD]: 2050,
       [Metal.SILVER]: 25.5,
-      [Metal.PLATINUM]: 950.0,
-      [Metal.PALLADIUM]: 1100.0,
+      [Metal.PLATINUM]: 950,
+      [Metal.PALLADIUM]: 1100,
     };
 
     // Add some random variation (-2% to +2%)
@@ -85,4 +83,3 @@ export class PriceUpdateWorker {
     // TODO: Close database connections, API clients, etc.
   }
 }
-
