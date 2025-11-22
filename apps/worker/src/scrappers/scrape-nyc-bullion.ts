@@ -74,7 +74,9 @@ async function extractPriceFromPage(page: Page): Promise<number | null> {
 }
 
 export async function scrapeNYCBullion(): Promise<ScraperResult> {
-  const url = ENDPOINTS.NYC_BULLION['1-oz-gold-bar-pamp-suisse-lady-fortuna'].url;
+  const url =
+    ENDPOINTS.NYC_BULLION['1-oz-gold-bar-pamp-suisse-lady-fortuna'].url +
+    ENDPOINTS.NYC_BULLION['1-oz-gold-bar-pamp-suisse-lady-fortuna'].productUrl;
 
   let browser;
   try {

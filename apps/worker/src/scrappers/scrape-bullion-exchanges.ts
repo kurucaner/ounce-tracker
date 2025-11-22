@@ -145,7 +145,9 @@ async function extractPriceFromPage(page: Page): Promise<string | null> {
  * @returns A promise that resolves to ScraperResult.
  */
 export async function scrapeBullionExchanges(): Promise<ScraperResult> {
-  const url = ENDPOINTS.BULLION_EXCHANGES['1-oz-gold-bar-pamp-suisse-lady-fortuna'].url;
+  const url =
+    ENDPOINTS.BULLION_EXCHANGES['1-oz-gold-bar-pamp-suisse-lady-fortuna'].url +
+    ENDPOINTS.BULLION_EXCHANGES['1-oz-gold-bar-pamp-suisse-lady-fortuna'].productUrl;
 
   let browser;
   try {

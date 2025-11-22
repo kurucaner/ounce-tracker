@@ -8,7 +8,9 @@ import { ENDPOINTS } from './endpoints';
  * Selector: span.woocommerce-Price-amount.amount bdi
  */
 export async function scrapeNYGoldCo(): Promise<ScraperResult> {
-  const url = ENDPOINTS.NY_GOLD_CO['1-oz-gold-bar-pamp-suisse-lady-fortuna'].url;
+  const url =
+    ENDPOINTS.NY_GOLD_CO['1-oz-gold-bar-pamp-suisse-lady-fortuna'].url +
+    ENDPOINTS.NY_GOLD_CO['1-oz-gold-bar-pamp-suisse-lady-fortuna'].productUrl;
 
   try {
     console.log('🔍 Scraping New York Gold Co...');
