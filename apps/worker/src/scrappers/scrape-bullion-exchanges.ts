@@ -32,7 +32,7 @@ async function extractPriceFromPage(page: Page): Promise<string | null> {
       // The main pricing container is likely the common ancestor that contains both the header and the body rows.
       // We'll search up from the found header until we find a parent that contains the target quantity '1-4'.
       // For robustness, we assume the immediate parent is a good candidate, but will check a few levels up.
-      let pricingContainer: Element | null =
+      const pricingContainer: Element | null =
         headerDiv.closest('.list-qaL5') || headerDiv.parentElement;
 
       // Fallback in case the specific class changes

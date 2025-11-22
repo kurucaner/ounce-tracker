@@ -1,4 +1,4 @@
-export type DealerSlug = 'NY_GOLD_CO' | 'BULLION_EXCHANGES' | 'NYC_BULLION';
+export type DealerSlug = 'NY_GOLD_CO' | 'BULLION_EXCHANGES' | 'NYC_BULLION' | 'BULLION_TRADING_LLC';
 
 export type ProductKeys = '1-oz-gold-bar-pamp-suisse-lady-fortuna';
 export type ProductName = '1 oz Gold Bar PAMP Suisse Lady Fortuna';
@@ -29,6 +29,13 @@ export const ENDPOINTS: Record<DealerSlug, Record<ProductKeys, ProductEndpoint>>
       name: '1 oz Gold Bar PAMP Suisse Lady Fortuna',
       url: 'https://www.nycbullion.com',
       productUrl: '/1-oz-gold-bar-pamp-fortuna-1pampf',
+    },
+  },
+  BULLION_TRADING_LLC: {
+    '1-oz-gold-bar-pamp-suisse-lady-fortuna': {
+      name: '1 oz Gold Bar PAMP Suisse Lady Fortuna',
+      url: 'https://bulliontradingllc.com',
+      productUrl: '/product/1-oz-pamp-suisse-gold-bar-lady-fortuna-in-assay',
     },
   },
 };

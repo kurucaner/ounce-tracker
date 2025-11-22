@@ -6,6 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 import { scrapeBullionExchanges } from './scrappers/scrape-bullion-exchanges';
 import { scrapeNYGoldCo } from './scrappers/scrape-new-york-gold-co';
 import { scrapeNYCBullion } from './scrappers/scrape-nyc-bullion';
+import { scrapeBullionTradingLLC } from './scrappers/scrape-bullion-trading-llc';
 
 // Product identifier
 const PRODUCT_NAME = '1 oz Gold Bar PAMP Suisse Lady Fortuna';
@@ -118,6 +119,15 @@ async function run(): Promise<void> {
       results.nyc_bullion = nycPrice;
     } catch (error) {
       console.error('⚠️  Skipping NYC Bullion due to error:', error);
+    }
+
+    // Bullion Trading LLC
+    try {
+      const { price: btPrice, url: btUrl } = await scrapeBullionTradingLLC();
+      await updateListingPrice('bullion-trading-llc', product.id, btPrice, btUrl);
+      results.bullion_trading_llc = btPrice;
+    } catch (error) {
+      console.error('⚠️  Skipping Bullion Trading LLC due to error:', error);
     }
 
     // Summary
