@@ -1,5 +1,5 @@
 import { chromium, Page, ElementHandle } from 'playwright';
-import { ScraperResult } from './types';
+import { ScraperResult } from '../types';
 
 /**
  * Extracts the target price from the Bullion Exchanges product page DOM.

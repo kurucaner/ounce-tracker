@@ -2,11 +2,10 @@
  * PAMP Suisse Lady Fortuna Price Scraper
  * Fetches live prices from multiple dealers and updates Supabase
  */
-
-import * as cheerio from 'cheerio';
 import { createClient } from '@supabase/supabase-js';
-import { type ScraperResult } from './types';
-import { scrapeBullionExchanges } from './scrape-bullion-exchanges';
+import { scrapeBullionExchanges } from './scrappers/scrape-bullion-exchanges';
+import { scrapeNYGoldCo } from './scrappers/scrape-nygoldco';
+import { scrapeNYCBullion } from './scrappers/scrape-nyc-bullion';
 
 // Product identifier
 const PRODUCT_NAME = '1 oz Gold Bar PAMP Suisse Lady Fortuna';
@@ -15,47 +14,6 @@ const PRODUCT_NAME = '1 oz Gold Bar PAMP Suisse Lady Fortuna';
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
   auth: { persistSession: false },
 });
-
-/**
- * Scraper #1: New York Gold Co
- * URL: https://nygoldco.com/gold/gold-bars/1-oz-gold-bar-pamp-suisse-lady-fortuna-in-assay/
- * Selector: span.woocommerce-Price-amount.amount bdi
- */
-async function scrapeNYGoldCo(): Promise<ScraperResult> {
-  const url =
-    'https://nygoldco.com/gold/gold-bars/1-oz-gold-bar-pamp-suisse-lady-fortuna-in-assay/';
-
-  try {
-    console.log('🔍 Scraping New York Gold Co...');
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-
-    const html = await response.text();
-    const $ = cheerio.load(html);
-
-    const priceText = $('span.woocommerce-Price-amount.amount bdi').first().text().trim();
-
-    if (!priceText) {
-      throw new Error('Price element not found');
-    }
-
-    // Example: "$4,170.49" -> 4170.49
-    const cleanedPrice = priceText.replaceAll(/[^0-9.]/g, '');
-    const price = Number.parseFloat(cleanedPrice);
-
-    if (Number.isNaN(price) || price <= 0) {
-      throw new Error(`Invalid price parsed: ${priceText}`);
-    }
-
-    console.log(`✅ NY Gold Co: $${price.toFixed(2)}`);
-    return { price, url };
-  } catch (error) {
-    console.error('❌ Failed to scrape NY Gold Co:', error);
-    throw error;
-  }
-}
 
 /**
  * Update dealer listing in Supabase
@@ -81,10 +39,13 @@ async function updateListingPrice(
     // Update dealer listing
     const { error: updateError } = await supabase
       .from('dealer_listings')
-      .update({
+      .upsert({
+        dealer_id: dealer.id,
+        product_id: productId,
+        currency: 'USD',
+        in_stock: true,
         price,
         product_url: productUrl,
-        last_updated: new Date().toISOString(),
       })
       .eq('dealer_id', dealer.id)
       .eq('product_id', productId);
@@ -148,6 +109,15 @@ async function run(): Promise<void> {
       results.bullion_exchanges = exPrice;
     } catch (error) {
       console.error('⚠️  Skipping Bullion Exchanges due to error:', error);
+    }
+
+    // NYC Bullion
+    try {
+      const { price: nycPrice, url: nycUrl } = await scrapeNYCBullion();
+      await updateListingPrice('nyc-bullion', product.id, nycPrice, nycUrl);
+      results.nyc_bullion = nycPrice;
+    } catch (error) {
+      console.error('⚠️  Skipping NYC Bullion due to error:', error);
     }
 
     // Summary
