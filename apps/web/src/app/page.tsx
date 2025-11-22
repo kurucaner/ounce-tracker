@@ -47,7 +47,6 @@ const formatTime = (dateString: string): string => {
 
 export default async function HomePage() {
   const listings = await getProductListings();
-  console.log('listings', listings);
   const lowestPrice = listings.length > 0 ? Math.min(...listings.map((l) => l.price)) : 0;
 
   return (

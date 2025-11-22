@@ -33,7 +33,6 @@ export async function GET() {
       `
       )
       .eq('products.name', '1 oz Gold Bar PAMP Suisse Lady Fortuna');
-    console.log('data', data);
 
     if (error) {
       console.error('Supabase query error:', error);

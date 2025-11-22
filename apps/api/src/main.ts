@@ -82,13 +82,6 @@ const start = async () => {
     const fastify = await createServer();
 
     await fastify.listen({ port: PORT, host: HOST });
-
-    console.log(`
-🚀 API Server is running!
-📍 URL: http://${HOST}:${PORT}
-🏥 Health: http://${HOST}:${PORT}/health
-📚 Environment: ${process.env.NODE_ENV || 'development'}
-    `);
   } catch (err) {
     console.error('Error starting server:', err);
     process.exit(1);
@@ -97,12 +90,10 @@ const start = async () => {
 
 // Handle graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
-  console.log('SIGINT signal received: closing HTTP server');
   process.exit(0);
 });
 
