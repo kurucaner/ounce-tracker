@@ -1,6 +1,6 @@
-import { chromium, Page, ElementHandle } from 'playwright';
-import { ScraperResult } from '../types';
-import { ENDPOINTS } from './endpoints';
+import { chromium } from 'playwright';
+import type { Page, ElementHandle } from 'playwright';
+import type { ScraperResult, ProductConfig } from '../types';
 
 /**
  * Extracts the target price from the Bullion Exchanges product page DOM.
@@ -140,20 +140,16 @@ async function extractPriceFromPage(page: Page): Promise<string | null> {
 
 /**
  * Main scraper function for Bullion Exchanges.
- * MUST maintain the signature: async function scrapeBullionExchanges(): Promise<ScraperResult>
  *
  * @returns A promise that resolves to ScraperResult.
  */
-export async function scrapeBullionExchanges(): Promise<ScraperResult> {
-  const url =
-    ENDPOINTS.BULLION_EXCHANGES['1-oz-gold-bar-pamp-suisse-lady-fortuna'].url +
-    ENDPOINTS.BULLION_EXCHANGES['1-oz-gold-bar-pamp-suisse-lady-fortuna'].productUrl;
+export async function scrapeBullionExchanges(productConfig: ProductConfig, baseUrl: string): Promise<ScraperResult> {
+  const url = baseUrl + productConfig.productUrl;
 
   let browser;
   try {
-    console.info('🔍 Scraping Bullion Exchanges (using headless browser)...');
+    console.info(`🔍 Scraping Bullion Exchanges - ${productConfig.name} (using headless browser)...`);
 
-    // Use headless: true for production scraping, using false here to match the user's snippet.
     browser = await chromium.launch({
       headless: true,
       args: [
@@ -196,10 +192,10 @@ export async function scrapeBullionExchanges(): Promise<ScraperResult> {
       throw new Error(`Invalid price parsed: ${priceText}`);
     }
 
-    console.info(`✅ Bullion Exchanges: $${price.toFixed(2)}`);
-    return { price, url };
+    console.info(`✅ Bullion Exchanges - ${productConfig.name}: $${price.toFixed(2)}`);
+    return { price, url, productName: productConfig.name };
   } catch (error) {
-    console.error('❌ Failed to scrape Bullion Exchanges:', error);
+    console.error(`❌ Failed to scrape Bullion Exchanges - ${productConfig.name}:`, error);
     throw error;
   } finally {
     if (browser) {

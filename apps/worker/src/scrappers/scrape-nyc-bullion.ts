@@ -1,11 +1,6 @@
-import { chromium, Page } from 'playwright';
-import { ENDPOINTS } from './endpoints';
-
-// Existing Project Context & Types
-export interface ScraperResult {
-  price: number;
-  url: string;
-}
+import { chromium } from 'playwright';
+import type { Page } from 'playwright';
+import type { ScraperResult, ProductConfig } from '../types';
 
 /**
  * Extracts the initial price from the embedded JavaScript data.
@@ -73,14 +68,15 @@ async function extractPriceFromPage(page: Page): Promise<number | null> {
   return priceValue;
 }
 
-export async function scrapeNYCBullion(): Promise<ScraperResult> {
-  const url =
-    ENDPOINTS.NYC_BULLION['1-oz-gold-bar-pamp-suisse-lady-fortuna'].url +
-    ENDPOINTS.NYC_BULLION['1-oz-gold-bar-pamp-suisse-lady-fortuna'].productUrl;
+export async function scrapeNYCBullion(
+  productConfig: ProductConfig,
+  baseUrl: string
+): Promise<ScraperResult> {
+  const url = baseUrl + productConfig.productUrl;
 
   let browser;
   try {
-    console.info('🔍 Scraping NYC Bullion...');
+    console.info(`🔍 Scraping NYC Bullion - ${productConfig.name}...`);
 
     browser = await chromium.launch({
       headless: true,
@@ -109,10 +105,10 @@ export async function scrapeNYCBullion(): Promise<ScraperResult> {
 
     const price = priceNumber;
 
-    console.info(`✅ NYC Bullion: $${price.toFixed(2)}`);
-    return { price, url };
+    console.info(`✅ NYC Bullion - ${productConfig.name}: $${price.toFixed(2)}`);
+    return { price, url, productName: productConfig.name };
   } catch (error) {
-    console.error('❌ Failed to scrape NYC Bullion:', error);
+    console.error(`❌ Failed to scrape NYC Bullion - ${productConfig.name}:`, error);
     throw error;
   } finally {
     if (browser) {

@@ -1,19 +1,16 @@
-import { ScraperResult } from '../types';
+import type { ScraperResult, ProductConfig } from '../types';
 import * as cheerio from 'cheerio';
-import { ENDPOINTS } from './endpoints';
 
 /**
- * Scraper #1: New York Gold Co
- * URL: https://nygoldco.com/gold/gold-bars/1-oz-gold-bar-pamp-suisse-lady-fortuna-in-assay/
+ * Scraper: New York Gold Co
+ * Uses cheerio to parse static HTML
  * Selector: span.woocommerce-Price-amount.amount bdi
  */
-export async function scrapeNYGoldCo(): Promise<ScraperResult> {
-  const url =
-    ENDPOINTS.NY_GOLD_CO['1-oz-gold-bar-pamp-suisse-lady-fortuna'].url +
-    ENDPOINTS.NY_GOLD_CO['1-oz-gold-bar-pamp-suisse-lady-fortuna'].productUrl;
+export async function scrapeNYGoldCo(productConfig: ProductConfig, baseUrl: string): Promise<ScraperResult> {
+  const url = baseUrl + productConfig.productUrl;
 
   try {
-    console.info('🔍 Scraping New York Gold Co...');
+    console.info(`🔍 Scraping New York Gold Co - ${productConfig.name}...`);
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -36,10 +33,10 @@ export async function scrapeNYGoldCo(): Promise<ScraperResult> {
       throw new Error(`Invalid price parsed: ${priceText}`);
     }
 
-    console.info(`✅ NY Gold Co: $${price.toFixed(2)}`);
-    return { price, url };
+    console.info(`✅ NY Gold Co - ${productConfig.name}: $${price.toFixed(2)}`);
+    return { price, url, productName: productConfig.name };
   } catch (error) {
-    console.error('❌ Failed to scrape NY Gold Co:', error);
+    console.error(`❌ Failed to scrape NY Gold Co - ${productConfig.name}:`, error);
     throw error;
   }
 }

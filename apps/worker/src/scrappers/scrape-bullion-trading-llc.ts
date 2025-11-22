@@ -1,8 +1,7 @@
 import { chromium } from 'playwright-extra';
 import type { Page } from 'playwright';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-import { ENDPOINTS } from './endpoints';
-import { ScraperResult } from '../types';
+import type { ScraperResult, ProductConfig } from '../types';
 
 // Add stealth plugin to avoid detection
 chromium.use(StealthPlugin());
@@ -67,14 +66,12 @@ async function extractBullionTradingPriceFromPage(page: Page): Promise<string | 
  *
  * @returns A promise that resolves to ScraperResult.
  */
-export async function scrapeBullionTradingLLC(): Promise<ScraperResult> {
-  const url =
-    ENDPOINTS.BULLION_TRADING_LLC['1-oz-gold-bar-pamp-suisse-lady-fortuna'].url +
-    ENDPOINTS.BULLION_TRADING_LLC['1-oz-gold-bar-pamp-suisse-lady-fortuna'].productUrl;
+export async function scrapeBullionTradingLLC(productConfig: ProductConfig, baseUrl: string): Promise<ScraperResult> {
+  const url = baseUrl + productConfig.productUrl;
 
   let browser;
   try {
-    console.info('🔍 Scraping Bullion Trading LLC (using stealth browser)...');
+    console.info(`🔍 Scraping Bullion Trading LLC - ${productConfig.name} (using stealth browser)...`);
 
     // Launch browser with stealth plugin (automatically handles bot detection)
     browser = await chromium.launch({
@@ -111,10 +108,10 @@ export async function scrapeBullionTradingLLC(): Promise<ScraperResult> {
       throw new Error(`Invalid price parsed: ${priceText}`);
     }
 
-    console.info(`✅ Bullion Trading LLC: $${price.toFixed(2)}`);
-    return { price, url };
+    console.info(`✅ Bullion Trading LLC - ${productConfig.name}: $${price.toFixed(2)}`);
+    return { price, url, productName: productConfig.name };
   } catch (error) {
-    console.error('❌ Failed to scrape Bullion Trading LLC:', error);
+    console.error(`❌ Failed to scrape Bullion Trading LLC - ${productConfig.name}:`, error);
     throw error;
   } finally {
     if (browser) {
@@ -122,5 +119,3 @@ export async function scrapeBullionTradingLLC(): Promise<ScraperResult> {
     }
   }
 }
-
-// To use this in your project, ensure these functions are exported/called as needed.

@@ -1,12 +1,15 @@
 /**
- * PAMP Suisse Lady Fortuna Price Scraper
+ * PAMP Suisse Lady Fortuna Price Scraper (Legacy - for single product)
  * Fetches live prices from multiple dealers and updates Supabase
+ *
+ * NOTE: Consider using scrape-all-dealers.ts for multi-product scraping
  */
 import { createClient } from '@supabase/supabase-js';
 import { scrapeBullionExchanges } from './scrappers/scrape-bullion-exchanges';
 import { scrapeNYGoldCo } from './scrappers/scrape-new-york-gold-co';
 import { scrapeNYCBullion } from './scrappers/scrape-nyc-bullion';
 import { scrapeBullionTradingLLC } from './scrappers/scrape-bullion-trading-llc';
+import { DEALERS } from './scrappers/endpoints';
 
 // Product identifier
 const PRODUCT_NAME = '1 oz Gold Bar PAMP Suisse Lady Fortuna';
@@ -94,40 +97,43 @@ async function run(): Promise<void> {
     // Scrape and update each dealer
     const results: Record<string, number> = {};
 
-    // New York Gold Co
-    try {
-      const { price: nyPrice, url: nyUrl } = await scrapeNYGoldCo();
-      await updateListingPrice('new-york-gold-co', product.id, nyPrice, nyUrl);
-      results.ny_gold_co = nyPrice;
-    } catch (error) {
-      console.error('⚠️  Skipping NY Gold Co due to error:', error);
-    }
+    // Find the product config for Lady Fortuna across all dealers
+    for (const dealer of DEALERS) {
+      const productConfig = dealer.products.find((p) => p.name === PRODUCT_NAME);
 
-    // Bullion Exchanges
-    try {
-      const { price: exPrice, url: exUrl } = await scrapeBullionExchanges();
-      await updateListingPrice('bullion-exchanges', product.id, exPrice, exUrl);
-      results.bullion_exchanges = exPrice;
-    } catch (error) {
-      console.error('⚠️  Skipping Bullion Exchanges due to error:', error);
-    }
+      if (!productConfig) {
+        console.warn(`⚠️  Product "${PRODUCT_NAME}" not found for ${dealer.name}`);
+        continue;
+      }
 
-    // NYC Bullion
-    try {
-      const { price: nycPrice, url: nycUrl } = await scrapeNYCBullion();
-      await updateListingPrice('nyc-bullion', product.id, nycPrice, nycUrl);
-      results.nyc_bullion = nycPrice;
-    } catch (error) {
-      console.error('⚠️  Skipping NYC Bullion due to error:', error);
-    }
+      try {
+        let result;
 
-    // Bullion Trading LLC
-    try {
-      const { price: btPrice, url: btUrl } = await scrapeBullionTradingLLC();
-      await updateListingPrice('bullion-trading-llc', product.id, btPrice, btUrl);
-      results.bullion_trading_llc = btPrice;
-    } catch (error) {
-      console.error('⚠️  Skipping Bullion Trading LLC due to error:', error);
+        switch (dealer.slug) {
+          case 'new-york-gold-co':
+            result = await scrapeNYGoldCo(productConfig, dealer.url);
+            break;
+          case 'bullion-exchanges':
+            result = await scrapeBullionExchanges(productConfig, dealer.url);
+            break;
+          case 'nyc-bullion':
+            result = await scrapeNYCBullion(productConfig, dealer.url);
+            break;
+          case 'bullion-trading-llc':
+            result = await scrapeBullionTradingLLC(productConfig, dealer.url);
+            break;
+          default:
+            console.warn(`⚠️  No scraper found for ${dealer.slug}`);
+            continue;
+        }
+
+        if (result) {
+          await updateListingPrice(dealer.slug, product.id, result.price, result.url);
+          results[dealer.slug] = result.price;
+        }
+      } catch (error) {
+        console.error(`⚠️  Skipping ${dealer.name} due to error:`, error);
+      }
     }
 
     // Summary
