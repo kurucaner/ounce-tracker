@@ -182,13 +182,19 @@ export default function ProductsPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="mint">Mint *</Label>
-                <Input
-                  id="mint"
-                  value={mint}
-                  onChange={(e) => setMint(e.target.value)}
-                  placeholder="e.g., PAMP"
-                  required
-                />
+                <Select value={mint} onValueChange={setMint} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select mint" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PAMP">PAMP</SelectItem>
+                    <SelectItem value="RMC">RMC</SelectItem>
+                    <SelectItem value="PerthMint">Perth Mint</SelectItem>
+                    <SelectItem value="RoyalCanadianMint">Royal Canadian Mint</SelectItem>
+                    <SelectItem value="USMint">US Mint</SelectItem>
+                    <SelectItem value="Valcambi">Valcambi</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
@@ -308,7 +314,6 @@ export default function ProductsPage() {
             )}
           </CardContent>
         </Card>
-
       </div>
     </div>
   );
