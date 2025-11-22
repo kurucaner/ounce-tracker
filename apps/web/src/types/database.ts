@@ -45,6 +45,7 @@ export interface ProductListingItem {
   inStock: boolean;
   productUrl: string;
   updatedAt: string;
+  dealerWebsiteUrl: string;
 }
 
 export interface ProductListingsResponse {

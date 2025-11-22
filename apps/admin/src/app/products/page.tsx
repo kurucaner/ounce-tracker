@@ -22,6 +22,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
 } from '@shared';
 
 interface Product {
@@ -45,6 +51,7 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [message, setMessage] = useState('');
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -72,6 +79,7 @@ export default function ProductsPage() {
     setMetal(product.metal);
     setForm(product.form);
     setWeightOz(product.weight_oz.toString());
+    setSheetOpen(true);
   };
 
   const handleCancel = () => {
@@ -82,6 +90,7 @@ export default function ProductsPage() {
     setForm('');
     setWeightOz('');
     setMessage('');
+    setSheetOpen(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -117,6 +126,7 @@ export default function ProductsPage() {
         setForm('');
         setWeightOz('');
         setEditingId(null);
+        setSheetOpen(false);
         fetchProducts();
       } else {
         setMessage(`❌ Error: ${data.error || 'Failed to save product'}`);
@@ -139,80 +149,26 @@ export default function ProductsPage() {
 
   return (
     <div className="container mx-auto px-6 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Manage Products</h1>
-        <p className="text-muted-foreground">View and manage bullion products</p>
-      </div>
-
-      <div className="grid gap-6">
-        {/* Products Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>All Products ({products.length})</CardTitle>
-            <CardDescription>Click edit to update product information</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {fetchLoading ? (
-              <div className="text-center py-8 text-muted-foreground">Loading products...</div>
-            ) : products.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                No products found. Add your first product below.
-              </div>
-            ) : (
-              <div className="rounded-lg border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Product Name</TableHead>
-                      <TableHead>Mint</TableHead>
-                      <TableHead>Metal</TableHead>
-                      <TableHead>Form</TableHead>
-                      <TableHead>Weight (oz)</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {products.map((product) => (
-                      <TableRow key={product.id}>
-                        <TableCell className="font-medium">{product.name}</TableCell>
-                        <TableCell>{product.mint}</TableCell>
-                        <TableCell>
-                          <span className="rounded-full bg-muted px-2 py-1 text-xs">
-                            {formatMetal(product.metal)}
-                          </span>
-                        </TableCell>
-                        <TableCell>{formatForm(product.form)}</TableCell>
-                        <TableCell>{product.weight_oz}</TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEdit(product)}
-                            className="h-8"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Add/Edit Form */}
-        <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>{editingId ? 'Edit Product' : 'Add New Product'}</CardTitle>
-            <CardDescription>
-              {editingId ? 'Update product specifications' : 'Enter product specifications'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Manage Products</h1>
+          <p className="text-muted-foreground">View and manage bullion products</p>
+        </div>
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+          <SheetTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Product
+            </Button>
+          </SheetTrigger>
+          <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle>{editingId ? 'Edit Product' : 'Add New Product'}</SheetTitle>
+              <SheetDescription>
+                {editingId ? 'Update product specifications' : 'Enter product specifications'}
+              </SheetDescription>
+            </SheetHeader>
+            <form onSubmit={handleSubmit} className="space-y-4 mt-6">
               <div className="space-y-2">
                 <Label htmlFor="name">Product Name *</Label>
                 <Input
@@ -280,9 +236,8 @@ export default function ProductsPage() {
 
               {message && <div className="rounded-md bg-muted p-3 text-sm">{message}</div>}
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 pt-4">
                 <Button type="submit" disabled={loading} className="flex-1">
-                  <Plus className="mr-2 h-4 w-4" />
                   {loading ? 'Saving...' : editingId ? 'Update Product' : 'Add Product'}
                 </Button>
                 {editingId && (
@@ -292,46 +247,68 @@ export default function ProductsPage() {
                 )}
               </div>
             </form>
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      <div className="grid gap-6">
+        {/* Products Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle>All Products ({products.length})</CardTitle>
+            <CardDescription>Click edit to update product information</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {fetchLoading ? (
+              <div className="text-center py-8 text-muted-foreground">Loading products...</div>
+            ) : products.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No products found. Add your first product below.
+              </div>
+            ) : (
+              <div className="rounded-lg border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Product Name</TableHead>
+                      <TableHead>Mint</TableHead>
+                      <TableHead>Metal</TableHead>
+                      <TableHead>Form</TableHead>
+                      <TableHead>Weight (oz)</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {products.map((product) => (
+                      <TableRow key={product.id}>
+                        <TableCell className="font-medium">{product.name}</TableCell>
+                        <TableCell>{product.mint}</TableCell>
+                        <TableCell>
+                          <span className="rounded-full bg-muted px-2 py-1 text-xs">
+                            {formatMetal(product.metal)}
+                          </span>
+                        </TableCell>
+                        <TableCell>{formatForm(product.form)}</TableCell>
+                        <TableCell>{product.weight_oz}</TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEdit(product)}
+                            className="h-8"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Field Descriptions</CardTitle>
-            <CardDescription>How to fill out each field</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm">
-            <div>
-              <h4 className="font-semibold mb-1">Product Name</h4>
-              <p className="text-muted-foreground">
-                Full product name including weight, metal, mint, and design
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-1">Mint</h4>
-              <p className="text-muted-foreground">
-                The manufacturer (e.g., PAMP, Perth Mint, Royal Canadian Mint)
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-1">Metal</h4>
-              <p className="text-muted-foreground">Primary precious metal type</p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-1">Form</h4>
-              <p className="text-muted-foreground">
-                Physical form of the product (bar, coin, or round)
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-1">Weight</h4>
-              <p className="text-muted-foreground">
-                Weight in troy ounces (1 troy oz = 31.1 grams)
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-        </div>
       </div>
     </div>
   );

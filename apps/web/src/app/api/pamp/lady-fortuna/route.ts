@@ -27,7 +27,8 @@ export async function GET() {
         ),
         dealers!inner (
           name,
-          slug
+          slug,
+          website_url
         )
       `
       )
@@ -60,6 +61,7 @@ export async function GET() {
     const listings: ProductListingItem[] = data.map((item) => ({
       dealerName: (item.dealers as unknown as { name: string }).name,
       dealerSlug: (item.dealers as unknown as { slug: string }).slug,
+      dealerWebsiteUrl: (item.dealers as unknown as { website_url: string }).website_url,
       price: item.price,
       currency: item.currency,
       inStock: item.in_stock,

@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
+import Link from 'next/link';
 
 async function getProductListings(): Promise<ProductListingItem[]> {
   try {
@@ -93,8 +94,15 @@ export default async function PampLadyFortunaPage() {
                     const isLowest = listing.price === lowestPrice;
                     return (
                       <TableRow key={`${listing.dealerSlug}-${index}`}>
-                        <TableCell className="text-center font-medium">
-                          {listing.dealerName}
+                        <TableCell className="text-center">
+                          <Link
+                            href={listing.dealerWebsiteUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-medium text-sm text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                          >
+                            {listing.dealerName}
+                          </Link>
                         </TableCell>
                         <TableCell className="text-center">
                           <div className="flex items-center justify-center gap-2">
