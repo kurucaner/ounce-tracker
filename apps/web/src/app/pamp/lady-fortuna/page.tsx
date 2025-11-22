@@ -7,7 +7,7 @@ import { SiteFooter } from '@/components/site-footer';
 
 async function getProductListings(): Promise<ProductListingItem[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3002';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const response = await fetch(`${baseUrl}/api/pamp/lady-fortuna`, {
       cache: 'no-store',
     });
@@ -33,15 +33,20 @@ const formatTime = (dateString: string): string => {
   const date = new Date(dateString);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
+  const diffSecs = Math.floor(diffMs / 1000);
   const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
 
+  if (diffSecs < 60) return `${diffSecs}s ago`;
   if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
-  return `${Math.floor(diffMins / 1440)}d ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  return `${diffDays}d ago`;
 };
 
 export default async function PampLadyFortunaPage() {
   const listings = await getProductListings();
+  console.log('listings', listings);
   const lowestPrice = listings.length > 0 ? Math.min(...listings.map((l) => l.price)) : 0;
 
   return (
