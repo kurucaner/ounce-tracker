@@ -14,4 +14,3 @@ export const createSupabaseClient = () => {
     auth: { persistSession: false },
   });
 };
-

@@ -27,7 +27,7 @@ export const ENDPOINTS: Record<DealerSlug, Record<ProductKeys, ProductEndpoint>>
   NYC_BULLION: {
     '1-oz-gold-bar-pamp-suisse-lady-fortuna': {
       name: '1 oz Gold Bar PAMP Suisse Lady Fortuna',
-      url: 'https://www.nycbullion.com/1-oz-gold-bar-pamp-fortuna-1pampf',
+      url: 'https://www.nycbullion.com',
       productUrl: '/1-oz-gold-bar-pamp-fortuna-1pampf',
     },
   },

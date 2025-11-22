@@ -4,7 +4,7 @@
  */
 import { createClient } from '@supabase/supabase-js';
 import { scrapeBullionExchanges } from './scrappers/scrape-bullion-exchanges';
-import { scrapeNYGoldCo } from './scrappers/scrape-nygoldco';
+import { scrapeNYGoldCo } from './scrappers/scrape-new-york-gold-co';
 import { scrapeNYCBullion } from './scrappers/scrape-nyc-bullion';
 
 // Product identifier

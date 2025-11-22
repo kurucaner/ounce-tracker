@@ -1,5 +1,5 @@
 import pino from 'pino';
-import { type Metal, delay } from '@shared';
+import { delay } from '@shared';
 import { ScraperScheduler } from './scheduler';
 import { PriceUpdateWorker } from './workers/price-update';
 import { DealerScraperWorker } from './workers/dealer-scraper';
@@ -149,4 +149,3 @@ const main = async (): Promise<void> => {
 
 // Start the application
 main();
-
