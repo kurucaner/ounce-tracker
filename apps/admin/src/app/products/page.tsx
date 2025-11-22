@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Pencil } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -16,16 +16,73 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from '@shared';
 
+interface Product {
+  id: string;
+  name: string;
+  mint: string;
+  metal: string;
+  form: string;
+  weight_oz: number;
+  created_at: string;
+}
+
 export default function ProductsPage() {
+  const [products, setProducts] = useState<Product[]>([]);
   const [name, setName] = useState('');
   const [mint, setMint] = useState('');
   const [metal, setMetal] = useState('');
   const [form, setForm] = useState('');
   const [weightOz, setWeightOz] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [fetchLoading, setFetchLoading] = useState(true);
   const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    setFetchLoading(true);
+    try {
+      const response = await fetch('/api/products');
+      if (response.ok) {
+        const data = await response.json();
+        setProducts(data.products || []);
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setFetchLoading(false);
+    }
+  };
+
+  const handleEdit = (product: Product) => {
+    setEditingId(product.id);
+    setName(product.name);
+    setMint(product.mint);
+    setMetal(product.metal);
+    setForm(product.form);
+    setWeightOz(product.weight_oz.toString());
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setName('');
+    setMint('');
+    setMetal('');
+    setForm('');
+    setWeightOz('');
+    setMessage('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,8 +90,11 @@ export default function ProductsPage() {
     setMessage('');
 
     try {
-      const response = await fetch('/api/products', {
-        method: 'POST',
+      const url = editingId ? `/api/products?id=${editingId}` : '/api/products';
+      const method = editingId ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name,
@@ -48,35 +108,108 @@ export default function ProductsPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage('✅ Product added successfully!');
+        setMessage(
+          editingId ? '✅ Product updated successfully!' : '✅ Product added successfully!'
+        );
         setName('');
         setMint('');
         setMetal('');
         setForm('');
         setWeightOz('');
+        setEditingId(null);
+        fetchProducts();
       } else {
-        setMessage(`❌ Error: ${data.error || 'Failed to add product'}`);
+        setMessage(`❌ Error: ${data.error || 'Failed to save product'}`);
       }
     } catch (error) {
-      console.error('Error adding product:', error);
+      console.error('Error saving product:', error);
       setMessage('❌ Network error occurred');
     } finally {
       setLoading(false);
     }
   };
 
+  const formatMetal = (metal: string) => {
+    return metal.charAt(0).toUpperCase() + metal.slice(1);
+  };
+
+  const formatForm = (form: string) => {
+    return form.charAt(0).toUpperCase() + form.slice(1);
+  };
+
   return (
     <div className="container mx-auto px-6 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Manage Products</h1>
-        <p className="text-muted-foreground">Add new bullion products</p>
+        <p className="text-muted-foreground">View and manage bullion products</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6">
+        {/* Products Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Add New Product</CardTitle>
-            <CardDescription>Enter product specifications</CardDescription>
+            <CardTitle>All Products ({products.length})</CardTitle>
+            <CardDescription>Click edit to update product information</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {fetchLoading ? (
+              <div className="text-center py-8 text-muted-foreground">Loading products...</div>
+            ) : products.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No products found. Add your first product below.
+              </div>
+            ) : (
+              <div className="rounded-lg border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Product Name</TableHead>
+                      <TableHead>Mint</TableHead>
+                      <TableHead>Metal</TableHead>
+                      <TableHead>Form</TableHead>
+                      <TableHead>Weight (oz)</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {products.map((product) => (
+                      <TableRow key={product.id}>
+                        <TableCell className="font-medium">{product.name}</TableCell>
+                        <TableCell>{product.mint}</TableCell>
+                        <TableCell>
+                          <span className="rounded-full bg-muted px-2 py-1 text-xs">
+                            {formatMetal(product.metal)}
+                          </span>
+                        </TableCell>
+                        <TableCell>{formatForm(product.form)}</TableCell>
+                        <TableCell>{product.weight_oz}</TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEdit(product)}
+                            className="h-8"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Add/Edit Form */}
+        <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>{editingId ? 'Edit Product' : 'Add New Product'}</CardTitle>
+            <CardDescription>
+              {editingId ? 'Update product specifications' : 'Enter product specifications'}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -147,10 +280,17 @@ export default function ProductsPage() {
 
               {message && <div className="rounded-md bg-muted p-3 text-sm">{message}</div>}
 
-              <Button type="submit" disabled={loading} className="w-full">
-                <Plus className="mr-2 h-4 w-4" />
-                {loading ? 'Adding...' : 'Add Product'}
-              </Button>
+              <div className="flex gap-2">
+                <Button type="submit" disabled={loading} className="flex-1">
+                  <Plus className="mr-2 h-4 w-4" />
+                  {loading ? 'Saving...' : editingId ? 'Update Product' : 'Add Product'}
+                </Button>
+                {editingId && (
+                  <Button type="button" variant="outline" onClick={handleCancel}>
+                    Cancel
+                  </Button>
+                )}
+              </div>
             </form>
           </CardContent>
         </Card>
@@ -191,6 +331,7 @@ export default function ProductsPage() {
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   );
