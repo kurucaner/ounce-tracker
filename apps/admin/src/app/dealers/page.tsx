@@ -43,6 +43,35 @@ export default function DealersPage() {
   const [fetchLoading, setFetchLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
+
+  // Generate URL-friendly slug from name
+  const generateSlug = (text: string): string => {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .replace(/^-+/, '') // Remove leading hyphens
+      .replace(/-+$/, ''); // Remove trailing hyphens
+  };
+
+  const handleNameChange = (value: string) => {
+    setName(value);
+    // Auto-generate slug only if it hasn't been manually edited
+    if (!isSlugManuallyEdited) {
+      setSlug(generateSlug(value));
+    }
+  };
+
+  const handleSlugChange = (value: string) => {
+    setSlug(value);
+    // Mark slug as manually edited if user types in it
+    if (value !== generateSlug(name)) {
+      setIsSlugManuallyEdited(true);
+    }
+  };
 
   useEffect(() => {
     fetchDealers();
@@ -68,6 +97,7 @@ export default function DealersPage() {
     setName(dealer.name);
     setSlug(dealer.slug);
     setWebsiteUrl(dealer.website_url || '');
+    setIsSlugManuallyEdited(true); // Prevent auto-generation when editing
     setSheetOpen(true);
   };
 
@@ -78,6 +108,7 @@ export default function DealersPage() {
     setWebsiteUrl('');
     setMessage('');
     setSheetOpen(false);
+    setIsSlugManuallyEdited(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -104,6 +135,7 @@ export default function DealersPage() {
         setWebsiteUrl('');
         setEditingId(null);
         setSheetOpen(false);
+        setIsSlugManuallyEdited(false);
         fetchDealers();
       } else {
         setMessage(`❌ Error: ${data.error || 'Failed to save dealer'}`);
@@ -143,8 +175,8 @@ export default function DealersPage() {
                 <Input
                   id="name"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g., APMEX"
+                  onChange={(e) => handleNameChange(e.target.value)}
+                  placeholder="e.g., Bullion Trading LLC"
                   required
                 />
               </div>
@@ -154,13 +186,11 @@ export default function DealersPage() {
                 <Input
                   id="slug"
                   value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                  placeholder="e.g., apmex"
+                  onChange={(e) => handleSlugChange(e.target.value)}
+                  placeholder="e.g., bullion-trading-llc"
                   required
                 />
-                <p className="text-xs text-muted-foreground">
-                  URL-friendly identifier (lowercase, no spaces)
-                </p>
+                <p className="text-xs text-muted-foreground">Auto-generated from name (editable)</p>
               </div>
 
               <div className="space-y-2">
