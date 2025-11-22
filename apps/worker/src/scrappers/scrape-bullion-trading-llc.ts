@@ -1,6 +1,11 @@
-import { chromium, Page } from 'playwright';
+import { chromium } from 'playwright-extra';
+import type { Page } from 'playwright';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import { ENDPOINTS } from './endpoints';
 import { ScraperResult } from '../types';
+
+// Add stealth plugin to avoid detection
+chromium.use(StealthPlugin());
 
 /**
  * Extracts the primary price from the Bullion Trading LLC product page DOM.
@@ -39,7 +44,8 @@ async function extractBullionTradingPriceFromPage(page: Page): Promise<string | 
 
         const rawText = fallbackElement.textContent.trim();
         // Regex to find a currency format ($X,XXX.XX)
-        const priceMatch = rawText.match(/\$?[\d,]+\.\d{2}/);
+        const priceRegex = /\$?[\d,]+\.\d{2}/;
+        const priceMatch = priceRegex.exec(rawText);
 
         return priceMatch ? priceMatch[0] : null;
       }
@@ -68,24 +74,25 @@ export async function scrapeBullionTradingLLC(): Promise<ScraperResult> {
 
   let browser;
   try {
-    console.log('🔍 Scraping Bullion Trading LLC (using headless browser)...');
+    console.log('🔍 Scraping Bullion Trading LLC (using stealth browser)...');
 
-    // Setup Playwright
+    // Launch browser with stealth plugin (automatically handles bot detection)
     browser = await chromium.launch({
       headless: true,
-      args: ['--disable-blink-features=AutomationControlled', '--disable-dev-shm-usage'],
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-blink-features=AutomationControlled',
+        '--disable-dev-shm-usage',
+      ],
     });
+
     const page = await browser.newPage();
-    await page.setExtraHTTPHeaders({
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-      'Accept-Language': 'en-US,en;q=0.5',
-      'Cache-Control': 'max-age=0',
-    });
+
     // Navigate and wait for content
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
-    // Wait specifically for the price element to ensure JS has rendered it
+
+    // Wait for the price element to appear
     await page.waitForSelector('.woocommerce-Price-amount.amount', { timeout: 30000 });
 
     // Call the extraction logic

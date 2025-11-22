@@ -1,70 +1,156 @@
-import {
-  Metal,
-  formatPrice,
-  getMetalDisplayName,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@shared';
+import { ExternalLink, TrendingDown } from 'lucide-react';
+import { type ProductListingsResponse, type ProductListingItem } from '@/types/database';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@shared';
+import { Badge } from '@/components/ui/badge';
+import { SiteHeader } from '@/components/site-header';
+import { SiteFooter } from '@/components/site-footer';
+import Link from 'next/link';
 
-export default function Home() {
-  // Example usage of shared types and utilities
-  const metals = [Metal.GOLD, Metal.SILVER, Metal.PLATINUM, Metal.PALLADIUM];
+async function getProductListings(): Promise<ProductListingItem[]> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/api/pamp/lady-fortuna`, {
+      cache: 'no-store',
+    });
+
+    if (!response.ok) return [];
+
+    const data: ProductListingsResponse = await response.json();
+    return data.success ? data.data : [];
+  } catch {
+    return [];
+  }
+}
+
+const formatPrice = (price: number): string => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+  }).format(price);
+};
+
+const formatTime = (dateString: string): string => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffSecs < 60) return `${diffSecs}s ago`;
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  return `${diffDays}d ago`;
+};
+
+export default async function HomePage() {
+  const listings = await getProductListings();
+  console.log('listings', listings);
+  const lowestPrice = listings.length > 0 ? Math.min(...listings.map((l) => l.price)) : 0;
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">OunceTracker</h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-            Bullion Price Comparison Platform
-          </p>
-          <p className="text-lg text-gray-500 dark:text-gray-400">
-            Compare precious metal prices across multiple dealers in real-time
-          </p>
-        </div>
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {metals.map((metal) => (
-            <Card key={metal} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle>{getMetalDisplayName(metal)}</CardTitle>
-                <CardDescription>Spot Price</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">{formatPrice(0)}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">per troy ounce</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        <div className="text-center">
-          <Card className="max-w-2xl mx-auto">
-            <CardHeader>
-              <CardTitle>Welcome to OunceTracker</CardTitle>
-              <CardDescription>Your complete solution for tracking bullion prices</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-gray-600 dark:text-gray-300">
-                This platform helps you compare prices for gold, silver, platinum, and palladium
-                products from multiple dealers.
-              </p>
-              <div className="flex justify-center gap-4">
-                <Button>Get Started</Button>
-                <Button variant="outline">Learn More</Button>
+      <main className="flex-1">
+        <div className="border-b bg-muted/40 px-6 py-6">
+          <div className="mx-auto max-w-5xl">
+            <div className="text-center">
+              <h1 className="text-2xl font-semibold tracking-tight">PAMP Lady Fortuna 1oz Gold</h1>
+              <p className="text-sm text-muted-foreground">Live dealer prices</p>
+            </div>
+            {lowestPrice > 0 && (
+              <div className="mt-4 text-center">
+                <div className="text-sm text-muted-foreground">Best Price</div>
+                <div className="text-3xl font-bold">{formatPrice(lowestPrice)}</div>
               </div>
-            </CardContent>
-          </Card>
+            )}
+          </div>
         </div>
 
-        <div className="mt-16 text-center text-sm text-gray-500 dark:text-gray-400">
-          <p>Built with Next.js 15, Bun, and TypeScript in a monorepo architecture</p>
+        <div className="mx-auto max-w-5xl px-6 py-8">
+          {listings.length === 0 ? (
+            <div className="flex h-[400px] items-center justify-center rounded-lg border border-dashed">
+              <div className="text-center">
+                <p className="text-muted-foreground">No listings available</p>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-lg border">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="text-center">Dealer</TableHead>
+                    <TableHead className="text-center">Price</TableHead>
+                    <TableHead className="text-center">Stock</TableHead>
+                    <TableHead className="text-center">Link</TableHead>
+                    <TableHead className="text-center">Updated</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {listings.map((listing, index) => {
+                    const isLowest = listing.price === lowestPrice;
+                    return (
+                      <TableRow key={`${listing.dealerSlug}-${index}`}>
+                        <TableCell className="text-center">
+                          <Link
+                            href={listing.dealerWebsiteUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-medium text-sm text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                          >
+                            {listing.dealerName}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <span className="text-lg font-semibold">
+                              {formatPrice(listing.price)}
+                            </span>
+                            {isLowest && (
+                              <Badge variant="default" className="text-xs">
+                                <TrendingDown className="mr-1 h-3 w-3" />
+                                Lowest
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex justify-center">
+                            <Badge
+                              variant={listing.inStock ? 'success' : 'secondary'}
+                              className="text-xs"
+                            >
+                              {listing.inStock ? 'In Stock' : 'Out'}
+                            </Badge>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <a
+                            href={listing.productUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </a>
+                        </TableCell>
+                        <TableCell className="text-center text-sm text-muted-foreground">
+                          {formatTime(listing.updatedAt)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </div>
-      </div>
-    </main>
+      </main>
+
+      <SiteFooter />
+    </div>
   );
 }

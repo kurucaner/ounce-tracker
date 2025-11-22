@@ -156,7 +156,12 @@ export async function scrapeBullionExchanges(): Promise<ScraperResult> {
     // Use headless: true for production scraping, using false here to match the user's snippet.
     browser = await chromium.launch({
       headless: true,
-      args: ['--disable-blink-features=AutomationControlled', '--disable-dev-shm-usage'],
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-blink-features=AutomationControlled',
+        '--disable-dev-shm-usage',
+      ],
     });
 
     // Set user agent and other properties to look real

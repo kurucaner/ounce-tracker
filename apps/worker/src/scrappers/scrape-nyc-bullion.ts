@@ -84,7 +84,12 @@ export async function scrapeNYCBullion(): Promise<ScraperResult> {
 
     browser = await chromium.launch({
       headless: true,
-      args: ['--disable-blink-features=AutomationControlled', '--disable-dev-shm-usage'],
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-blink-features=AutomationControlled',
+        '--disable-dev-shm-usage',
+      ],
     });
     const page = await browser.newPage();
     await page.setExtraHTTPHeaders({
