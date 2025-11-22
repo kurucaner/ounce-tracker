@@ -142,7 +142,7 @@ export default async function PampLadyFortunaPage() {
                         </a>
                       </TableCell>
                       <TableCell className="text-sm text-gray-600 dark:text-gray-400">
-                        {formatDateTime(listing.lastUpdated)}
+                        {formatDateTime(listing.updatedAt)}
                       </TableCell>
                     </TableRow>
                   ))}

@@ -44,7 +44,7 @@ export interface ProductListingItem {
   currency: string;
   inStock: boolean;
   productUrl: string;
-  lastUpdated: string;
+  updatedAt: string;
 }
 
 export interface ProductListingsResponse {
@@ -52,4 +52,3 @@ export interface ProductListingsResponse {
   data: ProductListingItem[];
   error?: string;
 }
-

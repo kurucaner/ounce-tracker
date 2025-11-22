@@ -19,7 +19,7 @@ export async function GET() {
         currency,
         in_stock,
         product_url,
-        last_updated,
+        updated_at,
         products!inner (
           name,
           mint,
@@ -64,7 +64,7 @@ export async function GET() {
       currency: item.currency,
       inStock: item.in_stock,
       productUrl: item.product_url,
-      lastUpdated: item.last_updated,
+      updatedAt: item.updated_at,
     }));
 
     // Sort by price (lowest first)

@@ -1,5 +1,6 @@
 import { chromium, Page, ElementHandle } from 'playwright';
 import { ScraperResult } from '../types';
+import { ENDPOINTS } from './endpoints';
 
 /**
  * Extracts the target price from the Bullion Exchanges product page DOM.
@@ -144,8 +145,7 @@ async function extractPriceFromPage(page: Page): Promise<string | null> {
  * @returns A promise that resolves to ScraperResult.
  */
 export async function scrapeBullionExchanges(): Promise<ScraperResult> {
-  const url =
-    'https://bullionexchanges.com/1-oz-gold-bar-pamp-suisse-lady-fortuna-veriscan-carbon-neutral-in-assay';
+  const url = ENDPOINTS.BULLION_EXCHANGES['1-oz-gold-bar-pamp-suisse-lady-fortuna'].url;
 
   let browser;
   try {
