@@ -41,10 +41,15 @@ This feature allows users to compare prices for the PAMP Suisse Lady Fortuna 1 o
 Create `.env.local` in `apps/web/`:
 
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+# Supabase Configuration (server-side only, no NEXT_PUBLIC prefix)
+SUPABASE_URL=your-supabase-project-url
+SUPABASE_ANON_KEY=your-supabase-anon-key
+
+# Base URL for API calls
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
 ```
+
+**Note**: We use server-side environment variables (without `NEXT_PUBLIC_` prefix) for Supabase to keep credentials secure.
 
 ### 2. Database Schema
 
