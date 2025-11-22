@@ -9,7 +9,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "bun run --filter web dev & bun run --filter api dev & bun run --filter worker dev & bun run --filter admin dev",
+    "dev": "bun run dev:web & bun run dev:admin & bun run dev:api & bun run dev:worker",
     "dev:web": "cd apps/web && bun dev",
     "dev:admin": "cd apps/admin && bun dev",
     "dev:api": "cd apps/api && bun dev",

@@ -15,7 +15,10 @@
     "incremental": true,
     "paths": {
       "@/*": ["./src/*"],
-      "@shared/*": ["../../packages/shared/src/*"]
+      "@shared": ["../../packages/shared/src/index.ts"],
+      "@shared/*": ["../../packages/shared/src/*"],
+      "@shared/tailwind": ["../../packages/shared/tailwind.preset.ts"],
+      "@shared/postcss": ["../../packages/shared/postcss.config.mjs"]
     },
     "allowJs": true,
     "noEmit": true,
