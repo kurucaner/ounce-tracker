@@ -1,13 +1,6 @@
 import { ExternalLink, TrendingDown } from 'lucide-react';
 import { type ProductListingsResponse, type ProductListingItem } from '@/types/database';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@shared';
 import { Badge } from '@/components/ui/badge';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';

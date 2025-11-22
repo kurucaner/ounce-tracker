@@ -1,15 +1,11 @@
 import * as React from 'react';
 
-import { cn } from '@/lib/utils';
+import { cn } from '../../utils';
 
 const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
     <div className="relative w-full overflow-auto">
-      <table
-        ref={ref}
-        className={cn('w-full caption-bottom text-sm', className)}
-        {...props}
-      />
+      <table ref={ref} className={cn('w-full caption-bottom text-sm', className)} {...props} />
     </div>
   )
 );
@@ -58,8 +54,8 @@ const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTML
 TableRow.displayName = 'TableRow';
 
 const TableHead = React.forwardRef<
-  HTMLTableCellElement,
-  React.ThHTMLAttributes<HTMLTableCellElement>
+  HTMLTableColElement,
+  React.ThHTMLAttributes<HTMLTableColElement>
 >(({ className, ...props }, ref) => (
   <th
     ref={ref}
@@ -73,8 +69,8 @@ const TableHead = React.forwardRef<
 TableHead.displayName = 'TableHead';
 
 const TableCell = React.forwardRef<
-  HTMLTableCellElement,
-  React.TdHTMLAttributes<HTMLTableCellElement>
+  HTMLTableColElement,
+  React.TdHTMLAttributes<HTMLTableColElement>
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
@@ -85,12 +81,11 @@ const TableCell = React.forwardRef<
 TableCell.displayName = 'TableCell';
 
 const TableCaption = React.forwardRef<
-  HTMLTableCaptionElement,
-  React.HTMLAttributes<HTMLTableCaptionElement>
+  HTMLTableSectionElement,
+  React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
   <caption ref={ref} className={cn('mt-4 text-sm text-muted-foreground', className)} {...props} />
 ));
 TableCaption.displayName = 'TableCaption';
 
 export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption };
-
