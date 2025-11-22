@@ -37,7 +37,7 @@ async function extractPriceFromPage(page: Page): Promise<number | null> {
       if (initialPriceMatch && initialPriceMatch[1]) {
         const price = Number.parseFloat(initialPriceMatch[1]);
         if (!Number.isNaN(price) && price > 0) {
-          console.log(`📍 Found initial price via JavaScript variable: ${price}`);
+          console.info(`📍 Found initial price via JavaScript variable: ${price}`);
           return price;
         }
       }
@@ -56,7 +56,7 @@ async function extractPriceFromPage(page: Page): Promise<number | null> {
           const price = Number.parseFloat(firstTierPrice);
 
           if (!Number.isNaN(price) && price > 0) {
-            console.log(`📍 Found first tier price (qty 5+) via JavaScript variable: ${price}`);
+            console.info(`📍 Found first tier price (qty 5+) via JavaScript variable: ${price}`);
             return price;
           }
         }
@@ -80,7 +80,7 @@ export async function scrapeNYCBullion(): Promise<ScraperResult> {
 
   let browser;
   try {
-    console.log('🔍 Scraping NYC Bullion...');
+    console.info('🔍 Scraping NYC Bullion...');
 
     browser = await chromium.launch({
       headless: true,
@@ -109,7 +109,7 @@ export async function scrapeNYCBullion(): Promise<ScraperResult> {
 
     const price = priceNumber;
 
-    console.log(`✅ NYC Bullion: $${price.toFixed(2)}`);
+    console.info(`✅ NYC Bullion: $${price.toFixed(2)}`);
     return { price, url };
   } catch (error) {
     console.error('❌ Failed to scrape NYC Bullion:', error);

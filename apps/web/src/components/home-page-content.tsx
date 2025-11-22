@@ -55,7 +55,6 @@ const formatTime = (dateString: string): string => {
 };
 
 export function HomePageContent() {
-  console.log('foo');
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -66,29 +65,28 @@ export function HomePageContent() {
   const [listingsLoading, setListingsLoading] = useState(false);
 
   // Fetch all products on mount
-  //   useEffect(() => {
-  //     console.log('boo');
-  //     const fetchProducts = async () => {
-  //       try {
-  //         const response = await fetch('/api/products');
-  //         const data = await response.json();
-  //         if (data.success && data.products.length > 0) {
-  //           setProducts(data.products);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('/api/products');
+        const data = await response.json();
+        if (data.success && data.products.length > 0) {
+          setProducts(data.products);
 
-  //           // Set initial product from URL or first product
-  //           const productIdFromUrl = searchParams.get('product');
-  //           const initialProductId = productIdFromUrl || data.products[0].id;
-  //           setSelectedProductId(initialProductId);
-  //         }
-  //       } catch (error) {
-  //         console.error('Error fetching products:', error);
-  //       } finally {
-  //         setLoading(false);
-  //       }
-  //     };
+          // Set initial product from URL or first product
+          const productIdFromUrl = searchParams.get('product');
+          const initialProductId = productIdFromUrl || data.products[0].id;
+          setSelectedProductId(initialProductId);
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  //     fetchProducts();
-  //   }, [searchParams]);
+    fetchProducts();
+  }, [searchParams]);
 
   // Fetch listings when product changes
   useEffect(() => {

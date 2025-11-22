@@ -13,7 +13,7 @@ export async function scrapeNYGoldCo(): Promise<ScraperResult> {
     ENDPOINTS.NY_GOLD_CO['1-oz-gold-bar-pamp-suisse-lady-fortuna'].productUrl;
 
   try {
-    console.log('🔍 Scraping New York Gold Co...');
+    console.info('🔍 Scraping New York Gold Co...');
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -36,7 +36,7 @@ export async function scrapeNYGoldCo(): Promise<ScraperResult> {
       throw new Error(`Invalid price parsed: ${priceText}`);
     }
 
-    console.log(`✅ NY Gold Co: $${price.toFixed(2)}`);
+    console.info(`✅ NY Gold Co: $${price.toFixed(2)}`);
     return { price, url };
   } catch (error) {
     console.error('❌ Failed to scrape NY Gold Co:', error);

@@ -97,7 +97,7 @@ async function extractPriceFromPage(page: Page): Promise<string | null> {
       const price = priceCell.textContent?.trim() || null;
 
       if (price) {
-        console.log('📍 Found price using pricing table parsing');
+        console.info('📍 Found price using pricing table parsing');
       }
 
       return price;
@@ -151,7 +151,7 @@ export async function scrapeBullionExchanges(): Promise<ScraperResult> {
 
   let browser;
   try {
-    console.log('🔍 Scraping Bullion Exchanges (using headless browser)...');
+    console.info('🔍 Scraping Bullion Exchanges (using headless browser)...');
 
     // Use headless: true for production scraping, using false here to match the user's snippet.
     browser = await chromium.launch({
@@ -196,7 +196,7 @@ export async function scrapeBullionExchanges(): Promise<ScraperResult> {
       throw new Error(`Invalid price parsed: ${priceText}`);
     }
 
-    console.log(`✅ Bullion Exchanges: $${price.toFixed(2)}`);
+    console.info(`✅ Bullion Exchanges: $${price.toFixed(2)}`);
     return { price, url };
   } catch (error) {
     console.error('❌ Failed to scrape Bullion Exchanges:', error);

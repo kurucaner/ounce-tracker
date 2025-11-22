@@ -26,7 +26,7 @@ async function extractBullionTradingPriceFromPage(page: Page): Promise<string | 
       const priceElement = document.querySelector(selector);
 
       if (priceElement && priceElement.textContent) {
-        console.log('📍 Found price using robust WooCommerce price selector.');
+        console.info('📍 Found price using robust WooCommerce price selector.');
         // The text content should contain the currency symbol and price, e.g., "$4,346.89"
         return priceElement.textContent.trim();
       }
@@ -74,7 +74,7 @@ export async function scrapeBullionTradingLLC(): Promise<ScraperResult> {
 
   let browser;
   try {
-    console.log('🔍 Scraping Bullion Trading LLC (using stealth browser)...');
+    console.info('🔍 Scraping Bullion Trading LLC (using stealth browser)...');
 
     // Launch browser with stealth plugin (automatically handles bot detection)
     browser = await chromium.launch({
@@ -111,7 +111,7 @@ export async function scrapeBullionTradingLLC(): Promise<ScraperResult> {
       throw new Error(`Invalid price parsed: ${priceText}`);
     }
 
-    console.log(`✅ Bullion Trading LLC: $${price.toFixed(2)}`);
+    console.info(`✅ Bullion Trading LLC: $${price.toFixed(2)}`);
     return { price, url };
   } catch (error) {
     console.error('❌ Failed to scrape Bullion Trading LLC:', error);
