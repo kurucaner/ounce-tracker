@@ -28,7 +28,6 @@ export interface DealerListing {
   currency: string;
   in_stock: boolean;
   product_url: string;
-  last_updated: string;
   created_at?: string;
   updated_at?: string;
 }
