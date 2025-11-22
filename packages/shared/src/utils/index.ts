@@ -3,6 +3,8 @@
  */
 
 import { Metal } from '../types';
+import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 /**
  * Calculate the premium percentage over spot price
@@ -85,4 +87,13 @@ export const isWithinMinutes = (date: Date, minutes: number): boolean => {
   const diffMs = now.getTime() - date.getTime();
   const diffMinutes = diffMs / (1000 * 60);
   return diffMinutes <= minutes;
+};
+
+/**
+ * Merge class names
+ * @param inputs - Class names to merge
+ * @returns Merged class names
+ */
+export const cn = (...inputs: ClassValue[]) => {
+  return twMerge(clsx(inputs));
 };

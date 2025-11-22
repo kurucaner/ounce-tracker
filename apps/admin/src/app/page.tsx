@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { Store, Package } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button } from '@shared';
 
 export default function AdminDashboard() {
   return (
@@ -41,4 +40,3 @@ export default function AdminDashboard() {
     </div>
   );
 }
-

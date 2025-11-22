@@ -1,6 +1,14 @@
-import { Metal, formatPrice, getMetalDisplayName } from '@shared';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Metal,
+  formatPrice,
+  getMetalDisplayName,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@shared';
 
 export default function Home() {
   // Example usage of shared types and utilities
@@ -10,9 +18,7 @@ export default function Home() {
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            OunceTracker
-          </h1>
+          <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">OunceTracker</h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
             Bullion Price Comparison Platform
           </p>
@@ -29,12 +35,8 @@ export default function Home() {
                 <CardDescription>Spot Price</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {formatPrice(0)}
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                  per troy ounce
-                </p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">{formatPrice(0)}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">per troy ounce</p>
               </CardContent>
             </Card>
           ))}
@@ -44,9 +46,7 @@ export default function Home() {
           <Card className="max-w-2xl mx-auto">
             <CardHeader>
               <CardTitle>Welcome to OunceTracker</CardTitle>
-              <CardDescription>
-                Your complete solution for tracking bullion prices
-              </CardDescription>
+              <CardDescription>Your complete solution for tracking bullion prices</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-gray-600 dark:text-gray-300">
@@ -62,12 +62,9 @@ export default function Home() {
         </div>
 
         <div className="mt-16 text-center text-sm text-gray-500 dark:text-gray-400">
-          <p>
-            Built with Next.js 15, Bun, and TypeScript in a monorepo architecture
-          </p>
+          <p>Built with Next.js 15, Bun, and TypeScript in a monorepo architecture</p>
         </div>
       </div>
     </main>
   );
 }
-

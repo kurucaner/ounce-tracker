@@ -2,17 +2,21 @@
 
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Button,
+  Input,
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@shared';
 
 export default function ProductsPage() {
   const [name, setName] = useState('');
@@ -54,6 +58,7 @@ export default function ProductsPage() {
         setMessage(`❌ Error: ${data.error || 'Failed to add product'}`);
       }
     } catch (error) {
+      console.error('Error adding product:', error);
       setMessage('❌ Network error occurred');
     } finally {
       setLoading(false);
@@ -137,16 +142,10 @@ export default function ProductsPage() {
                   placeholder="e.g., 1"
                   required
                 />
-                <p className="text-xs text-muted-foreground">
-                  Weight in troy ounces
-                </p>
+                <p className="text-xs text-muted-foreground">Weight in troy ounces</p>
               </div>
 
-              {message && (
-                <div className="rounded-md bg-muted p-3 text-sm">
-                  {message}
-                </div>
-              )}
+              {message && <div className="rounded-md bg-muted p-3 text-sm">{message}</div>}
 
               <Button type="submit" disabled={loading} className="w-full">
                 <Plus className="mr-2 h-4 w-4" />
@@ -176,9 +175,7 @@ export default function ProductsPage() {
             </div>
             <div>
               <h4 className="font-semibold mb-1">Metal</h4>
-              <p className="text-muted-foreground">
-                Primary precious metal type
-              </p>
+              <p className="text-muted-foreground">Primary precious metal type</p>
             </div>
             <div>
               <h4 className="font-semibold mb-1">Form</h4>
@@ -198,4 +195,3 @@ export default function ProductsPage() {
     </div>
   );
 }
-
