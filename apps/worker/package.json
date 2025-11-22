@@ -8,12 +8,16 @@
     "build": "bun build src/index.ts --target=bun --outdir=dist --minify",
     "start": "bun dist/index.js",
     "lint": "eslint src --ext .ts",
-    "test": "bun test"
+    "test": "bun test",
+    "scrape:lady-fortuna": "bun run src/scrape-lady-fortuna.ts"
   },
   "dependencies": {
     "@shared": "workspace:*",
+    "@supabase/supabase-js": "^2.83.0",
+    "cheerio": "^1.1.2",
     "pino": "^9.5.0",
-    "pino-pretty": "^11.3.0"
+    "pino-pretty": "^11.3.0",
+    "playwright": "^1.56.1"
   },
   "devDependencies": {
     "@types/bun": "^1.1.12",
@@ -21,4 +25,3 @@
     "typescript": "^5.6.3"
   }
 }
-
