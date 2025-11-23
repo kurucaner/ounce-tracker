@@ -57,14 +57,14 @@ RUN apk add --no-cache \
     ttf-freefont \
     || true
 
-# Install Playwright Chromium browser
-# Set cache path to a location accessible to all users
-ENV PLAYWRIGHT_BROWSERS_PATH=/app/.playwright
-RUN mkdir -p /app/.playwright && \
-    bunx playwright install chromium && \
-    chown -R workeruser:nodejs /app/.playwright
+# Set HOME for workeruser
+ENV HOME=/home/workeruser
 
+# Switch to workeruser and install browsers in their home directory
 USER workeruser
+
+# Install Playwright Chromium browser (will install to ~/.cache/ms-playwright)
+RUN bunx playwright install chromium
 
 # Start worker - Bun runs TypeScript directly, no build needed
 CMD ["bun", "apps/worker/src/index.ts"]
