@@ -82,7 +82,7 @@ export default function ProductsPage() {
     setSheetOpen(true);
   };
 
-  const handleCancel = () => {
+  const resetForm = () => {
     setEditingId(null);
     setName('');
     setMint('');
@@ -90,7 +90,6 @@ export default function ProductsPage() {
     setForm('');
     setWeightOz('');
     setMessage('');
-    setSheetOpen(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -151,9 +150,23 @@ export default function ProductsPage() {
           <h1 className="text-3xl font-bold">Manage Products</h1>
           <p className="text-muted-foreground">View and manage bullion products</p>
         </div>
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <Sheet
+          open={sheetOpen}
+          onOpenChange={(open) => {
+            setSheetOpen(open);
+            // Reset form when sheet closes
+            if (!open) {
+              resetForm();
+            }
+          }}
+        >
           <SheetTrigger asChild>
-            <Button>
+            <Button
+              onClick={() => {
+                // Reset form when clicking "Add Product"
+                resetForm();
+              }}
+            >
               <Plus className="mr-2 h-4 w-4" />
               Add Product
             </Button>
@@ -244,7 +257,14 @@ export default function ProductsPage() {
                   {loading ? 'Saving...' : editingId ? 'Update Product' : 'Add Product'}
                 </Button>
                 {editingId && (
-                  <Button type="button" variant="outline" onClick={handleCancel}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      resetForm();
+                      setSheetOpen(false);
+                    }}
+                  >
                     Cancel
                   </Button>
                 )}
