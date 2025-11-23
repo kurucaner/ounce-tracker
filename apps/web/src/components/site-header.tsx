@@ -11,16 +11,10 @@ export const SiteHeader = () => {
         </Link>
         <nav className="flex flex-1 items-center justify-end space-x-6 text-sm font-medium">
           <Link
-            href="/pamp/lady-fortuna"
-            className="transition-colors hover:text-foreground/80 text-foreground"
-          >
-            Prices
-          </Link>
-          <Link
-            href="/blog"
+            href="/insights"
             className="transition-colors hover:text-foreground/80 text-foreground/60"
           >
-            Blog
+            Insights
           </Link>
         </nav>
       </div>

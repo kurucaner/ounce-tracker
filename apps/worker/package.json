@@ -9,7 +9,6 @@
     "start": "bun dist/index.js",
     "lint": "eslint src --ext .ts",
     "test": "bun test",
-    "scrape:lady-fortuna": "bun run src/scrape-lady-fortuna.ts",
     "scrape:all": "bun run src/scrape-all-dealers.ts"
   },
   "dependencies": {

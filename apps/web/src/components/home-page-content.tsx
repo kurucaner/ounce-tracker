@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ExternalLink, Crown } from 'lucide-react';
-import { type ProductListingItem } from '@/types/database';
+import { useQuery } from '@tanstack/react-query';
 import {
   Table,
   TableBody,
@@ -21,15 +21,7 @@ import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-
-interface Product {
-  id: string;
-  name: string;
-  mint: string;
-  metal: string;
-  form: string;
-  weight_oz: number;
-}
+import { queryKeys, queryFns, queryOptions } from '@/lib/queries';
 
 const formatPrice = (price: number): string => {
   return new Intl.NumberFormat('en-US', {
@@ -58,57 +50,33 @@ export function HomePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [selectedProductId, setSelectedProductId] = useState<string>('');
-  const [listings, setListings] = useState<ProductListingItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [listingsLoading, setListingsLoading] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
-  // Fetch all products on mount
+  // Fetch products
+  const { data: products = [], isLoading: productsLoading } = useQuery({
+    queryKey: queryKeys.products,
+    queryFn: queryFns.products,
+    ...queryOptions.products,
+  });
+
+  // Fetch listings
+  const { data: listings = [], isLoading: listingsLoading } = useQuery({
+    queryKey: selectedProductId ? queryKeys.listings(selectedProductId) : ['listings'],
+    queryFn: () => queryFns.listings(selectedProductId!),
+    enabled: !!selectedProductId,
+    ...queryOptions.listings,
+  });
+
+  // Set initial product from URL or first product
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch('/api/products');
-        const data = await response.json();
-        if (data.success && data.products.length > 0) {
-          setProducts(data.products);
-
-          // Set initial product from URL or first product
-          const productIdFromUrl = searchParams.get('product');
-          const initialProductId = productIdFromUrl || data.products[0].id;
-          setSelectedProductId(initialProductId);
-        }
-      } catch (error) {
-        console.error('Error fetching products:', error);
-      } finally {
-        setLoading(false);
+    if (products.length > 0 && !selectedProductId) {
+      const productIdFromUrl = searchParams.get('product');
+      const initialProductId = productIdFromUrl || products[0]?.id;
+      if (initialProductId) {
+        setSelectedProductId(initialProductId);
       }
-    };
-
-    fetchProducts();
-  }, [searchParams]);
-
-  // Fetch listings when product changes
-  useEffect(() => {
-    if (!selectedProductId) return;
-
-    const fetchListings = async () => {
-      setListingsLoading(true);
-      try {
-        const response = await fetch(`/api/listings?productId=${selectedProductId}`);
-        const data = await response.json();
-        if (data.success) {
-          setListings(data.data);
-        }
-      } catch (error) {
-        console.error('Error fetching listings:', error);
-      } finally {
-        setListingsLoading(false);
-      }
-    };
-
-    fetchListings();
-  }, [selectedProductId]);
+    }
+  }, [products, searchParams, selectedProductId]);
 
   const handleProductChange = (productId: string) => {
     setSelectedProductId(productId);
@@ -133,7 +101,7 @@ export function HomePageContent() {
               >
                 Select Product
               </label>
-              <Select value={selectedProductId} onValueChange={handleProductChange}>
+              <Select value={selectedProductId || undefined} onValueChange={handleProductChange}>
                 <SelectTrigger id="product-select" className="w-full max-w-md bg-background">
                   <SelectValue placeholder="Select a product..." />
                 </SelectTrigger>
@@ -151,7 +119,7 @@ export function HomePageContent() {
 
         <div className="mx-auto max-w-5xl px-6 py-8">
           {(() => {
-            if (loading) {
+            if (productsLoading) {
               return (
                 <div className="flex h-[400px] items-center justify-center">
                   <div className="text-center">
