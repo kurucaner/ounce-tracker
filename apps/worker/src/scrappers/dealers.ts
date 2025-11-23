@@ -6,7 +6,10 @@ export type DealerSlug =
   | 'nyc-bullion'
   | 'bullion-trading-llc'
   | 'jm-bullion'
-  | 'apmex';
+  | 'apmex'
+  | 'sd-bullion'
+  | 'bgasc'
+  | 'pimbex';
 
 export const DEALERS: DealerConfig[] = [
   {
@@ -132,6 +135,14 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar PAMP Suisse Lady Fortuna',
         productUrl: '/new-1-oz-pamp-suisse-gold-bar',
       },
+      // {
+      //   name: '1 oz Gold Bar Royal Canadian Mint',
+      //   productUrl: '/new-1-oz-rcm-gold-bar',
+      // },
+      // {
+      //   name: '1 oz Gold Bar Perth Mint',
+      //   productUrl: '/new-1-oz-perth-mint-gold-bar',
+      // },
     ],
   },
   {
@@ -150,6 +161,25 @@ export const DEALERS: DealerConfig[] = [
       {
         name: '1 oz Gold Bar Perth Mint',
         productUrl: '/product/1-oz-perth-mint-gold-bar',
+      },
+    ],
+  },
+  {
+    name: 'Pimbex',
+    slug: 'pimbex',
+    url: 'https://www.pimbex.com',
+    products: [
+      {
+        name: '1 oz Gold Bar PAMP Suisse Lady Fortuna',
+        productUrl: '/purchase-bullion/1-oz-gold-bar-pamp-fortuna',
+      },
+      // {
+      //   name: '1 oz Gold Bar Royal Canadian Mint',
+      //   productUrl: '/purchase-bullion/1-oz-gold-bar-rcm-proudly-canadian/',
+      // },
+      {
+        name: '1 oz Gold Bar Perth Mint',
+        productUrl: '/purchase-bullion/1-oz-gold-bar-perth-mint',
       },
     ],
   },

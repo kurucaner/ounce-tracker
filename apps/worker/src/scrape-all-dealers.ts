@@ -13,6 +13,7 @@ import { scrapeJMBullion } from './scrappers/scrape-jm-bullion';
 import { scrapeAMPEX } from './scrappers/scrape-ampex';
 import { scrapeSDBullion } from './scrappers/scrape-sd-bullion';
 import { scrapeBGASC } from './scrappers/scrape-bgasc';
+import { scrapePimbex } from './scrappers/scrape-pimbex';
 
 // Initialize Supabase client with service role key
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
@@ -29,10 +30,60 @@ const SCRAPER_MAP: Record<string, ScraperFunction> = {
   apmex: scrapeAMPEX,
   'sd-bullion': scrapeSDBullion,
   bgasc: scrapeBGASC,
+  pimbex: scrapePimbex,
 };
 
 /**
- * Update dealer listing in Supabase
+ * Helper to add timeout to Supabase queries (Supabase queries are thenable but not typed as Promise)
+ */
+async function withTimeout<T>(
+  query: PromiseLike<T>,
+  timeoutMs: number,
+  errorMessage: string
+): Promise<T> {
+  return Promise.race([
+    Promise.resolve(query),
+    new Promise<T>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error(`${errorMessage} (timeout after ${timeoutMs}ms)`));
+      }, timeoutMs);
+    }),
+  ]);
+}
+
+/**
+ * Retry a function with exponential backoff
+ */
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  initialDelayMs: number = 1000
+): Promise<T> {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+
+      // Don't retry on the last attempt
+      if (attempt === maxRetries - 1) {
+        throw error;
+      }
+
+      // Exponential backoff: 1s, 2s, 4s
+      const delayMs = initialDelayMs * Math.pow(2, attempt);
+      console.warn(`⚠️  Retry attempt ${attempt + 1}/${maxRetries} after ${delayMs}ms...`);
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+
+  throw lastError;
+}
+
+/**
+ * Update dealer listing in Supabase with retry logic
  */
 async function updateListingPrice(
   dealerSlug: string,
@@ -41,49 +92,70 @@ async function updateListingPrice(
   productUrl: string
 ): Promise<void> {
   try {
-    // Get dealer ID
-    const { data: dealer, error: dealerError } = await supabase
-      .from('dealers')
-      .select('id')
-      .eq('slug', dealerSlug)
-      .single();
+    // Retry the entire database update operation (3 attempts with exponential backoff)
+    await retryWithBackoff(
+      async () => {
+        // Get dealer ID with timeout
+        const dealerQuery = supabase.from('dealers').select('id').eq('slug', dealerSlug).single();
 
-    if (dealerError || !dealer) {
-      throw new Error(`Dealer not found: ${dealerSlug}`);
-    }
+        const { data: dealer, error: dealerError } = await withTimeout(
+          dealerQuery,
+          10000, // 10 second timeout
+          `Dealer query timeout for ${dealerSlug}`
+        );
 
-    // Get product ID
-    const { data: product, error: productError } = await supabase
-      .from('products')
-      .select('id')
-      .eq('name', productName)
-      .single();
+        if (dealerError || !dealer) {
+          throw new Error(`Dealer not found: ${dealerSlug}`);
+        }
 
-    if (productError || !product) {
-      throw new Error(`Product not found: ${productName}`);
-    }
+        // Get product ID with timeout
+        const productQuery = supabase
+          .from('products')
+          .select('id')
+          .eq('name', productName)
+          .single();
 
-    // Update dealer listing
-    const { error: updateError } = await supabase
-      .from('dealer_listings')
-      .upsert({
-        dealer_id: dealer.id,
-        product_id: product.id,
-        currency: 'USD',
-        in_stock: true,
-        price,
-        product_url: productUrl,
-      })
-      .eq('dealer_id', dealer.id)
-      .eq('product_id', product.id);
+        const { data: product, error: productError } = await withTimeout(
+          productQuery,
+          10000, // 10 second timeout
+          `Product query timeout for ${productName}`
+        );
 
-    if (updateError) {
-      throw new Error(`Failed to update listing: ${updateError.message}`);
-    }
+        if (productError || !product) {
+          throw new Error(`Product not found: ${productName}`);
+        }
+
+        // Update dealer listing with timeout
+        const updateQuery = supabase
+          .from('dealer_listings')
+          .upsert({
+            dealer_id: dealer.id,
+            product_id: product.id,
+            currency: 'USD',
+            in_stock: true,
+            price,
+            product_url: productUrl,
+          })
+          .eq('dealer_id', dealer.id)
+          .eq('product_id', product.id);
+
+        const { error: updateError } = await withTimeout(
+          updateQuery,
+          10000, // 10 second timeout
+          `Update listing timeout for ${dealerSlug} - ${productName}`
+        );
+
+        if (updateError) {
+          throw new Error(`Failed to update listing: ${updateError.message}`);
+        }
+      },
+      3,
+      1000
+    ); // 3 retries, starting with 1 second delay
 
     console.log(`💾 Updated ${dealerSlug} - ${productName}: $${price.toFixed(2)}`);
   } catch (error) {
-    console.error(`❌ Failed to update ${dealerSlug} - ${productName}:`, error);
+    console.error(`❌ Failed to update ${dealerSlug} - ${productName} after retries:`, error);
     throw error;
   }
 }
