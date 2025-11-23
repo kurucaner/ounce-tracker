@@ -9,6 +9,8 @@ import { scrapeBullionExchanges } from './scrappers/scrape-bullion-exchanges';
 import { scrapeNYCBullion } from './scrappers/scrape-nyc-bullion';
 import { scrapeBullionTradingLLC } from './scrappers/scrape-bullion-trading-llc';
 import type { ScraperFunction, ScraperResult, DealerConfig, ProductConfig } from './types';
+import { scrapeJMBullion } from './scrappers/scrape-jm-bullion';
+import { scrapeAMPEX } from './scrappers/scrape-ampex';
 
 // Initialize Supabase client with service role key
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
@@ -21,6 +23,8 @@ const SCRAPER_MAP: Record<string, ScraperFunction> = {
   'bullion-exchanges': scrapeBullionExchanges,
   'nyc-bullion': scrapeNYCBullion,
   'bullion-trading-llc': scrapeBullionTradingLLC,
+  'jm-bullion': scrapeJMBullion,
+  apmex: scrapeAMPEX,
 };
 
 /**
@@ -93,8 +97,10 @@ async function scrapeProduct(
     await updateListingPrice(dealer.slug, product.name, result.price, result.url);
     return result;
   } catch (error) {
-    console.error(`⚠️  Skipping ${dealer.name} - ${product.name} due to error:`, error);
-    return null;
+    // Log error message only (not full stack trace) to reduce noise
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`⚠️  Skipping ${dealer.name} - ${product.name}: ${errorMessage}`);
+    return null; // Return null to continue with other products
   }
 }
 
@@ -102,24 +108,36 @@ async function scrapeProduct(
  * Scrape all products for a dealer
  */
 async function scrapeDealer(dealer: DealerConfig): Promise<Record<string, number>> {
-  console.log(`\n🏢 Scraping ${dealer.name}...`);
+  try {
+    console.log(`\n🏢 Scraping ${dealer.name}...`);
 
-  const scraperFn = SCRAPER_MAP[dealer.slug];
-  if (!scraperFn) {
-    console.error(`❌ No scraper function found for dealer: ${dealer.slug}`);
+    const scraperFn = SCRAPER_MAP[dealer.slug];
+    if (!scraperFn) {
+      console.error(`❌ No scraper function found for dealer: ${dealer.slug}`);
+      return {};
+    }
+
+    const results: Record<string, number> = {};
+
+    for (const product of dealer.products) {
+      try {
+        const result = await scrapeProduct(dealer, product, scraperFn);
+        if (result) {
+          results[product.name] = result.price;
+        }
+      } catch (error) {
+        // Individual product failure - log and continue
+        console.error(`⚠️  Failed to scrape ${dealer.name} - ${product.name}:`, error);
+        // Continue with next product
+      }
+    }
+
+    return results;
+  } catch (error) {
+    // Entire dealer failure - log and return empty results
+    console.error(`❌ Failed to scrape dealer ${dealer.name}:`, error);
     return {};
   }
-
-  const results: Record<string, number> = {};
-
-  for (const product of dealer.products) {
-    const result = await scrapeProduct(dealer, product, scraperFn);
-    if (result) {
-      results[product.name] = result.price;
-    }
-  }
-
-  return results;
 }
 
 /**
@@ -139,11 +157,17 @@ async function run(): Promise<void> {
   try {
     const allResults: Record<string, Record<string, number>> = {};
 
-    // Scrape each dealer
+    // Scrape each dealer - wrap in try-catch to continue even if one fails
     for (const dealer of DEALERS) {
-      const dealerResults = await scrapeDealer(dealer);
-      if (Object.keys(dealerResults).length > 0) {
-        allResults[dealer.slug] = dealerResults;
+      try {
+        const dealerResults = await scrapeDealer(dealer);
+        if (Object.keys(dealerResults).length > 0) {
+          allResults[dealer.slug] = dealerResults;
+        }
+      } catch (error) {
+        // Dealer-level error - log and continue with next dealer
+        console.error(`❌ Error processing dealer ${dealer.name}:`, error);
+        // Continue with next dealer
       }
     }
 
@@ -166,13 +190,20 @@ async function run(): Promise<void> {
     console.log(`\n📈 Total listings updated: ${totalUpdates}`);
 
     if (totalUpdates === 0) {
-      throw new Error('All scrapers failed');
+      console.warn('⚠️  Warning: No listings were updated. Some scrapers may have failed.');
+      // Don't throw - allow scheduler to retry on next interval
     }
   } catch (error) {
-    console.error('\n❌ Fatal error:', error);
-    process.exit(1);
+    console.error('\n❌ Fatal error in scraper:', error);
+    // Log but don't throw - allow scheduler to continue and retry
+    // This prevents the entire worker from crashing
   }
 }
 
-// Run the scraper (top-level await)
-await run();
+// Export the run function for scheduler integration
+export { run as scrapeAllDealers };
+
+// Run the scraper if called directly (not imported)
+if (import.meta.main) {
+  await run();
+}

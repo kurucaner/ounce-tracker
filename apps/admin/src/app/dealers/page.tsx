@@ -129,7 +129,6 @@ export default function DealersPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(editingId ? '✅ Dealer updated successfully!' : '✅ Dealer added successfully!');
         setName('');
         setSlug('');
         setWebsiteUrl('');

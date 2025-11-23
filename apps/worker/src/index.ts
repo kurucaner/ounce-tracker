@@ -3,6 +3,7 @@ import { delay } from '@shared';
 import { ScraperScheduler } from './scheduler';
 import { PriceUpdateWorker } from './workers/price-update';
 import { DealerScraperWorker } from './workers/dealer-scraper';
+import { scrapeAllDealers } from './scrape-all-dealers';
 
 /**
  * Initialize logger
@@ -68,10 +69,20 @@ class WorkerApp {
       }
     );
 
+    // Schedule scrape-all-dealers every 1 minute
+    this.scheduler.scheduleJob(
+      'scrape-all-dealers',
+      60 * 1000, // 1 minute
+      async () => {
+        await scrapeAllDealers();
+      }
+    );
+
     logger.info(`
 📊 Worker Application Started Successfully!
 🕐 Price Updates: Every 5 minutes
 🛒 Dealer Scraping: Every 15 minutes
+🔄 Scrape All Dealers: Every 1 minute
 📚 Environment: ${process.env.NODE_ENV || 'development'}
     `);
 
@@ -80,6 +91,8 @@ class WorkerApp {
     await this.priceUpdateWorker.execute();
     await delay(2000);
     await this.dealerScraperWorker.execute();
+    await delay(2000);
+    await scrapeAllDealers();
 
     // Keep the worker alive
     await this.keepAlive();

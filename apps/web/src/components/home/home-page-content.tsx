@@ -91,7 +91,7 @@ export function HomePageContent() {
       <SiteHeader />
 
       <main className="flex-1">
-        <div className="border-b bg-muted/40 px-6 py-6">
+        <section className="border-b bg-muted/40 px-6 py-6" aria-label="Product Selection">
           <div className="mx-auto max-w-5xl">
             {/* Product Selector */}
             <div className="mb-6">
@@ -115,9 +115,9 @@ export function HomePageContent() {
               </Select>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="mx-auto max-w-5xl px-6 py-8">
+        <section className="mx-auto max-w-5xl px-6 py-8" aria-label="Price Comparison">
           {(() => {
             if (productsLoading) {
               return (
@@ -154,11 +154,21 @@ export function HomePageContent() {
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className="text-center">Dealer</TableHead>
-                      <TableHead className="text-center">Price</TableHead>
-                      <TableHead className="text-center">Stock</TableHead>
-                      <TableHead className="text-center">Link</TableHead>
-                      <TableHead className="text-center">Updated</TableHead>
+                      <TableHead className="text-center" scope="col">
+                        Dealer
+                      </TableHead>
+                      <TableHead className="text-center" scope="col">
+                        Price
+                      </TableHead>
+                      <TableHead className="text-center" scope="col">
+                        Stock
+                      </TableHead>
+                      <TableHead className="text-center" scope="col">
+                        Link
+                      </TableHead>
+                      <TableHead className="text-center" scope="col">
+                        Updated
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -223,7 +233,7 @@ export function HomePageContent() {
               </div>
             );
           })()}
-        </div>
+        </section>
       </main>
 
       <SiteFooter />

@@ -4,7 +4,9 @@ export type DealerSlug =
   | 'new-york-gold-co'
   | 'bullion-exchanges'
   | 'nyc-bullion'
-  | 'bullion-trading-llc';
+  | 'bullion-trading-llc'
+  | 'jm-bullion'
+  | 'apmex';
 
 export const DEALERS: DealerConfig[] = [
   {
@@ -80,6 +82,44 @@ export const DEALERS: DealerConfig[] = [
       {
         name: '1 oz Gold Bar Perth Mint',
         productUrl: '/product/1-oz-gold-bar-perth-mint-in-assay',
+      },
+    ],
+  },
+  {
+    name: 'JM Bullion',
+    slug: 'jm-bullion',
+    url: 'https://www.jmbullion.com',
+    products: [
+      {
+        name: '1 oz Gold Bar PAMP Suisse Lady Fortuna',
+        productUrl: '/1-oz-pamp-suisse-gold-bar-carbon-neutral',
+      },
+      {
+        name: '1 oz Gold Bar Royal Canadian Mint',
+        productUrl: '/1-oz-rcm-gold-bar-proudly-canadian-assay',
+      },
+      {
+        name: '1 oz Gold Bar Perth Mint',
+        productUrl: '/1-oz-perth-mint-gold-bar',
+      },
+    ],
+  },
+  {
+    name: 'APMEX',
+    slug: 'apmex',
+    url: 'https://www.apmex.com',
+    products: [
+      {
+        name: '1 oz Gold Bar PAMP Suisse Lady Fortuna',
+        productUrl: '/product/82236/1-oz-gold-bar-pamp-lady-fortuna-veriscan-in-assay',
+      },
+      {
+        name: '1 oz Gold Bar Royal Canadian Mint',
+        productUrl: '/product/98353/1-oz-gold-bar-royal-canadian-mint-new-design-in-assay',
+      },
+      {
+        name: '1 oz Gold Bar Perth Mint',
+        productUrl: '/product/57159/1-oz-gold-bar-perth-mint-in-assay',
       },
     ],
   },
