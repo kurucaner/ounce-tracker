@@ -164,7 +164,7 @@ async function updateListingPrice(
       1000
     ); // 3 retries, starting with 1 second delay
 
-    console.log(`💾 Updated ${dealerSlug} - ${productName}: $${price.toFixed(2)}`);
+    console.info(`💾 Updated ${dealerSlug} - ${productName}: $${price.toFixed(2)}`);
   };
 
   try {
