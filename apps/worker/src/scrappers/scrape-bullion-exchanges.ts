@@ -1,11 +1,6 @@
-import { chromium } from 'playwright-extra';
 import type { Page, ElementHandle } from 'playwright';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import type { ScraperResult, ProductConfig } from '../types';
-import { safeCloseBrowser } from './browser-utils';
-
-// Add stealth plugin to avoid detection
-chromium.use(StealthPlugin());
+import { launchBrowser, createPageWithHeaders } from './browser-config';
 
 /**
  * Extracts the target price from the Bullion Exchanges product page DOM.
@@ -160,32 +155,15 @@ export async function scrapeBullionExchanges(
       `🔍 Scraping Bullion Exchanges - ${productConfig.name} (using stealth browser)...`
     );
 
-    browser = await chromium.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-blink-features=AutomationControlled',
-        '--disable-dev-shm-usage',
-      ],
-    });
-
-    // Set user agent and other properties to look real
-    const page = await browser.newPage();
-    await page.setExtraHTTPHeaders({
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-      'Accept-Language': 'en-US,en;q=0.5',
-      'Cache-Control': 'max-age=0',
-    });
+    browser = await launchBrowser();
+    const page = await createPageWithHeaders(browser);
 
     // Use 'domcontentloaded' for faster loading, and a longer timeout for reliability
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
 
     // Wait for the specific element that contains the pricing table to appear,
     // which is more reliable than a fixed timeout.
-    await page.waitForSelector(':text("Quantity")', { timeout: 30000 });
+    await page.waitForSelector(':text("Quantity")', { timeout: 10000 });
 
     // Call the newly implemented extraction logic
     const priceText = await extractPriceFromPage(page);
@@ -208,6 +186,8 @@ export async function scrapeBullionExchanges(
     console.error(`❌ Failed to scrape Bullion Exchanges - ${productConfig.name}:`, error);
     throw error;
   } finally {
-    await safeCloseBrowser(browser);
+    if (browser) {
+      await browser.close();
+    }
   }
 }

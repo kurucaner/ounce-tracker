@@ -1,11 +1,6 @@
-import { chromium } from 'playwright-extra';
 import type { Page } from 'playwright';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import type { ScraperResult, ProductConfig } from '../types';
-import { safeCloseBrowser } from './browser-utils';
-
-// Add stealth plugin to avoid detection
-chromium.use(StealthPlugin());
+import { launchBrowser, createPageWithHeaders } from './browser-config';
 
 /**
  * Extracts the primary product price by prioritizing the structured GTM data attribute,
@@ -87,23 +82,8 @@ export async function scrapeHollywoodGoldExchange(
       `🔍 Scraping Hollywood Gold Exchange - ${productConfig.name} (using stealth browser)...`
     );
 
-    browser = await chromium.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-blink-features=AutomationControlled',
-        '--disable-dev-shm-usage',
-      ],
-    });
-    const page = await browser.newPage();
-    await page.setExtraHTTPHeaders({
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-      'Accept-Language': 'en-US,en;q=0.5',
-      'Cache-Control': 'max-age=0',
-    });
+    browser = await launchBrowser();
+    const page = await createPageWithHeaders(browser);
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
 
     const priceNumber = await extractPriceFromPage(page);
@@ -120,6 +100,8 @@ export async function scrapeHollywoodGoldExchange(
     console.error(`❌ Failed to scrape Hollywood Gold Exchange - ${productConfig.name}:`, error);
     throw error;
   } finally {
-    await safeCloseBrowser(browser);
+    if (browser) {
+      await browser.close();
+    }
   }
 }

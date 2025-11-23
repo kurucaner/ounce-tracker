@@ -1,11 +1,6 @@
-import { chromium } from 'playwright-extra';
 import type { Page } from 'playwright';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import type { ScraperResult, ProductConfig } from '../types';
-import { safeCloseBrowser } from './browser-utils';
-
-// Add stealth plugin to avoid detection
-chromium.use(StealthPlugin());
+import { launchBrowser, createPageWithHeaders } from './browser-config';
 
 /**
  * Extracts the primary price from the Bullion Trading LLC product page DOM.
@@ -67,31 +62,27 @@ async function extractBullionTradingPriceFromPage(page: Page): Promise<string | 
  *
  * @returns A promise that resolves to ScraperResult.
  */
-export async function scrapeBullionTradingLLC(productConfig: ProductConfig, baseUrl: string): Promise<ScraperResult> {
+export async function scrapeBullionTradingLLC(
+  productConfig: ProductConfig,
+  baseUrl: string
+): Promise<ScraperResult> {
   const url = baseUrl + productConfig.productUrl;
 
   let browser;
   try {
-    console.info(`🔍 Scraping Bullion Trading LLC - ${productConfig.name} (using stealth browser)...`);
+    console.info(
+      `🔍 Scraping Bullion Trading LLC - ${productConfig.name} (using stealth browser)...`
+    );
 
     // Launch browser with stealth plugin (automatically handles bot detection)
-    browser = await chromium.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-blink-features=AutomationControlled',
-        '--disable-dev-shm-usage',
-      ],
-    });
-
-    const page = await browser.newPage();
+    browser = await launchBrowser();
+    const page = await createPageWithHeaders(browser);
 
     // Navigate and wait for content
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
 
     // Wait for the price element to appear
-    await page.waitForSelector('.woocommerce-Price-amount.amount', { timeout: 30000 });
+    await page.waitForSelector('.woocommerce-Price-amount.amount', { timeout: 10000 });
 
     // Call the extraction logic
     const priceText = await extractBullionTradingPriceFromPage(page);
@@ -115,6 +106,8 @@ export async function scrapeBullionTradingLLC(productConfig: ProductConfig, base
     console.error(`❌ Failed to scrape Bullion Trading LLC - ${productConfig.name}:`, error);
     throw error;
   } finally {
-    await safeCloseBrowser(browser);
+    if (browser) {
+      await browser.close();
+    }
   }
 }
