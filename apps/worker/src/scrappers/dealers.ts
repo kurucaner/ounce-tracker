@@ -20,6 +20,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Royal Canadian Mint',
         productUrl: '/gold/gold-bars/1-oz-gold-bar-royal-canadian-mint-new-style-in-assay',
       },
+      {
+        name: '1 oz Gold Bar Perth Mint',
+        productUrl: '/gold/gold-bars/1-oz-gold-bar-perth-mint-in-assay',
+      },
     ],
   },
   {
@@ -35,6 +39,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Royal Canadian Mint',
         productUrl: '/1-oz-gold-wafer-bar-rcm-in-assay-random-year',
       },
+      {
+        name: '1 oz Gold Bar Perth Mint',
+        productUrl: '/1-oz-perth-mint-gold-bar-in-assay',
+      },
     ],
   },
   {
@@ -46,9 +54,13 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar PAMP Suisse Lady Fortuna',
         productUrl: '/1-oz-gold-bar-pamp-fortuna-1pampf',
       },
+      // {
+      //   name: '1 oz Gold Bar Royal Canadian Mint',
+      //   productUrl: '',
+      // },
       {
-        name: '1 oz Gold Bar Royal Canadian Mint',
-        productUrl: '/50-gram-gold-bar-rcm-50grgbrcm',
+        name: '1 oz Gold Bar Perth Mint',
+        productUrl: '/1-oz-gold-bar-perth-1perth',
       },
     ],
   },
@@ -64,6 +76,10 @@ export const DEALERS: DealerConfig[] = [
       {
         name: '1 oz Gold Bar Royal Canadian Mint',
         productUrl: '/product/royal-canadian-mint-1-oz-gold-bar-classic-assay',
+      },
+      {
+        name: '1 oz Gold Bar Perth Mint',
+        productUrl: '/product/1-oz-gold-bar-perth-mint-in-assay',
       },
     ],
   },

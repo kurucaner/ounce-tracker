@@ -143,12 +143,17 @@ async function extractPriceFromPage(page: Page): Promise<string | null> {
  *
  * @returns A promise that resolves to ScraperResult.
  */
-export async function scrapeBullionExchanges(productConfig: ProductConfig, baseUrl: string): Promise<ScraperResult> {
+export async function scrapeBullionExchanges(
+  productConfig: ProductConfig,
+  baseUrl: string
+): Promise<ScraperResult> {
   const url = baseUrl + productConfig.productUrl;
 
   let browser;
   try {
-    console.info(`🔍 Scraping Bullion Exchanges - ${productConfig.name} (using headless browser)...`);
+    console.info(
+      `🔍 Scraping Bullion Exchanges - ${productConfig.name} (using headless browser)...`
+    );
 
     browser = await chromium.launch({
       headless: true,

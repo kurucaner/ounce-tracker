@@ -117,9 +117,6 @@ export default function ProductsPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(
-          editingId ? '✅ Product updated successfully!' : '✅ Product added successfully!'
-        );
         setName('');
         setMint('');
         setMetal('');
