@@ -117,7 +117,7 @@ export function HomePageContent() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-5xl px-6 py-8" aria-label="Price Comparison">
+        <section className="mx-auto max-w-6xl px-6 py-8" aria-label="Price Comparison">
           {(() => {
             if (productsLoading) {
               return (
