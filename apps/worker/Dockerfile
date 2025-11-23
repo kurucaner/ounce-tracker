@@ -61,15 +61,12 @@ RUN apk add --no-cache \
 # Install both chromium and chromium-headless-shell variants
 RUN bunx playwright install chromium chromium-headless-shell
 
-# Create a shared browser cache location accessible to all users
-RUN mkdir -p /app/.playwright-browsers && \
-    if [ -d /root/.cache/ms-playwright ]; then \
-        cp -r /root/.cache/ms-playwright/* /app/.playwright-browsers/; \
-    fi && \
-    chown -R workeruser:nodejs /app/.playwright-browsers
+# Copy browsers to workeruser's home directory where Playwright expects them
+RUN mkdir -p /home/workeruser/.cache/ms-playwright && \
+    cp -r /root/.cache/ms-playwright/* /home/workeruser/.cache/ms-playwright/ && \
+    chown -R workeruser:nodejs /home/workeruser/.cache
 
-# Set environment variables to point to the shared browser location
-ENV PLAYWRIGHT_BROWSERS_PATH=/app/.playwright-browsers
+# Set HOME for workeruser (Playwright uses this to find browsers)
 ENV HOME=/home/workeruser
 
 # Switch to workeruser
