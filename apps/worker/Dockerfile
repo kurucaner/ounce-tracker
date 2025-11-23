@@ -46,6 +46,24 @@ COPY --from=builder --chown=workeruser:nodejs /app/apps/worker ./apps/worker
 # Install production dependencies
 RUN bun install --production --frozen-lockfile
 
+# Install Playwright browsers (needed for scraping)
+# Install system dependencies for Chromium
+RUN apk add --no-cache \
+    nss \
+    freetype \
+    freetype-dev \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    || true
+
+# Install Playwright Chromium browser
+# Set cache path to a location accessible to all users
+ENV PLAYWRIGHT_BROWSERS_PATH=/app/.playwright
+RUN mkdir -p /app/.playwright && \
+    bunx playwright install chromium && \
+    chown -R workeruser:nodejs /app/.playwright
+
 USER workeruser
 
 # Start worker - Bun runs TypeScript directly, no build needed
