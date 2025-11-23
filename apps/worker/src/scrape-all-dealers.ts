@@ -38,21 +38,24 @@ const SCRAPER_MAP: Record<string, ScraperFunction> = {
 };
 
 /**
- * Helper to add timeout to Supabase queries (Supabase queries are thenable but not typed as Promise)
+ * Helper to add timeout to Supabase queries
+ * Properly handles PromiseLike queries that might hang
  */
 async function withTimeout<T>(
   query: PromiseLike<T>,
   timeoutMs: number,
   errorMessage: string
 ): Promise<T> {
-  return Promise.race([
-    Promise.resolve(query),
-    new Promise<T>((_, reject) => {
-      setTimeout(() => {
-        reject(new Error(`${errorMessage} (timeout after ${timeoutMs}ms)`));
-      }, timeoutMs);
-    }),
-  ]);
+  // Convert PromiseLike to actual Promise and race it with timeout
+  const queryPromise = Promise.resolve(query);
+
+  const timeoutPromise = new Promise<T>((_, reject) => {
+    setTimeout(() => {
+      reject(new Error(`${errorMessage} (timeout after ${timeoutMs}ms)`));
+    }, timeoutMs);
+  });
+
+  return Promise.race([queryPromise, timeoutPromise]);
 }
 
 /**
@@ -87,7 +90,7 @@ async function retryWithBackoff<T>(
 }
 
 /**
- * Update dealer listing in Supabase with retry logic
+ * Update dealer listing in Supabase with retry logic and overall timeout protection
  */
 async function updateListingPrice(
   dealerSlug: string,
@@ -95,7 +98,11 @@ async function updateListingPrice(
   price: number,
   productUrl: string
 ): Promise<void> {
-  try {
+  // Overall timeout: 10 seconds total (covers all retries)
+  // This ensures the function never hangs indefinitely
+  const overallTimeoutMs = 10000;
+
+  const updateOperation = async (): Promise<void> => {
     // Retry the entire database update operation (3 attempts with exponential backoff)
     await retryWithBackoff(
       async () => {
@@ -158,32 +165,78 @@ async function updateListingPrice(
     ); // 3 retries, starting with 1 second delay
 
     console.log(`💾 Updated ${dealerSlug} - ${productName}: $${price.toFixed(2)}`);
+  };
+
+  try {
+    // Wrap entire operation with overall timeout
+    await withTimeout(
+      updateOperation(),
+      overallTimeoutMs,
+      `Overall timeout for updateListingPrice: ${dealerSlug} - ${productName}`
+    );
   } catch (error) {
-    console.error(`❌ Failed to update ${dealerSlug} - ${productName} after retries:`, error);
+    console.error(`❌ Failed to update ${dealerSlug} - ${productName}:`, error);
     throw error;
   }
 }
 
 /**
- * Scrape a single product for a dealer
+ * Scrape a single product for a dealer with retry logic
  */
 async function scrapeProduct(
   dealer: DealerConfig,
   product: ProductConfig,
   scraperFn: ScraperFunction
 ): Promise<ScraperResult | null> {
-  try {
-    const result = await scraperFn(product, dealer.url);
-    await updateListingPrice(dealer.slug, product.name, result.price, result.url);
-    return result;
-  } catch (error) {
-    // Log error message only (not full stack trace) to reduce noise
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    // Extract just the main error message (before stack trace)
-    const shortMessage = errorMessage.split('\n')[0];
-    console.error(`⚠️  Skipping ${dealer.name} - ${product.name}: ${shortMessage}`);
-    return null; // Return null to continue with other products
+  const maxRetries = 2; // Retry once (2 total attempts)
+  const retryDelayMs = 3000; // 3 second delay between retries
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      if (attempt > 0) {
+        console.warn(
+          `🔄 Retrying ${dealer.name} - ${product.name} (attempt ${attempt + 1}/${maxRetries})...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+      }
+
+      const result = await scraperFn(product, dealer.url);
+
+      // Wrap DB update with timeout at scrapeProduct level (safety net)
+      // This ensures one hanging update doesn't block all subsequent products
+      const dbUpdateTimeoutMs = 15000; // 15 seconds
+
+      try {
+        await withTimeout(
+          updateListingPrice(dealer.slug, product.name, result.price, result.url),
+          dbUpdateTimeoutMs,
+          `DB update timeout at scrapeProduct level: ${dealer.name} - ${product.name}`
+        );
+      } catch (dbError) {
+        // Log DB update failure but don't fail the entire scrape
+        const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
+        const shortMessage = errorMessage.split('\n')[0];
+        console.error(`⚠️  DB update failed for ${dealer.name} - ${product.name}: ${shortMessage}`);
+        // Return null to skip this product but continue with others
+        return null;
+      }
+
+      return result;
+    } catch (error) {
+      // If this is the last attempt, log and give up
+      if (attempt === maxRetries - 1) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const shortMessage = errorMessage.split('\n')[0];
+        console.error(
+          `⚠️  Skipping ${dealer.name} - ${product.name} after ${maxRetries} attempts: ${shortMessage}`
+        );
+        return null; // Return null to continue with other products
+      }
+      // Otherwise, the loop will retry
+    }
   }
+
+  return null;
 }
 
 /**
@@ -212,6 +265,9 @@ async function scrapeDealer(dealer: DealerConfig): Promise<Record<string, number
         console.error(`⚠️  Failed to scrape ${dealer.name} - ${product.name}:`, error);
         // Continue with next product
       }
+
+      // Add 2 second delay after each product scraping
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     }
 
     return results;

@@ -1,6 +1,6 @@
 import type { Page } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
-import { launchBrowser, createPageWithHeaders } from './browser-config';
+import { launchBrowser, createPageWithHeaders, safeCloseBrowser } from './browser-config';
 
 /**
  * Extracts the primary product price by prioritizing the structured GTM data attribute,
@@ -84,7 +84,7 @@ export async function scrapeHollywoodGoldExchange(
 
     browser = await launchBrowser();
     const page = await createPageWithHeaders(browser);
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
 
     const priceNumber = await extractPriceFromPage(page);
 
@@ -100,8 +100,6 @@ export async function scrapeHollywoodGoldExchange(
     console.error(`❌ Failed to scrape Hollywood Gold Exchange - ${productConfig.name}:`, error);
     throw error;
   } finally {
-    if (browser) {
-      await browser.close();
-    }
+    await safeCloseBrowser(browser);
   }
 }

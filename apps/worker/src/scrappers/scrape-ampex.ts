@@ -1,6 +1,6 @@
 import type { Page } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
-import { launchBrowser, createPageWithHeaders } from './browser-config';
+import { launchBrowser, createPageWithHeaders, safeCloseBrowser } from './browser-config';
 
 /**
  * Extracts the primary price from the HTML snippet, prioritizing the structured
@@ -74,7 +74,7 @@ export async function scrapeAMPEX(
 
     browser = await launchBrowser();
     const page = await createPageWithHeaders(browser);
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
 
     const priceNumber = await extractPriceFromPage(page);
 
@@ -90,8 +90,6 @@ export async function scrapeAMPEX(
     console.error(`❌ Failed to scrape AMPEX - ${productConfig.name}:`, error);
     throw error;
   } finally {
-    if (browser) {
-      await browser.close();
-    }
+    await safeCloseBrowser(browser);
   }
 }

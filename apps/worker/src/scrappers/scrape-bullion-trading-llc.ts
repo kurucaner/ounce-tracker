@@ -1,6 +1,6 @@
 import type { Page } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
-import { launchBrowser, createPageWithHeaders } from './browser-config';
+import { launchBrowser, createPageWithHeaders, safeCloseBrowser } from './browser-config';
 
 /**
  * Extracts the primary price from the Bullion Trading LLC product page DOM.
@@ -79,7 +79,7 @@ export async function scrapeBullionTradingLLC(
     const page = await createPageWithHeaders(browser);
 
     // Navigate and wait for content
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
 
     // Wait for the price element to appear
     await page.waitForSelector('.woocommerce-Price-amount.amount', { timeout: 10000 });
@@ -106,8 +106,6 @@ export async function scrapeBullionTradingLLC(
     console.error(`❌ Failed to scrape Bullion Trading LLC - ${productConfig.name}:`, error);
     throw error;
   } finally {
-    if (browser) {
-      await browser.close();
-    }
+    await safeCloseBrowser(browser);
   }
 }

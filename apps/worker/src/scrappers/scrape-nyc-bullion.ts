@@ -1,6 +1,6 @@
 import type { Page } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
-import { launchBrowser, createPageWithHeaders } from './browser-config';
+import { launchBrowser, createPageWithHeaders, safeCloseBrowser } from './browser-config';
 
 /**
  * Extracts the initial price from the embedded JavaScript data.
@@ -80,7 +80,7 @@ export async function scrapeNYCBullion(
 
     browser = await launchBrowser();
     const page = await createPageWithHeaders(browser);
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
 
     // Wait for the price script to be loaded (NYC Bullion uses JavaScript to set prices)
     // Wait for any script tag that contains 'initPrice' - this indicates price data is loaded
@@ -106,8 +106,6 @@ export async function scrapeNYCBullion(
     console.error(`❌ Failed to scrape NYC Bullion - ${productConfig.name}:`, error);
     throw error;
   } finally {
-    if (browser) {
-      await browser.close();
-    }
+    await safeCloseBrowser(browser);
   }
 }

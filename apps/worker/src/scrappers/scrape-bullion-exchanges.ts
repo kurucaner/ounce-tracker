@@ -1,6 +1,6 @@
 import type { Page, ElementHandle } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
-import { launchBrowser, createPageWithHeaders } from './browser-config';
+import { launchBrowser, createPageWithHeaders, safeCloseBrowser } from './browser-config';
 
 /**
  * Extracts the target price from the Bullion Exchanges product page DOM.
@@ -159,7 +159,7 @@ export async function scrapeBullionExchanges(
     const page = await createPageWithHeaders(browser);
 
     // Use 'domcontentloaded' for faster loading, and a longer timeout for reliability
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
 
     // Wait for the specific element that contains the pricing table to appear,
     // which is more reliable than a fixed timeout.
@@ -186,8 +186,6 @@ export async function scrapeBullionExchanges(
     console.error(`❌ Failed to scrape Bullion Exchanges - ${productConfig.name}:`, error);
     throw error;
   } finally {
-    if (browser) {
-      await browser.close();
-    }
+    await safeCloseBrowser(browser);
   }
 }

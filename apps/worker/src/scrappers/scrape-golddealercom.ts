@@ -1,6 +1,6 @@
 import type { Page } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
-import { launchBrowser, createPageWithHeaders } from './browser-config';
+import { launchBrowser, createPageWithHeaders, safeCloseBrowser } from './browser-config';
 
 /**
  * Extracts the "Live Ask Price" by targeting the span element with itemprop="price"
@@ -63,7 +63,7 @@ export async function scrapeGoldDealerCom(
 
     browser = await launchBrowser();
     const page = await createPageWithHeaders(browser);
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
 
     // Wait for the price element to appear (loaded dynamically via JavaScript)
     // Try both selectors to be safe
@@ -88,8 +88,6 @@ export async function scrapeGoldDealerCom(
     console.error(`❌ Failed to scrape GoldDealer.com - ${productConfig.name}:`, error);
     throw error;
   } finally {
-    if (browser) {
-      await browser.close();
-    }
+    await safeCloseBrowser(browser);
   }
 }

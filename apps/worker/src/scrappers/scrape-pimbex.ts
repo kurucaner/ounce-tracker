@@ -1,6 +1,6 @@
 import type { Page } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
-import { launchBrowser, createPageWithHeaders } from './browser-config';
+import { launchBrowser, createPageWithHeaders, safeCloseBrowser } from './browser-config';
 
 /**
  * Extracts the price for the 1-9 quantity, ACH/Wire payment method,
@@ -72,7 +72,7 @@ export async function scrapePimbex(
 
     browser = await launchBrowser();
     const page = await createPageWithHeaders(browser);
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
 
     // Wait for the pricing table to appear (loaded dynamically via JavaScript)
     await page.waitForSelector('#pricingTable', { timeout: 10000 });
@@ -91,8 +91,6 @@ export async function scrapePimbex(
     console.error(`❌ Failed to scrape Pimbex - ${productConfig.name}:`, error);
     throw error;
   } finally {
-    if (browser) {
-      await browser.close();
-    }
+    await safeCloseBrowser(browser);
   }
 }

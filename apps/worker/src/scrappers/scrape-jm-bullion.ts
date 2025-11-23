@@ -1,6 +1,6 @@
 import type { Page } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
-import { launchBrowser, createPageWithHeaders } from './browser-config';
+import { launchBrowser, createPageWithHeaders, safeCloseBrowser } from './browser-config';
 
 /**
  * Extracts the "As Low As" price and returns it as a number.
@@ -71,7 +71,7 @@ export async function scrapeJMBullion(
 
     browser = await launchBrowser();
     const page = await createPageWithHeaders(browser);
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
 
     // Wait for the "As Low As" text to appear (loaded dynamically via JavaScript)
     await page.waitForSelector(':text("As Low As")', { timeout: 10000 });
@@ -90,8 +90,6 @@ export async function scrapeJMBullion(
     console.error(`❌ Failed to scrape JM Bullion - ${productConfig.name}:`, error);
     throw error;
   } finally {
-    if (browser) {
-      await browser.close();
-    }
+    await safeCloseBrowser(browser);
   }
 }
