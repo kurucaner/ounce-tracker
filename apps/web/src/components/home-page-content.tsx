@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { ExternalLink, TrendingDown } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ExternalLink, Crown } from 'lucide-react';
 import { type ProductListingItem } from '@/types/database';
 import {
   Table,
@@ -116,7 +116,6 @@ export function HomePageContent() {
     router.push(`?product=${productId}`, { scroll: false });
   };
 
-  const selectedProduct = products.find((p) => p.id === selectedProductId);
   const lowestPrice = listings.length > 0 ? Math.min(...listings.map((l) => l.price)) : 0;
 
   return (
@@ -147,24 +146,6 @@ export function HomePageContent() {
                 </SelectContent>
               </Select>
             </div>
-
-            {/* Product Title and Best Price */}
-            {selectedProduct && (
-              <div className="text-center">
-                <h1 className="text-2xl font-semibold tracking-tight">{selectedProduct.name}</h1>
-                <p className="text-sm text-muted-foreground">
-                  {selectedProduct.mint} • {selectedProduct.weight_oz} oz{' '}
-                  {selectedProduct.metal.charAt(0).toUpperCase() + selectedProduct.metal.slice(1)}
-                </p>
-              </div>
-            )}
-
-            {lowestPrice > 0 && (
-              <div className="mt-4 text-center">
-                <div className="text-sm text-muted-foreground">Best Price</div>
-                <div className="text-3xl font-bold">{formatPrice(lowestPrice)}</div>
-              </div>
-            )}
           </div>
         </div>
 
@@ -215,28 +196,31 @@ export function HomePageContent() {
                   <TableBody>
                     {listings.map((listing, index) => {
                       const isLowest = listing.price === lowestPrice;
+                      const priceDifference = listing.price - lowestPrice;
                       return (
                         <TableRow key={`${listing.dealerSlug}-${index}`}>
                           <TableCell className="text-center">
-                            <Link
-                              href={listing.dealerWebsiteUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="font-medium text-sm text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
-                            >
-                              {listing.dealerName}
-                            </Link>
+                            <div className="flex items-center justify-center gap-2">
+                              {isLowest && <Crown className="h-4 w-4 text-yellow-500" />}
+                              <Link
+                                href={listing.dealerWebsiteUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-medium text-sm text-blue-900 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                              >
+                                {listing.dealerName}
+                              </Link>
+                            </div>
                           </TableCell>
                           <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-2">
+                            <div className="flex flex-col items-center justify-center gap-1">
                               <span className="text-lg font-semibold">
                                 {formatPrice(listing.price)}
                               </span>
-                              {isLowest && (
-                                <Badge variant="default" className="text-xs">
-                                  <TrendingDown className="mr-1 h-3 w-3" />
-                                  Lowest
-                                </Badge>
+                              {!isLowest && priceDifference > 0 && (
+                                <span className="text-xs text-muted-foreground">
+                                  +{formatPrice(priceDifference)} more
+                                </span>
                               )}
                             </div>
                           </TableCell>

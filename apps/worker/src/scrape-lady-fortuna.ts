@@ -9,7 +9,7 @@ import { scrapeBullionExchanges } from './scrappers/scrape-bullion-exchanges';
 import { scrapeNYGoldCo } from './scrappers/scrape-new-york-gold-co';
 import { scrapeNYCBullion } from './scrappers/scrape-nyc-bullion';
 import { scrapeBullionTradingLLC } from './scrappers/scrape-bullion-trading-llc';
-import { DEALERS } from './scrappers/endpoints';
+import { DEALERS } from './scrappers/dealers';
 
 // Product identifier
 const PRODUCT_NAME = '1 oz Gold Bar PAMP Suisse Lady Fortuna';

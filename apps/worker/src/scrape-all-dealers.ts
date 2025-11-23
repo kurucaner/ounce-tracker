@@ -3,7 +3,7 @@
  * Fetches live prices from all dealers for all products and updates Supabase
  */
 import { createClient } from '@supabase/supabase-js';
-import { DEALERS } from './scrappers/endpoints';
+import { DEALERS } from './scrappers/dealers';
 import { scrapeNYGoldCo } from './scrappers/scrape-new-york-gold-co';
 import { scrapeBullionExchanges } from './scrappers/scrape-bullion-exchanges';
 import { scrapeNYCBullion } from './scrappers/scrape-nyc-bullion';

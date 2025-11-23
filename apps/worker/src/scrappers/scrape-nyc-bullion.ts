@@ -16,7 +16,7 @@ async function extractPriceFromPage(page: Page): Promise<number | null> {
       // Note: We use querySelector('script:contains("...")') which is an extension sometimes used
       // in jQuery/some tools. For Playwright's page.evaluate, standard DOM is safer.
       const allScripts = Array.from(document.querySelectorAll('script'));
-      const scriptElement = allScripts.find((s) => s.textContent?.includes('initPrice475'));
+      const scriptElement = allScripts.find((s) => s.textContent?.includes('initPrice'));
 
       if (!scriptElement || !scriptElement.textContent) {
         console.warn('⚠️ Could not find the price initialization script block.');
