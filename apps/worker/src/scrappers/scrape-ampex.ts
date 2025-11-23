@@ -1,6 +1,10 @@
-import { chromium } from 'playwright';
+import { chromium } from 'playwright-extra';
 import type { Page } from 'playwright';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import type { ScraperResult, ProductConfig } from '../types';
+
+// Add stealth plugin to avoid detection
+chromium.use(StealthPlugin());
 
 /**
  * Extracts the primary price from the HTML snippet, prioritizing the structured
@@ -70,7 +74,7 @@ export async function scrapeAMPEX(
 
   let browser;
   try {
-    console.info(`🔍 Scraping AMPEX - ${productConfig.name}...`);
+    console.info(`🔍 Scraping AMPEX - ${productConfig.name} (using stealth browser)...`);
 
     browser = await chromium.launch({
       headless: true,

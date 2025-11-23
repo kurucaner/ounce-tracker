@@ -1,6 +1,10 @@
-import { chromium } from 'playwright';
+import { chromium } from 'playwright-extra';
 import type { Page } from 'playwright';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import type { ScraperResult, ProductConfig } from '../types';
+
+// Add stealth plugin to avoid detection
+chromium.use(StealthPlugin());
 
 /**
  * Extracts the initial price from the embedded JavaScript data.
@@ -76,7 +80,7 @@ export async function scrapeNYCBullion(
 
   let browser;
   try {
-    console.info(`🔍 Scraping NYC Bullion - ${productConfig.name}...`);
+    console.info(`🔍 Scraping NYC Bullion - ${productConfig.name} (using stealth browser)...`);
 
     browser = await chromium.launch({
       headless: true,

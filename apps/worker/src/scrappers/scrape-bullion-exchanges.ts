@@ -1,6 +1,10 @@
-import { chromium } from 'playwright';
+import { chromium } from 'playwright-extra';
 import type { Page, ElementHandle } from 'playwright';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import type { ScraperResult, ProductConfig } from '../types';
+
+// Add stealth plugin to avoid detection
+chromium.use(StealthPlugin());
 
 /**
  * Extracts the target price from the Bullion Exchanges product page DOM.
@@ -152,7 +156,7 @@ export async function scrapeBullionExchanges(
   let browser;
   try {
     console.info(
-      `🔍 Scraping Bullion Exchanges - ${productConfig.name} (using headless browser)...`
+      `🔍 Scraping Bullion Exchanges - ${productConfig.name} (using stealth browser)...`
     );
 
     browser = await chromium.launch({
