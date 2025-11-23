@@ -8,10 +8,11 @@ import { safeCloseBrowser } from './browser-utils';
 chromium.use(StealthPlugin());
 
 /**
- * Extracts the "As Low As" price and returns it as a number.
+ * Extracts the primary price by locating the <span id="price_..."> element
+ * inside the payment-inner container.
  *
  * @param page The Playwright Page object.
- * @returns The extracted price as a number (e.g., 4266.90) or null if not found.
+ * @returns The extracted price as a number (e.g., 4198.90) or null if not found.
  */
 async function extractPriceFromPage(page: Page): Promise<number | null> {
   const priceValue = await page.evaluate(() => {
@@ -28,31 +29,38 @@ async function extractPriceFromPage(page: Page): Promise<number | null> {
         return price;
       };
 
-      // 1. Find the "As Low As" text element (the anchor).
-      const asLowAsElement = Array.from(document.querySelectorAll('div, span, p')).find(
-        (el) => el.textContent?.trim() === 'As Low As'
-      );
+      // 1. Target the element based on your specific request:
+      // Inside .payment-inner, find a span whose ID starts with 'price_'.
+      const primarySelector = '.payment-inner span[id^="price_"]';
+      const priceElement = document.querySelector(primarySelector);
 
-      if (!asLowAsElement) {
-        console.warn('⚠️ Could not find the "As Low As" anchor text.');
-        return null;
-      }
-
-      // 2. The target price is the immediate next sibling of the container holding "As Low As".
-      const priceElement = asLowAsElement.nextElementSibling;
-
-      if (priceElement && priceElement.textContent?.includes('$')) {
+      if (priceElement && priceElement.textContent) {
         const rawPriceText = priceElement.textContent.trim();
-        console.info(`📍 Found price using 'As Low As' sibling navigation: ${rawPriceText}`);
+        console.info(`📍 Found price via ID selector: ${primarySelector} - ${rawPriceText}`);
 
         // Return the cleaned and parsed NUMBER
         return cleanAndParsePrice(rawPriceText);
       }
 
-      console.warn(
-        '⚠️ Found "As Low As" but could not find the price in the expected next sibling element.'
-      );
+      console.warn('⚠️ Could not find price using the requested ID selector.');
 
+      // 2. Fallback: Use the most robust data attribute from the table (1+ Qty, Check/Wire price)
+      const fallbackSelector = '#producttable tbody tr:first-child td:first-child + td[data-price]';
+      const fallbackPriceCell = document.querySelector(fallbackSelector);
+
+      if (fallbackPriceCell) {
+        const priceContent = fallbackPriceCell.getAttribute('data-price');
+
+        if (priceContent) {
+          const price = Number.parseFloat(priceContent);
+          if (!Number.isNaN(price) && price > 0) {
+            console.info(`📍 Found fallback price via data attribute ('data-price'): ${price}`);
+            return price;
+          }
+        }
+      }
+
+      console.warn('⚠️ Could not extract price using the ID or the robust table fallback.');
       return null;
     } catch (e) {
       console.error('❌ Error during DOM evaluation:', e);
@@ -60,11 +68,10 @@ async function extractPriceFromPage(page: Page): Promise<number | null> {
     }
   });
 
-  // Ensure we return null if the cleaning/parsing inside evaluate failed
   return priceValue;
 }
 
-export async function scrapeJMBullion(
+export async function scrapeBGASC(
   productConfig: ProductConfig,
   baseUrl: string
 ): Promise<ScraperResult> {
@@ -72,7 +79,7 @@ export async function scrapeJMBullion(
 
   let browser;
   try {
-    console.info(`🔍 Scraping JM Bullion - ${productConfig.name} (using stealth browser)...`);
+    console.info(`🔍 Scraping BGASC - ${productConfig.name} (using stealth browser)...`);
 
     browser = await chromium.launch({
       headless: true,
@@ -101,10 +108,10 @@ export async function scrapeJMBullion(
 
     const price = priceNumber;
 
-    console.info(`✅ JM Bullion - ${productConfig.name}: $${price}`);
+    console.info(`✅ BGASC - ${productConfig.name}: $${price.toFixed(2)}`);
     return { price, url, productName: productConfig.name };
   } catch (error) {
-    console.error(`❌ Failed to scrape JM Bullion - ${productConfig.name}:`, error);
+    console.error(`❌ Failed to scrape BGASC - ${productConfig.name}:`, error);
     throw error;
   } finally {
     await safeCloseBrowser(browser);

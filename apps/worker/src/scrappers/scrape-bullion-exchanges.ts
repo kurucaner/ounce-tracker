@@ -2,6 +2,7 @@ import { chromium } from 'playwright-extra';
 import type { Page, ElementHandle } from 'playwright';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import type { ScraperResult, ProductConfig } from '../types';
+import { safeCloseBrowser } from './browser-utils';
 
 // Add stealth plugin to avoid detection
 chromium.use(StealthPlugin());
@@ -207,9 +208,6 @@ export async function scrapeBullionExchanges(
     console.error(`❌ Failed to scrape Bullion Exchanges - ${productConfig.name}:`, error);
     throw error;
   } finally {
-    if (browser) {
-      // Ensure the browser is closed even if an error occurs
-      await browser.close();
-    }
+    await safeCloseBrowser(browser);
   }
 }

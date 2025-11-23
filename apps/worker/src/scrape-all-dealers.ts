@@ -11,6 +11,8 @@ import { scrapeBullionTradingLLC } from './scrappers/scrape-bullion-trading-llc'
 import type { ScraperFunction, ScraperResult, DealerConfig, ProductConfig } from './types';
 import { scrapeJMBullion } from './scrappers/scrape-jm-bullion';
 import { scrapeAMPEX } from './scrappers/scrape-ampex';
+import { scrapeSDBullion } from './scrappers/scrape-sd-bullion';
+import { scrapeBGASC } from './scrappers/scrape-bgasc';
 
 // Initialize Supabase client with service role key
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
@@ -25,6 +27,8 @@ const SCRAPER_MAP: Record<string, ScraperFunction> = {
   'bullion-trading-llc': scrapeBullionTradingLLC,
   'jm-bullion': scrapeJMBullion,
   apmex: scrapeAMPEX,
+  'sd-bullion': scrapeSDBullion,
+  bgasc: scrapeBGASC,
 };
 
 /**
@@ -99,7 +103,9 @@ async function scrapeProduct(
   } catch (error) {
     // Log error message only (not full stack trace) to reduce noise
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error(`⚠️  Skipping ${dealer.name} - ${product.name}: ${errorMessage}`);
+    // Extract just the main error message (before stack trace)
+    const shortMessage = errorMessage.split('\n')[0];
+    console.error(`⚠️  Skipping ${dealer.name} - ${product.name}: ${shortMessage}`);
     return null; // Return null to continue with other products
   }
 }
@@ -205,5 +211,12 @@ export { run as scrapeAllDealers };
 
 // Run the scraper if called directly (not imported)
 if (import.meta.main) {
-  await run();
+  try {
+    await run();
+    console.log('\n✅ Process completed successfully');
+    process.exit(0);
+  } catch (error) {
+    console.error('\n❌ Process failed:', error);
+    process.exit(1);
+  }
 }

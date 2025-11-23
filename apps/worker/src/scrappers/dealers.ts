@@ -123,4 +123,34 @@ export const DEALERS: DealerConfig[] = [
       },
     ],
   },
+  {
+    name: 'SD Bullion',
+    slug: 'sd-bullion',
+    url: 'https://www.sdbullion.com',
+    products: [
+      {
+        name: '1 oz Gold Bar PAMP Suisse Lady Fortuna',
+        productUrl: '/new-1-oz-pamp-suisse-gold-bar',
+      },
+    ],
+  },
+  {
+    name: 'BGASC',
+    slug: 'bgasc',
+    url: 'https://www.bgasc.com',
+    products: [
+      {
+        name: '1 oz Gold Bar PAMP Suisse Lady Fortuna',
+        productUrl: '/product/1-oz-pamp-suisse-gold-bar-carbon-neutral',
+      },
+      {
+        name: '1 oz Gold Bar Royal Canadian Mint',
+        productUrl: '/product/1-oz-rcm-gold-bar-w-proudly-canadian',
+      },
+      {
+        name: '1 oz Gold Bar Perth Mint',
+        productUrl: '/product/1-oz-perth-mint-gold-bar',
+      },
+    ],
+  },
 ];
