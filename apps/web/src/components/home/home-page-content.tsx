@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ExternalLink, Crown } from 'lucide-react';
+import { ExternalLink, Trophy } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Table,
@@ -46,6 +46,39 @@ const formatTime = (dateString: string): string => {
   return `${diffDays}d ago`;
 };
 
+/**
+ * Interpolate color from gold (lowest price) to dark green (highest price)
+ * @param position 0 (lowest price) to 1 (highest price)
+ * @returns RGB color string
+ */
+const getPriceGradientColor = (position: number): string => {
+  // Clamp position between 0 and 1
+  const clampedPosition = Math.max(0, Math.min(1, position));
+
+  // Color stops: Gold → Light Green → Dark Green
+  // Gold: rgb(234, 179, 8) - #eab308
+  // Light Green: rgb(74, 222, 128) - #4ade80
+  // Dark Green: rgb(22, 101, 52) - #166534
+
+  let r: number, g: number, b: number;
+
+  if (clampedPosition < 0.5) {
+    // Interpolate between Gold and Light Green (0 to 0.5)
+    const t = clampedPosition * 2; // 0 to 1 for this segment
+    r = Math.round(234 + (74 - 234) * t);
+    g = Math.round(179 + (222 - 179) * t);
+    b = Math.round(8 + (128 - 8) * t);
+  } else {
+    // Interpolate between Light Green and Dark Green (0.5 to 1)
+    const t = (clampedPosition - 0.5) * 2; // 0 to 1 for this segment
+    r = Math.round(74 + (22 - 74) * t);
+    g = Math.round(222 + (101 - 222) * t);
+    b = Math.round(128 + (52 - 128) * t);
+  }
+
+  return `rgb(${r}, ${g}, ${b})`;
+};
+
 export function HomePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -85,6 +118,7 @@ export function HomePageContent() {
   };
 
   const lowestPrice = listings.length > 0 ? Math.min(...listings.map((l) => l.price)) : 0;
+  const highestPrice = listings.length > 0 ? Math.max(...listings.map((l) => l.price)) : 0;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -150,86 +184,104 @@ export function HomePageContent() {
             }
 
             return (
-              <div className="rounded-lg border">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="hover:bg-transparent">
-                      <TableHead className="text-center" scope="col">
-                        Dealer
-                      </TableHead>
-                      <TableHead className="text-center" scope="col">
-                        Price
-                      </TableHead>
-                      <TableHead className="text-center" scope="col">
-                        Stock
-                      </TableHead>
-                      <TableHead className="text-center" scope="col">
-                        Link
-                      </TableHead>
-                      <TableHead className="text-center" scope="col">
-                        Updated
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {listings.map((listing, index) => {
-                      const isLowest = listing.price === lowestPrice;
-                      const priceDifference = listing.price - lowestPrice;
-                      return (
-                        <TableRow key={`${listing.dealerSlug}-${index}`}>
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-2">
-                              {isLowest && <Crown className="h-4 w-4 text-yellow-500" />}
-                              <Link
-                                href={listing.dealerWebsiteUrl}
+              <div>
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Price Comparison</h2>
+                  <Badge variant="secondary" className="text-sm">
+                    {listings.length} {listings.length === 1 ? 'listing' : 'listings'}
+                  </Badge>
+                </div>
+                <div className="rounded-lg border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead className="text-center" scope="col">
+                          Dealer
+                        </TableHead>
+                        <TableHead className="text-center" scope="col">
+                          Price
+                        </TableHead>
+                        <TableHead className="text-center" scope="col">
+                          Stock
+                        </TableHead>
+                        <TableHead className="text-center" scope="col">
+                          Link
+                        </TableHead>
+                        <TableHead className="text-center" scope="col">
+                          Updated
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {listings.map((listing, index) => {
+                        const isLowest = listing.price === lowestPrice;
+                        const priceDifference = listing.price - lowestPrice;
+
+                        // Calculate gradient position (0 = lowest price, 1 = highest price)
+                        const priceRange = highestPrice - lowestPrice;
+                        const gradientPosition =
+                          priceRange > 0 ? (listing.price - lowestPrice) / priceRange : 0;
+                        const priceColor = getPriceGradientColor(gradientPosition);
+
+                        return (
+                          <TableRow key={`${listing.dealerSlug}-${index}`}>
+                            <TableCell className="text-center">
+                              <div className="flex items-center justify-center gap-2">
+                                {isLowest && <Trophy className="h-4 w-4 text-yellow-500" />}
+                                <Link
+                                  href={listing.dealerWebsiteUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="font-medium text-sm text-blue-900 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                                >
+                                  {listing.dealerName}
+                                </Link>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <div className="flex flex-col items-center justify-center gap-1">
+                                <span
+                                  className="text-lg font-semibold"
+                                  style={{ color: priceColor }}
+                                >
+                                  {formatPrice(listing.price)}
+                                </span>
+                                {!isLowest && priceDifference > 0 && (
+                                  <span className="text-xs text-muted-foreground">
+                                    +{formatPrice(priceDifference)} more
+                                  </span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <div className="flex justify-center">
+                                <Badge
+                                  variant={listing.inStock ? 'success' : 'secondary'}
+                                  className="text-xs"
+                                >
+                                  {listing.inStock ? 'In Stock' : 'Out'}
+                                </Badge>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <a
+                                href={listing.productUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="font-medium text-sm text-blue-900 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
                               >
-                                {listing.dealerName}
-                              </Link>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <div className="flex flex-col items-center justify-center gap-1">
-                              <span className="text-lg font-semibold">
-                                {formatPrice(listing.price)}
-                              </span>
-                              {!isLowest && priceDifference > 0 && (
-                                <span className="text-xs text-muted-foreground">
-                                  +{formatPrice(priceDifference)} more
-                                </span>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <div className="flex justify-center">
-                              <Badge
-                                variant={listing.inStock ? 'success' : 'secondary'}
-                                className="text-xs"
-                              >
-                                {listing.inStock ? 'In Stock' : 'Out'}
-                              </Badge>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <a
-                              href={listing.productUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                            </a>
-                          </TableCell>
-                          <TableCell className="text-center text-sm text-muted-foreground">
-                            {formatTime(listing.updatedAt)}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+                                <ExternalLink className="h-4 w-4" />
+                              </a>
+                            </TableCell>
+                            <TableCell className="text-center text-sm text-muted-foreground">
+                              {formatTime(listing.updatedAt)}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
             );
           })()}
