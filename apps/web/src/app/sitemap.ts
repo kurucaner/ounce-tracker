@@ -3,9 +3,7 @@ import { createSupabaseServerClient } from '@/lib/supabase-server';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ouncetracker.com';
-  
-  // Default routes
-  
+
   const routes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -45,4 +43,3 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return routes;
 }
-

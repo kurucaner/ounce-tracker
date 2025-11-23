@@ -2,6 +2,7 @@ import { HomePageContent } from '@/components/home/home-page-content';
 import { HomeStructuredData } from '@/components/home/home-structured-data';
 import type { Metadata } from 'next';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
+import { Suspense } from 'react';
 
 /**
  * Generate dynamic metadata for SEO
@@ -123,7 +124,9 @@ export default async function HomePage() {
   return (
     <>
       <HomeStructuredData products={products} />
-      <HomePageContent />
+      <Suspense fallback={<div>Loading...</div>}>
+        <HomePageContent />
+      </Suspense>
     </>
   );
 }

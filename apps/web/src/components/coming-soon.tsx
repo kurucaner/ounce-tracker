@@ -5,9 +5,9 @@ interface ComingSoonProps {
   description?: string;
 }
 
-export const ComingSoon = ({ 
-  title = "Coming Soon", 
-  description = "We're working on something special. Check back soon!" 
+export const ComingSoon = ({
+  title = 'Coming Soon',
+  description = "We're working on something special. Check back soon!",
 }: ComingSoonProps) => {
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-6">
@@ -25,4 +25,3 @@ export const ComingSoon = ({
 };
 
 ComingSoon.displayName = 'ComingSoon';
-

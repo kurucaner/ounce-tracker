@@ -12,7 +12,7 @@ export default function InsightsPage() {
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
       <main className="flex-1">
-        <ComingSoon 
+        <ComingSoon
           title="Insights Coming Soon"
           description="We're preparing market reports, news, and analysis for precious metals. Stay tuned for valuable insights to help you make informed decisions."
         />
@@ -21,4 +21,3 @@ export default function InsightsPage() {
     </div>
   );
 }
-
