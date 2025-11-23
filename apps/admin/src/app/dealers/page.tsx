@@ -101,13 +101,12 @@ export default function DealersPage() {
     setSheetOpen(true);
   };
 
-  const handleCancel = () => {
+  const resetForm = () => {
     setEditingId(null);
     setName('');
     setSlug('');
     setWebsiteUrl('');
     setMessage('');
-    setSheetOpen(false);
     setIsSlugManuallyEdited(false);
   };
 
@@ -154,9 +153,23 @@ export default function DealersPage() {
           <h1 className="text-3xl font-bold">Manage Dealers</h1>
           <p className="text-muted-foreground">View and manage bullion dealers</p>
         </div>
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <Sheet
+          open={sheetOpen}
+          onOpenChange={(open) => {
+            setSheetOpen(open);
+            // Reset form when sheet closes
+            if (!open) {
+              resetForm();
+            }
+          }}
+        >
           <SheetTrigger asChild>
-            <Button>
+            <Button
+              onClick={() => {
+                // Reset form when clicking "Add Dealer"
+                resetForm();
+              }}
+            >
               <Plus className="mr-2 h-4 w-4" />
               Add Dealer
             </Button>
@@ -210,7 +223,14 @@ export default function DealersPage() {
                   {loading ? 'Saving...' : editingId ? 'Update Dealer' : 'Add Dealer'}
                 </Button>
                 {editingId && (
-                  <Button type="button" variant="outline" onClick={handleCancel}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      resetForm();
+                      setSheetOpen(false);
+                    }}
+                  >
                     Cancel
                   </Button>
                 )}
