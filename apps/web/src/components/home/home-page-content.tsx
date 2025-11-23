@@ -50,7 +50,7 @@ export function HomePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
 
   // Fetch products
   const { data: products = [], isLoading: productsLoading } = useQuery({
@@ -62,7 +62,7 @@ export function HomePageContent() {
   // Fetch listings
   const { data: listings = [], isLoading: listingsLoading } = useQuery({
     queryKey: selectedProductId ? queryKeys.listings(selectedProductId) : ['listings'],
-    queryFn: () => queryFns.listings(selectedProductId!),
+    queryFn: () => queryFns.listings(selectedProductId),
     enabled: !!selectedProductId,
     ...queryOptions.listings,
   });
@@ -101,7 +101,7 @@ export function HomePageContent() {
               >
                 Select Product
               </label>
-              <Select value={selectedProductId || undefined} onValueChange={handleProductChange}>
+              <Select value={selectedProductId} onValueChange={handleProductChange}>
                 <SelectTrigger id="product-select" className="w-full max-w-md bg-background">
                   <SelectValue placeholder="Select a product..." />
                 </SelectTrigger>
@@ -123,7 +123,7 @@ export function HomePageContent() {
               return (
                 <div className="flex h-[400px] items-center justify-center">
                   <div className="text-center">
-                    <p className="text-muted-foreground">Loading products...</p>
+                    <p className="text-muted-foreground">Loading dealers...</p>
                   </div>
                 </div>
               );
