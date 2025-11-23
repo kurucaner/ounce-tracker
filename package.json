@@ -16,6 +16,7 @@
     "dev:worker": "cd apps/worker && bun dev",
     "build": "bun run --filter shared build && bun run --filter web build && bun run --filter api build && bun run --filter worker build",
     "build:web": "cd apps/web && bun run build",
+    "build:admin": "cd apps/admin && bun run build",
     "build:api": "cd apps/api && bun run build",
     "build:worker": "cd apps/worker && bun run build",
     "start:web": "cd apps/web && bun start",
