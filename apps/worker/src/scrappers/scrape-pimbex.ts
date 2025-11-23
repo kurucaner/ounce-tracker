@@ -92,7 +92,10 @@ export async function scrapePimbex(
       'Accept-Language': 'en-US,en;q=0.5',
       'Cache-Control': 'max-age=0',
     });
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
+
+    // Wait for the pricing table to appear (loaded dynamically via JavaScript)
+    await page.waitForSelector('#pricingTable', { timeout: 10000 });
 
     const priceNumber = await extractPriceFromPage(page);
 

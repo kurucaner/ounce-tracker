@@ -97,7 +97,18 @@ export async function scrapeSDBullion(
       'Accept-Language': 'en-US,en;q=0.5',
       'Cache-Control': 'max-age=0',
     });
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
+
+    // Wait for the price element to appear (loaded dynamically via JavaScript)
+    // Try primary selector first, fallback to table
+    try {
+      await page.waitForSelector('span[data-nfusions-payment-type="cash_price"][data-price-amount]', {
+        timeout: 10000,
+      });
+    } catch {
+      // Fallback: wait for the pricing table
+      await page.waitForSelector('table.prices-tier.items', { timeout: 10000 });
+    }
 
     const priceNumber = await extractPriceFromPage(page);
 

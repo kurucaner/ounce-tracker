@@ -100,7 +100,17 @@ export async function scrapeNYCBullion(
       'Accept-Language': 'en-US,en;q=0.5',
       'Cache-Control': 'max-age=0',
     });
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
+
+    // Wait for the price script to be loaded (NYC Bullion uses JavaScript to set prices)
+    // Wait for any script tag that contains 'initPrice' - this indicates price data is loaded
+    await page.waitForFunction(
+      () => {
+        const scripts = Array.from(document.querySelectorAll('script'));
+        return scripts.some((s) => s.textContent?.includes('initPrice'));
+      },
+      { timeout: 10000 }
+    );
 
     const priceNumber = await extractPriceFromPage(page);
 

@@ -8,10 +8,11 @@ import { safeCloseBrowser } from './browser-utils';
 chromium.use(StealthPlugin());
 
 /**
- * Extracts the "As Low As" price and returns it as a number.
+ * Extracts the "Live Ask Price" by targeting the span element with itemprop="price"
+ * inside the main container.
  *
  * @param page The Playwright Page object.
- * @returns The extracted price as a number (e.g., 4266.90) or null if not found.
+ * @returns The extracted price as a number (e.g., 4215.95) or null if not found.
  */
 async function extractPriceFromPage(page: Page): Promise<number | null> {
   const priceValue = await page.evaluate(() => {
@@ -21,38 +22,30 @@ async function extractPriceFromPage(page: Page): Promise<number | null> {
         // Removes non-digit characters except the decimal point (e.g., removes '$', ',', spaces)
         const cleanedPrice = priceString.replaceAll(/[^0-9.]/g, '');
         const price = Number.parseFloat(cleanedPrice);
-
-        if (Number.isNaN(price) || price <= 0) {
-          return null;
-        }
-        return price;
+        return !Number.isNaN(price) && price > 0 ? price : null;
       };
 
-      // 1. Find the "As Low As" text element (the anchor).
-      const asLowAsElement = Array.from(document.querySelectorAll('div, span, p')).find(
-        (el) => el.textContent?.trim() === 'As Low As'
-      );
+      // 1. Target the element using the robust itemprop="price" attribute.
+      const priceSelector = '#priceBuySell2 span[itemprop="price"]';
+      const priceElement = document.querySelector(priceSelector);
 
-      if (!asLowAsElement) {
-        console.warn('⚠️ Could not find the "As Low As" anchor text.');
-        return null;
-      }
-
-      // 2. The target price is the immediate next sibling of the container holding "As Low As".
-      const priceElement = asLowAsElement.nextElementSibling;
-
-      if (priceElement && priceElement.textContent?.includes('$')) {
+      if (priceElement && priceElement.textContent) {
         const rawPriceText = priceElement.textContent.trim();
-        console.info(`📍 Found price using 'As Low As' sibling navigation: ${rawPriceText}`);
+        console.info(`📍 Found price via itemprop selector: ${rawPriceText}`);
 
         // Return the cleaned and parsed NUMBER
         return cleanAndParsePrice(rawPriceText);
       }
 
-      console.warn(
-        '⚠️ Found "As Low As" but could not find the price in the expected next sibling element.'
-      );
+      // 2. Fallback: Use the specific ID if itemprop fails for some reason.
+      const fallbackPriceElement = document.getElementById('sellPrice');
+      if (fallbackPriceElement && fallbackPriceElement.textContent) {
+        const rawPriceText = fallbackPriceElement.textContent.trim();
+        console.warn(`⚠️ Found price via ID fallback: ${rawPriceText}`);
+        return cleanAndParsePrice(rawPriceText);
+      }
 
+      console.warn('⚠️ Could not extract price using itemprop or ID selector.');
       return null;
     } catch (e) {
       console.error('❌ Error during DOM evaluation:', e);
@@ -60,11 +53,10 @@ async function extractPriceFromPage(page: Page): Promise<number | null> {
     }
   });
 
-  // Ensure we return null if the cleaning/parsing inside evaluate failed
   return priceValue;
 }
 
-export async function scrapeJMBullion(
+export async function scrapeGoldDealerCom(
   productConfig: ProductConfig,
   baseUrl: string
 ): Promise<ScraperResult> {
@@ -72,7 +64,7 @@ export async function scrapeJMBullion(
 
   let browser;
   try {
-    console.info(`🔍 Scraping JM Bullion - ${productConfig.name} (using stealth browser)...`);
+    console.info(`🔍 Scraping GoldDealer.com - ${productConfig.name} (using stealth browser)...`);
 
     browser = await chromium.launch({
       headless: true,
@@ -93,8 +85,14 @@ export async function scrapeJMBullion(
     });
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
 
-    // Wait for the "As Low As" text to appear (loaded dynamically via JavaScript)
-    await page.waitForSelector(':text("As Low As")', { timeout: 10000 });
+    // Wait for the price element to appear (loaded dynamically via JavaScript)
+    // Try both selectors to be safe
+    try {
+      await page.waitForSelector('#priceBuySell2 span[itemprop="price"]', { timeout: 10000 });
+    } catch {
+      // Fallback: wait for the ID selector
+      await page.waitForSelector('#sellPrice', { timeout: 10000 });
+    }
 
     const priceNumber = await extractPriceFromPage(page);
 
@@ -104,10 +102,10 @@ export async function scrapeJMBullion(
 
     const price = priceNumber;
 
-    console.info(`✅ JM Bullion - ${productConfig.name}: $${price}`);
+    console.info(`✅ GoldDealer.com - ${productConfig.name}: $${price.toFixed(2)}`);
     return { price, url, productName: productConfig.name };
   } catch (error) {
-    console.error(`❌ Failed to scrape JM Bullion - ${productConfig.name}:`, error);
+    console.error(`❌ Failed to scrape GoldDealer.com - ${productConfig.name}:`, error);
     throw error;
   } finally {
     await safeCloseBrowser(browser);

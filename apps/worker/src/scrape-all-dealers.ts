@@ -14,6 +14,7 @@ import { scrapeAMPEX } from './scrappers/scrape-ampex';
 import { scrapeSDBullion } from './scrappers/scrape-sd-bullion';
 import { scrapeBGASC } from './scrappers/scrape-bgasc';
 import { scrapePimbex } from './scrappers/scrape-pimbex';
+import { scrapeGoldDealerCom } from './scrappers/scrape-golddealercom';
 
 // Initialize Supabase client with service role key
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
@@ -31,6 +32,7 @@ const SCRAPER_MAP: Record<string, ScraperFunction> = {
   'sd-bullion': scrapeSDBullion,
   bgasc: scrapeBGASC,
   pimbex: scrapePimbex,
+  golddealercom: scrapeGoldDealerCom,
 };
 
 /**

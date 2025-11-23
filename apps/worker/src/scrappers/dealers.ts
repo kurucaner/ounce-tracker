@@ -9,7 +9,8 @@ export type DealerSlug =
   | 'apmex'
   | 'sd-bullion'
   | 'bgasc'
-  | 'pimbex';
+  | 'pimbex'
+  | 'golddealercom';
 
 export const DEALERS: DealerConfig[] = [
   {
@@ -180,6 +181,25 @@ export const DEALERS: DealerConfig[] = [
       {
         name: '1 oz Gold Bar Perth Mint',
         productUrl: '/purchase-bullion/1-oz-gold-bar-perth-mint',
+      },
+    ],
+  },
+  {
+    name: 'GoldDealer.com',
+    slug: 'golddealercom',
+    url: 'https://www.golddealer.com',
+    products: [
+      {
+        name: '1 oz Gold Bar PAMP Suisse Lady Fortuna',
+        productUrl: '/product/pamp-suisse-gold-bar-1-oz',
+      },
+      // {
+      //   name: '1 oz Gold Bar Royal Canadian Mint',
+      //   productUrl: '/product/royal-canadian-mint-gold-bar-1-oz',
+      // },
+      {
+        name: '1 oz Gold Bar Perth Mint',
+        productUrl: '/product/perth-gold-bar-1-oz',
       },
     ],
   },

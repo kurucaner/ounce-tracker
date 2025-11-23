@@ -98,7 +98,16 @@ export async function scrapeBGASC(
       'Accept-Language': 'en-US,en;q=0.5',
       'Cache-Control': 'max-age=0',
     });
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
+
+    // Wait for the price element to appear (loaded dynamically via JavaScript)
+    // Try primary selector first, fallback to table
+    try {
+      await page.waitForSelector('.payment-inner span[id^="price_"]', { timeout: 10000 });
+    } catch {
+      // Fallback: wait for the product table
+      await page.waitForSelector('#producttable', { timeout: 10000 });
+    }
 
     const priceNumber = await extractPriceFromPage(page);
 
