@@ -188,14 +188,18 @@ async function scrapeProduct(
   product: ProductConfig,
   scraperFn: ScraperFunction
 ): Promise<ScraperResult | null> {
-  const maxRetries = 2; // Retry once (2 total attempts)
+  const maxRetries = 3; // 3 total attempts (initial + 2 retries)
   const retryDelayMs = 3000; // 3 second delay between retries
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       if (attempt > 0) {
+        // Show retry number (1-based) out of total retries
+        // attempt=1 (first retry) shows "retry 1/2", attempt=2 (second retry) shows "retry 2/2"
+        const retryNumber = attempt; // 1 for first retry, 2 for second retry
+        const totalRetries = maxRetries - 1; // 2 retries (3 total attempts - 1 initial)
         console.warn(
-          `🔄 Retrying ${dealer.name} - ${product.name} (attempt ${attempt + 1}/${maxRetries})...`
+          `🔄 Retrying ${dealer.name} - ${product.name} (retry ${retryNumber}/${totalRetries})...`
         );
         await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
       }
