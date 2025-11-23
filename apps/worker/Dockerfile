@@ -47,7 +47,7 @@ COPY --from=builder --chown=workeruser:nodejs /app/apps/worker ./apps/worker
 RUN bun install --production --frozen-lockfile
 
 # Install Playwright browsers (needed for scraping)
-# Install system dependencies for Chromium
+# Install system dependencies for Chromium (as root)
 RUN apk add --no-cache \
     nss \
     freetype \
@@ -57,20 +57,16 @@ RUN apk add --no-cache \
     ttf-freefont \
     || true
 
-# Install Playwright browsers as root (installs to /root/.cache/ms-playwright)
-# Install both chromium and chromium-headless-shell variants
-RUN bunx playwright install chromium chromium-headless-shell
-
-# Copy browsers to workeruser's home directory where Playwright expects them
-RUN mkdir -p /home/workeruser/.cache/ms-playwright && \
-    cp -r /root/.cache/ms-playwright/* /home/workeruser/.cache/ms-playwright/ && \
-    chown -R workeruser:nodejs /home/workeruser/.cache
-
-# Set HOME for workeruser (Playwright uses this to find browsers)
+# Set HOME for workeruser
 ENV HOME=/home/workeruser
 
-# Switch to workeruser
+# Switch to workeruser BEFORE installing browsers
+# This ensures browsers are installed in the correct location
 USER workeruser
+
+# Install Playwright browsers as workeruser (installs to ~/.cache/ms-playwright = /home/workeruser/.cache/ms-playwright)
+# Install both chromium and chromium-headless-shell variants
+RUN bunx playwright install chromium chromium-headless-shell
 
 # Start worker - Bun runs TypeScript directly, no build needed
 CMD ["bun", "apps/worker/src/index.ts"]
