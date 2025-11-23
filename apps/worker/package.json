@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "bun --watch src/index.ts",
-    "build": "bun build src/index.ts --target=bun --outdir=dist",
-    "start": "bun dist/index.js",
+    "build": "echo 'No build needed - Bun runs TypeScript directly'",
+    "start": "bun src/index.ts",
     "lint": "eslint src --ext .ts",
     "test": "bun test",
     "scrape:all": "bun run src/scrape-all-dealers.ts"
