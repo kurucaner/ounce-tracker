@@ -22,13 +22,14 @@
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.2",
-    "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-select": "^2.1.4",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@supabase/supabase-js": "^2.84.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "tailwind-merge": "^2.3.0",
-    "lucide-react": "^0.460.0"
+    "lucide-react": "^0.460.0",
+    "tailwind-merge": "^2.3.0"
   },
   "peerDependencies": {
     "react": "^18.3.1",
