@@ -18,7 +18,7 @@
     "build:web": "cd apps/web && bun run build",
     "build:admin": "cd apps/admin && bun run build",
     "build:api": "cd apps/api && bun run build && bun run build",
-    "build:worker": "cd apps/worker && bun run build && npx playwright install chromium",
+    "build:worker": "cd apps/worker && bun run build && npx playwright install chromium --with-deps || (echo 'Warning: --with-deps failed, trying without...' && npx playwright install chromium)",
     "start:web": "cd apps/web && bun run start",
     "start:admin": "cd apps/admin && bun run start",
     "start:api": "cd apps/api && bun run start",
