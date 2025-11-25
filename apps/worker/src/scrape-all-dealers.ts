@@ -92,12 +92,19 @@ async function retryWithBackoff<T>(
 /**
  * Update dealer listing in Supabase with retry logic and overall timeout protection
  */
-async function updateListingPrice(
-  dealerSlug: string,
-  productName: string,
-  price: number,
-  productUrl: string
-): Promise<void> {
+async function updateListingPrice({
+  dealerSlug,
+  productName,
+  price,
+  productUrl,
+  inStock,
+}: {
+  dealerSlug: string;
+  productName: string;
+  price: number;
+  productUrl: string;
+  inStock: boolean;
+}): Promise<void> {
   // Overall timeout: 10 seconds total (covers all retries)
   // This ensures the function never hangs indefinitely
   const overallTimeoutMs = 10000;
@@ -143,7 +150,7 @@ async function updateListingPrice(
             dealer_id: dealer.id,
             product_id: product.id,
             currency: 'USD',
-            in_stock: true,
+            in_stock: inStock,
             price,
             product_url: productUrl,
           })
@@ -212,7 +219,13 @@ async function scrapeProduct(
 
       try {
         await withTimeout(
-          updateListingPrice(dealer.slug, product.name, result.price, result.url),
+          updateListingPrice({
+            dealerSlug: dealer.slug,
+            productName: product.name,
+            price: result.price,
+            productUrl: result.url,
+            inStock: result.inStock,
+          }),
           dbUpdateTimeoutMs,
           `DB update timeout at scrapeProduct level: ${dealer.name} - ${product.name}`
         );

@@ -161,7 +161,19 @@ export async function scrapeBullionExchanges(
     // Use 'domcontentloaded' for faster loading, and a longer timeout for reliability
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
 
-    const outOfStockElement = await page.$('[class*="outOfStock"]');
+    // .outOfStock-vsbi
+    // find the class name that contains 'outOfStock' in playwright
+    let outOfStockElement = false;
+    try {
+      outOfStockElement = await page
+        .locator('.stock-owQx.outOfStock-vsbi')
+        .waitFor({ state: 'visible', timeout: 1000 })
+        .then(() => {
+          return page.locator('.stock-owQx.outOfStock-vsbi').isVisible();
+        });
+    } catch {
+      console.log('✅ Could not find visible out-of-stock element.');
+    }
 
     // Wait for the specific element that contains the pricing table to appear,
     // which is more reliable than a fixed timeout.
