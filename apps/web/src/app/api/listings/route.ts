@@ -48,8 +48,15 @@ export async function GET(request: Request) {
       updatedAt: item.updated_at,
     }));
 
-    // Sort by price (lowest first)
-    listings.sort((a, b) => a.price - b.price);
+    // Sort: in-stock items first, then by price (lowest first)
+    listings.sort((a, b) => {
+      // First, sort by stock status (in stock items first)
+      if (a.inStock !== b.inStock) {
+        return a.inStock ? -1 : 1;
+      }
+      // If stock status is the same, sort by price (lowest first)
+      return a.price - b.price;
+    });
 
     return NextResponse.json({ success: true, data: listings });
   } catch (error) {
