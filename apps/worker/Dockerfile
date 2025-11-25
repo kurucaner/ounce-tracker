@@ -55,7 +55,7 @@ RUN apk add --no-cache \
     ttf-opensans \
     udev \
     glib \
-    atk \
+    at-spi2-atk \
     libx11 \
     libxcomposite \
     libxdamage \
