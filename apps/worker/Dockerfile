@@ -69,7 +69,8 @@ RUN apk add --no-cache \
     alsa-lib \
     mesa \
     cairo \
-    pango
+    pango \
+    atk-dev
 
 # Copy workspace configuration
 COPY --from=builder /app/package.json ./package.json
