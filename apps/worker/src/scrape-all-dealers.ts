@@ -197,6 +197,7 @@ async function scrapeProduct(
 ): Promise<ScraperResult | null> {
   const maxRetries = 3; // 3 total attempts (initial + 2 retries)
   const retryDelayMs = 3000; // 3 second delay between retries
+  const scraperTimeoutMs = 30000; // 30 second timeout for entire scraper operation
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
@@ -211,7 +212,12 @@ async function scrapeProduct(
         await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
       }
 
-      const result = await scraperFn(product, dealer.url);
+      // Wrap scraper call with timeout to prevent hanging
+      const result = await withTimeout(
+        scraperFn(product, dealer.url),
+        scraperTimeoutMs,
+        `Scraper timeout for ${dealer.name} - ${product.name}`
+      );
 
       // Wrap DB update with timeout at scrapeProduct level (safety net)
       // This ensures one hanging update doesn't block all subsequent products

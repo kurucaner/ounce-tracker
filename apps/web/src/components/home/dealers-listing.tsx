@@ -83,6 +83,7 @@ export function DealersListing() {
   const searchParams = useSearchParams();
 
   const [selectedProductId, setSelectedProductId] = useState<string>('');
+  const isDevelopment = process.env.NODE_ENV === 'development';
 
   // Fetch products
   const { data: products = [], isLoading: productsLoading } = useQuery({
@@ -284,7 +285,7 @@ export function DealersListing() {
                               {listing.inStock ? 'In Stock' : 'Out'}
                             </Badge>
                             <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                              <span>{formatTime(listing.updatedAt)}</span>
+                              {isDevelopment && <span>{formatTime(listing.updatedAt)}</span>}
                               <a
                                 href={listing.productUrl}
                                 target="_blank"
@@ -318,9 +319,11 @@ export function DealersListing() {
                         <TableHead className="text-center" scope="col">
                           Link
                         </TableHead>
-                        <TableHead className="text-center" scope="col">
-                          Updated
-                        </TableHead>
+                        {isDevelopment && (
+                          <TableHead className="text-center" scope="col">
+                            Updated
+                          </TableHead>
+                        )}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -401,9 +404,11 @@ export function DealersListing() {
                                 <ExternalLink className="h-4 w-4" />
                               </a>
                             </TableCell>
-                            <TableCell className="text-center text-sm text-muted-foreground">
-                              {formatTime(listing.updatedAt)}
-                            </TableCell>
+                            {isDevelopment && (
+                              <TableCell className="text-center text-sm text-muted-foreground">
+                                {formatTime(listing.updatedAt)}
+                              </TableCell>
+                            )}
                           </TableRow>
                         );
                       })}

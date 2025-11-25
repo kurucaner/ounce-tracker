@@ -84,33 +84,48 @@ export async function safeCloseBrowser(browser: Browser | null | undefined): Pro
       allPages.push(...context.pages());
     }
 
+    // Close all pages with aggressive timeout
     await Promise.allSettled(
       allPages.map((page: Page) =>
         Promise.race([
-          page.close(),
+          page.close().catch(() => {
+            // Ignore page close errors
+          }),
           new Promise<void>((resolve) => {
-            setTimeout(() => resolve(), 1000); // 1 second timeout per page
+            setTimeout(() => resolve(), 500); // 500ms timeout per page
           }),
         ])
       )
     );
 
-    // Now close the browser with timeout protection
+    // Close all contexts
+    await Promise.allSettled(
+      contexts.map((context) =>
+        Promise.race([
+          context.close().catch(() => {
+            // Ignore context close errors
+          }),
+          new Promise<void>((resolve) => {
+            setTimeout(() => resolve(), 500);
+          }),
+        ])
+      )
+    );
+
+    // Now close the browser with aggressive timeout
     await Promise.race([
-      browser.close(),
+      browser.close().catch(() => {
+        // Ignore browser close errors
+      }),
       new Promise<void>((resolve) => {
         setTimeout(() => {
           console.warn('⚠️  Browser close timeout, continuing anyway');
           resolve();
-        }, 3000); // 3 second timeout
+        }, 2000); // 2 second timeout (reduced from 3s)
       }),
     ]);
-  } catch (closeError) {
-    // Ignore close errors - browser might already be closed or in bad state
+  } catch {
+    // Ignore all close errors - browser might already be closed or in bad state
     // This is expected when browser is in a bad state after timeout
-    if (closeError instanceof Error && !closeError.message.includes('Target closed')) {
-      // Only log unexpected errors
-      console.warn(`⚠️  Browser close warning: ${closeError.message}`);
-    }
   }
 }
