@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ExternalLink, Trophy } from 'lucide-react';
+import { ExternalLink, Trophy, Award, Medal } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Table,
@@ -120,6 +120,17 @@ export function HomePageContent() {
   const lowestPrice = listings.length > 0 ? Math.min(...listings.map((l) => l.price)) : 0;
   const highestPrice = listings.length > 0 ? Math.max(...listings.map((l) => l.price)) : 0;
 
+  // Sort listings by price to determine rankings
+  const sortedListings = [...listings].sort((a, b) => a.price - b.price);
+  const prices = sortedListings.map((l) => l.price);
+  const uniquePrices = Array.from(new Set(prices)).sort((a, b) => a - b);
+
+  // Determine rank for each listing
+  const getRank = (price: number): number | null => {
+    const index = uniquePrices.indexOf(price);
+    return index >= 0 && index < 3 ? index + 1 : null;
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
@@ -205,12 +216,27 @@ export function HomePageContent() {
                   {listings.map((listing, index) => {
                     const isLowest = listing.price === lowestPrice;
                     const priceDifference = listing.price - lowestPrice;
+                    const rank = getRank(listing.price);
 
                     // Calculate gradient position (0 = lowest price, 1 = highest price)
                     const priceRange = highestPrice - lowestPrice;
                     const gradientPosition =
                       priceRange > 0 ? (listing.price - lowestPrice) / priceRange : 0;
                     const priceColor = getPriceGradientColor(gradientPosition);
+
+                    // Render icon based on rank
+                    const renderRankIcon = () => {
+                      if (rank === 1) {
+                        return <Trophy className="h-4 w-4 shrink-0 text-yellow-500" />;
+                      }
+                      if (rank === 2) {
+                        return <Award className="h-4 w-4 shrink-0 text-gray-400" />;
+                      }
+                      if (rank === 3) {
+                        return <Medal className="h-4 w-4 shrink-0 text-amber-600" />;
+                      }
+                      return null;
+                    };
 
                     return (
                       <div
@@ -221,7 +247,7 @@ export function HomePageContent() {
                           {/* Dealer and Price Row */}
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex min-w-0 flex-1 items-center gap-2">
-                              {isLowest && <Trophy className="h-4 w-4 shrink-0 text-yellow-500" />}
+                              {renderRankIcon()}
                               <Link
                                 href={listing.dealerWebsiteUrl}
                                 target="_blank"
@@ -295,6 +321,7 @@ export function HomePageContent() {
                       {listings.map((listing, index) => {
                         const isLowest = listing.price === lowestPrice;
                         const priceDifference = listing.price - lowestPrice;
+                        const rank = getRank(listing.price);
 
                         // Calculate gradient position (0 = lowest price, 1 = highest price)
                         const priceRange = highestPrice - lowestPrice;
@@ -302,11 +329,25 @@ export function HomePageContent() {
                           priceRange > 0 ? (listing.price - lowestPrice) / priceRange : 0;
                         const priceColor = getPriceGradientColor(gradientPosition);
 
+                        // Render icon based on rank
+                        const renderRankIcon = () => {
+                          if (rank === 1) {
+                            return <Trophy className="h-4 w-4 text-yellow-500" />;
+                          }
+                          if (rank === 2) {
+                            return <Award className="h-4 w-4 text-gray-400" />;
+                          }
+                          if (rank === 3) {
+                            return <Medal className="h-4 w-4 text-amber-600" />;
+                          }
+                          return null;
+                        };
+
                         return (
                           <TableRow key={`${listing.dealerSlug}-${index}`}>
                             <TableCell className="text-center">
                               <div className="flex items-center justify-center gap-2">
-                                {isLowest && <Trophy className="h-4 w-4 text-yellow-500" />}
+                                {renderRankIcon()}
                                 <Link
                                   href={listing.dealerWebsiteUrl}
                                   target="_blank"
