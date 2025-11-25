@@ -28,7 +28,7 @@ RUN bun run build
 
 # Install Playwright browsers
 WORKDIR /app/apps/worker
-RUN npx playwright install chromium
+RUN bunx playwright install chromium
 
 # Production stage
 FROM oven/bun:1.1.34 AS runner
@@ -59,7 +59,7 @@ RUN bun install --production --frozen-lockfile
 
 # Install Playwright system dependencies (Debian/Ubuntu)
 # This installs all required libraries including libatk-1.0.so.0
-RUN cd /app/apps/worker && npx playwright install-deps chromium
+RUN cd /app/apps/worker && bunx playwright install-deps chromium
 
 # Copy Playwright browsers from builder stage
 RUN mkdir -p /root/.cache/ms-playwright
