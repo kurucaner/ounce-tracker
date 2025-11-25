@@ -1,5 +1,6 @@
 import type { Config } from 'tailwindcss';
 import sharedPreset from '../../packages/shared/tailwind.preset';
+import animate from 'tailwindcss-animate';
 
 const config: Config = {
   presets: [sharedPreset],
@@ -9,8 +10,7 @@ const config: Config = {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
     '../../packages/shared/src/components/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  plugins: [require('tailwindcss-animate')],
+  plugins: [animate],
 };
 
 export default config;
-

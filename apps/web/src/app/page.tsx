@@ -1,5 +1,6 @@
 import { DealersListing } from '@/components/home/dealers-listing';
 import { HomeStructuredData } from '@/components/home/home-structured-data';
+import { InformativeSections } from '@/components/home/informative-sections';
 import type { Metadata } from 'next';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { Suspense } from 'react';
@@ -108,7 +109,14 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function HomePage() {
   // Fetch products for structured data
-  let products: any[] = [];
+  let products: Array<{
+    id: string;
+    name: string;
+    mint: string;
+    metal: string;
+    form: string;
+    weight_oz: number;
+  }> = [];
   try {
     const supabase = createSupabaseServerClient();
     const { data } = await supabase
@@ -116,7 +124,20 @@ export default async function HomePage() {
       .select('id, name, mint, metal, form, weight_oz')
       .limit(10); // Limit for structured data
 
-    products = data || [];
+    // Filter out products with null form or weight_oz
+    products =
+      data?.filter(
+        (
+          p
+        ): p is {
+          id: string;
+          name: string;
+          mint: string;
+          metal: string;
+          form: string;
+          weight_oz: number;
+        } => p.form !== null && p.weight_oz !== null
+      ) || [];
   } catch (error) {
     console.error('Error fetching products for structured data:', error);
     products = [];
@@ -128,7 +149,7 @@ export default async function HomePage() {
       <Suspense fallback={<div>Loading...</div>}>
         <DealersListing />
       </Suspense>
-      <div>static content</div>
+      <InformativeSections />
       <SiteFooter />
     </>
   );
