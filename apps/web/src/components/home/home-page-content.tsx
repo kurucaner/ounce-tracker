@@ -222,7 +222,9 @@ export function HomePageContent() {
                     const priceRange = highestPrice - lowestPrice;
                     const gradientPosition =
                       priceRange > 0 ? (listing.price - lowestPrice) / priceRange : 0;
-                    const priceColor = getPriceGradientColor(gradientPosition);
+                    const priceColor = listing.inStock
+                      ? getPriceGradientColor(gradientPosition)
+                      : 'rgb(156, 163, 175)'; // gray-400 for out of stock
 
                     // Render icon based on rank
                     const renderRankIcon = () => {
@@ -327,7 +329,9 @@ export function HomePageContent() {
                         const priceRange = highestPrice - lowestPrice;
                         const gradientPosition =
                           priceRange > 0 ? (listing.price - lowestPrice) / priceRange : 0;
-                        const priceColor = getPriceGradientColor(gradientPosition);
+                        const priceColor = listing.inStock
+                          ? getPriceGradientColor(gradientPosition)
+                          : 'rgb(156, 163, 175)'; // gray-400 for out of stock
 
                         // Render icon based on rank
                         const renderRankIcon = () => {
