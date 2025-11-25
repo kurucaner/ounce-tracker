@@ -63,7 +63,7 @@ export default function TermsAndConditionsPage() {
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold mb-4">3. Use of Service</h2>
-              
+
               <h3 className="text-xl font-semibold mb-3 mt-6">3.1 Permitted Use</h3>
               <p className="text-base leading-relaxed text-muted-foreground mb-4">
                 You may use the Service for lawful purposes only and in accordance with these Terms.
@@ -82,10 +82,14 @@ export default function TermsAndConditionsPage() {
               </p>
               <ul className="list-disc pl-6 mb-4 space-y-2 text-base leading-relaxed text-muted-foreground">
                 <li>Use the Service for any illegal or unauthorized purpose</li>
-                <li>Violate any international, federal, provincial, or state laws or regulations</li>
+                <li>
+                  Violate any international, federal, provincial, or state laws or regulations
+                </li>
                 <li>Transmit any viruses, malware, or harmful code</li>
                 <li>Attempt to reverse engineer, decompile, or disassemble the Service</li>
-                <li>Use automated systems (bots, scrapers) to access the Service without permission</li>
+                <li>
+                  Use automated systems (bots, scrapers) to access the Service without permission
+                </li>
                 <li>Interfere with or disrupt the Service or servers connected to the Service</li>
                 <li>Copy, modify, or create derivative works of the Service</li>
                 <li>Remove any copyright, trademark, or proprietary notices</li>
@@ -142,9 +146,9 @@ export default function TermsAndConditionsPage() {
               <h2 className="text-2xl font-semibold mb-4">6. Third-Party Links and Content</h2>
               <p className="text-base leading-relaxed text-muted-foreground mb-4">
                 The Service may contain links to third-party websites, services, or resources that
-                are not owned or controlled by OunceTracker. We have no control over, and assume
-                no responsibility for, the content, privacy policies, or practices of any
-                third-party websites or services.
+                are not owned or controlled by OunceTracker. We have no control over, and assume no
+                responsibility for, the content, privacy policies, or practices of any third-party
+                websites or services.
               </p>
               <p className="text-base leading-relaxed text-muted-foreground mb-4">
                 You acknowledge and agree that OunceTracker shall not be responsible or liable,
@@ -174,8 +178,8 @@ export default function TermsAndConditionsPage() {
               </ul>
               <p className="text-base leading-relaxed text-muted-foreground mb-4">
                 We do not warrant that the Service will be available at all times, secure, or free
-                from errors, viruses, or other harmful components. We disclaim all warranties to
-                the fullest extent permitted by law.
+                from errors, viruses, or other harmful components. We disclaim all warranties to the
+                fullest extent permitted by law.
               </p>
             </section>
 
@@ -183,11 +187,11 @@ export default function TermsAndConditionsPage() {
               <h2 className="text-2xl font-semibold mb-4">8. Limitation of Liability</h2>
               <p className="text-base leading-relaxed text-muted-foreground mb-4">
                 TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL OUNCETRACKER,
-                ITS AFFILIATES, AGENTS, DIRECTORS, EMPLOYEES, SUPPLIERS, OR LICENSORS BE LIABLE
-                FOR ANY INDIRECT, PUNITIVE, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR EXEMPLARY
-                DAMAGES, INCLUDING WITHOUT LIMITATION DAMAGES FOR LOSS OF PROFITS, GOODWILL, USE,
-                DATA, OR OTHER INTANGIBLE LOSSES, ARISING OUT OF OR RELATING TO THE USE OF, OR
-                INABILITY TO USE, THE SERVICE.
+                ITS AFFILIATES, AGENTS, DIRECTORS, EMPLOYEES, SUPPLIERS, OR LICENSORS BE LIABLE FOR
+                ANY INDIRECT, PUNITIVE, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR EXEMPLARY DAMAGES,
+                INCLUDING WITHOUT LIMITATION DAMAGES FOR LOSS OF PROFITS, GOODWILL, USE, DATA, OR
+                OTHER INTANGIBLE LOSSES, ARISING OUT OF OR RELATING TO THE USE OF, OR INABILITY TO
+                USE, THE SERVICE.
               </p>
               <p className="text-base leading-relaxed text-muted-foreground mb-4">
                 This limitation applies regardless of whether the damages arise from:
@@ -210,17 +214,18 @@ export default function TermsAndConditionsPage() {
               <h2 className="text-2xl font-semibold mb-4">9. Indemnification</h2>
               <p className="text-base leading-relaxed text-muted-foreground mb-4">
                 You agree to defend, indemnify, and hold harmless OunceTracker and its officers,
-                directors, employees, agents, affiliates, and licensors from and against any
-                claims, liabilities, damages, losses, and expenses, including without limitation
-                reasonable attorney&apos;s fees and costs, arising out of or in any way connected
-                with:
+                directors, employees, agents, affiliates, and licensors from and against any claims,
+                liabilities, damages, losses, and expenses, including without limitation reasonable
+                attorney&apos;s fees and costs, arising out of or in any way connected with:
               </p>
               <ul className="list-disc pl-6 mb-4 space-y-2 text-base leading-relaxed text-muted-foreground">
                 <li>Your access to or use of the Service</li>
                 <li>Your violation of these Terms</li>
-                <li>Your violation of any third-party right, including without limitation any
-                    intellectual property right, publicity, confidentiality, property, or privacy
-                    right</li>
+                <li>
+                  Your violation of any third-party right, including without limitation any
+                  intellectual property right, publicity, confidentiality, property, or privacy
+                  right
+                </li>
                 <li>Any claim that your use of the Service caused damage to a third party</li>
               </ul>
             </section>
@@ -262,9 +267,9 @@ export default function TermsAndConditionsPage() {
               <h2 className="text-2xl font-semibold mb-4">12. Service Availability</h2>
               <p className="text-base leading-relaxed text-muted-foreground mb-4">
                 We reserve the right to modify, suspend, or discontinue the Service (or any part
-                thereof) at any time, with or without notice, for any reason. We shall not be
-                liable to you or any third party for any modification, suspension, or
-                discontinuation of the Service.
+                thereof) at any time, with or without notice, for any reason. We shall not be liable
+                to you or any third party for any modification, suspension, or discontinuation of
+                the Service.
               </p>
             </section>
 
@@ -289,8 +294,8 @@ export default function TermsAndConditionsPage() {
               <h2 className="text-2xl font-semibold mb-4">14. Termination</h2>
               <p className="text-base leading-relaxed text-muted-foreground mb-4">
                 We may terminate or suspend your access to the Service immediately, without prior
-                notice or liability, for any reason, including without limitation if you breach these
-                Terms.
+                notice or liability, for any reason, including without limitation if you breach
+                these Terms.
               </p>
               <p className="text-base leading-relaxed text-muted-foreground mb-4">
                 Upon termination, your right to use the Service will cease immediately. All
@@ -371,7 +376,10 @@ export default function TermsAndConditionsPage() {
                   Email: legal@ouncetracker.com
                 </p>
                 <p className="text-base leading-relaxed text-muted-foreground">
-                  Website: <Link href="/" className="text-primary hover:underline">ouncetracker.com</Link>
+                  Website:{' '}
+                  <Link href="/" className="text-primary hover:underline">
+                    ouncetracker.com
+                  </Link>
                 </p>
               </div>
             </section>
@@ -391,4 +399,3 @@ export default function TermsAndConditionsPage() {
     </div>
   );
 }
-

@@ -30,17 +30,16 @@ export default function PrivacyPolicyPage() {
               <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
               <p className="text-base leading-relaxed text-muted-foreground mb-4">
                 OunceTracker (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to
-                protecting your privacy. This Privacy Policy explains how we collect, use,
-                disclose, and safeguard your information when you visit our website
-                ouncetracker.com (the &quot;Service&quot;). Please read this privacy policy
-                carefully. If you do not agree with the terms of this privacy policy, please do
-                not access the Service.
+                protecting your privacy. This Privacy Policy explains how we collect, use, disclose,
+                and safeguard your information when you visit our website ouncetracker.com (the
+                &quot;Service&quot;). Please read this privacy policy carefully. If you do not agree
+                with the terms of this privacy policy, please do not access the Service.
               </p>
             </section>
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold mb-4">2. Information We Collect</h2>
-              
+
               <h3 className="text-xl font-semibold mb-3 mt-6">2.1 Information You Provide</h3>
               <p className="text-base leading-relaxed text-muted-foreground mb-4">
                 We may collect information that you voluntarily provide to us when you:
@@ -52,10 +51,12 @@ export default function PrivacyPolicyPage() {
                 <li>Participate in surveys or feedback forms</li>
               </ul>
 
-              <h3 className="text-xl font-semibold mb-3 mt-6">2.2 Automatically Collected Information</h3>
+              <h3 className="text-xl font-semibold mb-3 mt-6">
+                2.2 Automatically Collected Information
+              </h3>
               <p className="text-base leading-relaxed text-muted-foreground mb-4">
-                When you access the Service, we may automatically collect certain information
-                about your device and usage patterns, including:
+                When you access the Service, we may automatically collect certain information about
+                your device and usage patterns, including:
               </p>
               <ul className="list-disc pl-6 mb-4 space-y-2 text-base leading-relaxed text-muted-foreground">
                 <li>IP address and location data</li>
@@ -86,8 +87,8 @@ export default function PrivacyPolicyPage() {
                   support
                 </li>
                 <li>
-                  <strong>Legal Compliance:</strong> To comply with applicable laws, regulations, and
-                  legal processes
+                  <strong>Legal Compliance:</strong> To comply with applicable laws, regulations,
+                  and legal processes
                 </li>
                 <li>
                   <strong>Security:</strong> To detect, prevent, and address technical issues,
@@ -249,8 +250,7 @@ export default function PrivacyPolicyPage() {
               <p className="text-base leading-relaxed text-muted-foreground mb-4">
                 If you are located in the European Economic Area (EEA), you have certain rights
                 under the General Data Protection Regulation (GDPR), including those listed in
-                Section 8. We process your personal information based on the following legal
-                bases:
+                Section 8. We process your personal information based on the following legal bases:
               </p>
               <ul className="list-disc pl-6 mb-4 space-y-2 text-base leading-relaxed text-muted-foreground">
                 <li>Your consent</li>
@@ -275,8 +275,8 @@ export default function PrivacyPolicyPage() {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold mb-4">14. Contact Us</h2>
               <p className="text-base leading-relaxed text-muted-foreground mb-4">
-                If you have any questions about this Privacy Policy or wish to exercise your
-                rights, please contact us:
+                If you have any questions about this Privacy Policy or wish to exercise your rights,
+                please contact us:
               </p>
               <div className="bg-muted/50 rounded-lg p-6 mb-4">
                 <p className="text-base leading-relaxed text-foreground mb-2">
@@ -286,7 +286,10 @@ export default function PrivacyPolicyPage() {
                   Email: privacy@ouncetracker.com
                 </p>
                 <p className="text-base leading-relaxed text-muted-foreground">
-                  Website: <Link href="/" className="text-primary hover:underline">ouncetracker.com</Link>
+                  Website:{' '}
+                  <Link href="/" className="text-primary hover:underline">
+                    ouncetracker.com
+                  </Link>
                 </p>
               </div>
             </section>
@@ -305,4 +308,3 @@ export default function PrivacyPolicyPage() {
     </div>
   );
 }
-
