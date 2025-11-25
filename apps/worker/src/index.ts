@@ -69,10 +69,10 @@ class WorkerApp {
       }
     );
 
-    // Schedule scrape-all-dealers every 1 minute
+    // Schedule scrape-all-dealers every 5 minutes
     this.scheduler.scheduleJob(
       'scrape-all-dealers',
-      60 * 1000, // 1 minute
+      60 * 5000, // 5 minutes
       async () => {
         await scrapeAllDealers();
       }
@@ -82,7 +82,7 @@ class WorkerApp {
 📊 Worker Application Started Successfully!
 🕐 Price Updates: Every 5 minutes
 🛒 Dealer Scraping: Every 15 minutes
-🔄 Scrape All Dealers: Every 1 minute
+🔄 Scrape All Dealers: Every 5 minutes
 📚 Environment: ${process.env.NODE_ENV || 'development'}
     `);
 
