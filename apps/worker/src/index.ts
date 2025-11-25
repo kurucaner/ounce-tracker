@@ -1,6 +1,5 @@
 import pino from 'pino';
 import { delay } from '@shared';
-import { ScraperScheduler } from './scheduler';
 import { scrapeAllDealers } from './scrape-all-dealers';
 
 /**
@@ -23,12 +22,27 @@ const logger = pino({
  * Worker application entry point
  */
 class WorkerApp {
-  private readonly scheduler: ScraperScheduler;
-
   private isRunning = false;
+  private readonly DELAY_BETWEEN_RUNS_MS = 1000; // 1 second delay between runs
 
-  constructor() {
-    this.scheduler = new ScraperScheduler(logger);
+  /**
+   * Recursively run scrape-all-dealers
+   * When the function completes, it immediately calls itself again
+   */
+  async runScraperLoop(): Promise<void> {
+    while (this.isRunning) {
+      try {
+        await scrapeAllDealers();
+        logger.info('✅ Scraping completed. Starting next run...');
+      } catch (error) {
+        logger.error({ error }, 'Error during scraping, will retry immediately');
+      }
+
+      // Small delay before next run (only if still running)
+      if (this.isRunning) {
+        await delay(this.DELAY_BETWEEN_RUNS_MS);
+      }
+    }
   }
 
   /**
@@ -36,34 +50,10 @@ class WorkerApp {
    */
   async start(): Promise<void> {
     logger.info('🚀 Starting Worker Application...');
-
     this.isRunning = true;
 
-    // Start the scheduler
-    this.scheduler.start();
-
-    // Schedule scrape-all-dealers every 5 minutes
-    this.scheduler.scheduleJob(
-      'scrape-all-dealers',
-      60 * 30000, // 30 minutes
-      async () => {
-        await scrapeAllDealers();
-      }
-    );
-
-    await scrapeAllDealers();
-
-    // Keep the worker alive
-    await this.keepAlive();
-  }
-
-  /**
-   * Keep the worker process alive
-   */
-  private async keepAlive(): Promise<void> {
-    while (this.isRunning) {
-      await delay(10000); // Check every 10 seconds
-    }
+    // Start recursive scraping loop
+    await this.runScraperLoop();
   }
 
   /**
@@ -71,10 +61,7 @@ class WorkerApp {
    */
   async shutdown(): Promise<void> {
     logger.info('🛑 Shutting down Worker Application...');
-
     this.isRunning = false;
-    this.scheduler.stop();
-
     logger.info('✅ Worker Application shut down successfully');
     process.exit(0);
   }
