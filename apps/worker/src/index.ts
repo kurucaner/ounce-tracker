@@ -117,5 +117,3 @@ const main = async (): Promise<void> => {
 
 // Start the application
 main();
-
-console.log('init');
