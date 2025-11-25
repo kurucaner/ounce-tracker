@@ -117,16 +117,21 @@ export function HomePageContent() {
     router.push(`?product=${productId}`, { scroll: false });
   };
 
-  const lowestPrice = listings.length > 0 ? Math.min(...listings.map((l) => l.price)) : 0;
-  const highestPrice = listings.length > 0 ? Math.max(...listings.map((l) => l.price)) : 0;
+  // Filter to only in-stock items for price range and ranking calculations
+  const inStockListings = listings.filter((l) => l.inStock);
+  const lowestPrice =
+    inStockListings.length > 0 ? Math.min(...inStockListings.map((l) => l.price)) : 0;
+  const highestPrice =
+    inStockListings.length > 0 ? Math.max(...inStockListings.map((l) => l.price)) : 0;
 
-  // Sort listings by price to determine rankings
-  const sortedListings = [...listings].sort((a, b) => a.price - b.price);
-  const prices = sortedListings.map((l) => l.price);
+  // Sort in-stock listings by price to determine rankings
+  const sortedInStockListings = [...inStockListings].sort((a, b) => a.price - b.price);
+  const prices = sortedInStockListings.map((l) => l.price);
   const uniquePrices = Array.from(new Set(prices)).sort((a, b) => a - b);
 
-  // Determine rank for each listing
-  const getRank = (price: number): number | null => {
+  // Determine rank for each listing (only for in-stock items)
+  const getRank = (price: number, inStock: boolean): number | null => {
+    if (!inStock) return null;
     const index = uniquePrices.indexOf(price);
     return index >= 0 && index < 3 ? index + 1 : null;
   };
@@ -214,9 +219,9 @@ export function HomePageContent() {
                 {/* Mobile Card Layout */}
                 <div className="space-y-3 md:hidden">
                   {listings.map((listing, index) => {
-                    const isLowest = listing.price === lowestPrice;
-                    const priceDifference = listing.price - lowestPrice;
-                    const rank = getRank(listing.price);
+                    const isLowest = listing.inStock && listing.price === lowestPrice;
+                    const priceDifference = listing.inStock ? listing.price - lowestPrice : 0;
+                    const rank = getRank(listing.price, listing.inStock);
 
                     // Calculate gradient position (0 = lowest price, 1 = highest price)
                     const priceRange = highestPrice - lowestPrice;
@@ -321,9 +326,9 @@ export function HomePageContent() {
                     </TableHeader>
                     <TableBody>
                       {listings.map((listing, index) => {
-                        const isLowest = listing.price === lowestPrice;
-                        const priceDifference = listing.price - lowestPrice;
-                        const rank = getRank(listing.price);
+                        const isLowest = listing.inStock && listing.price === lowestPrice;
+                        const priceDifference = listing.inStock ? listing.price - lowestPrice : 0;
+                        const rank = getRank(listing.price, listing.inStock);
 
                         // Calculate gradient position (0 = lowest price, 1 = highest price)
                         const priceRange = highestPrice - lowestPrice;
