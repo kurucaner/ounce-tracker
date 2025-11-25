@@ -17,7 +17,7 @@ RUN apk add --no-cache \
     udev
 
 # Copy workspace configuration
-COPY package.json bun.lockb bunfig.toml ./
+COPY package.json bun.lock bunfig.toml ./
 COPY tsconfig.base.json ./
 
 # Copy shared package
@@ -73,7 +73,7 @@ RUN apk add --no-cache \
 
 # Copy workspace configuration
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/bun.lockb ./bun.lockb
+COPY --from=builder /app/bun.lock ./bun.lock
 COPY --from=builder /app/bunfig.toml ./bunfig.toml
 COPY --from=builder /app/tsconfig.base.json ./tsconfig.base.json
 
