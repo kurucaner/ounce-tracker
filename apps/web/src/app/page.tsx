@@ -1,8 +1,9 @@
-import { HomePageContent } from '@/components/home/home-page-content';
+import { DealersListing } from '@/components/home/dealers-listing';
 import { HomeStructuredData } from '@/components/home/home-structured-data';
 import type { Metadata } from 'next';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { Suspense } from 'react';
+import { SiteFooter } from '@/components/site-footer';
 
 /**
  * Generate dynamic metadata for SEO
@@ -125,8 +126,10 @@ export default async function HomePage() {
     <>
       <HomeStructuredData products={products} />
       <Suspense fallback={<div>Loading...</div>}>
-        <HomePageContent />
+        <DealersListing />
       </Suspense>
+      <div>static content</div>
+      <SiteFooter />
     </>
   );
 }

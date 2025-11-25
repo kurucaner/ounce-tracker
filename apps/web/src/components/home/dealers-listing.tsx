@@ -79,7 +79,7 @@ const getPriceGradientColor = (position: number): string => {
   return `rgb(${r}, ${g}, ${b})`;
 };
 
-export function HomePageContent() {
+export function DealersListing() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -416,8 +416,6 @@ export function HomePageContent() {
           })()}
         </section>
       </main>
-
-      <SiteFooter />
     </div>
   );
 }
