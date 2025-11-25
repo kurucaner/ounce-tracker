@@ -1,8 +1,6 @@
 import pino from 'pino';
 import { delay } from '@shared';
 import { ScraperScheduler } from './scheduler';
-import { PriceUpdateWorker } from './workers/price-update';
-import { DealerScraperWorker } from './workers/dealer-scraper';
 import { scrapeAllDealers } from './scrape-all-dealers';
 
 /**
@@ -10,30 +8,27 @@ import { scrapeAllDealers } from './scrape-all-dealers';
  */
 const logger = pino({
   transport:
-    process.env.NODE_ENV !== 'production'
-      ? {
+    process.env.NODE_ENV == 'production'
+      ? undefined
+      : {
           target: 'pino-pretty',
           options: {
             translateTime: 'HH:MM:ss Z',
             ignore: 'pid,hostname',
           },
-        }
-      : undefined,
+        },
 });
 
 /**
  * Worker application entry point
  */
 class WorkerApp {
-  private scheduler: ScraperScheduler;
-  private priceUpdateWorker: PriceUpdateWorker;
-  private dealerScraperWorker: DealerScraperWorker;
+  private readonly scheduler: ScraperScheduler;
+
   private isRunning = false;
 
   constructor() {
     this.scheduler = new ScraperScheduler(logger);
-    this.priceUpdateWorker = new PriceUpdateWorker(logger);
-    this.dealerScraperWorker = new DealerScraperWorker(logger);
   }
 
   /**
@@ -44,30 +39,8 @@ class WorkerApp {
 
     this.isRunning = true;
 
-    // Initialize workers
-    await this.priceUpdateWorker.initialize();
-    await this.dealerScraperWorker.initialize();
-
     // Start the scheduler
     this.scheduler.start();
-
-    // Schedule price updates every 5 minutes
-    this.scheduler.scheduleJob(
-      'price-update',
-      5 * 60 * 1000, // 5 minutes
-      async () => {
-        await this.priceUpdateWorker.execute();
-      }
-    );
-
-    // Schedule dealer scraping every 15 minutes
-    this.scheduler.scheduleJob(
-      'dealer-scraper',
-      15 * 60 * 1000, // 15 minutes
-      async () => {
-        await this.dealerScraperWorker.execute();
-      }
-    );
 
     // Schedule scrape-all-dealers every 5 minutes
     this.scheduler.scheduleJob(
@@ -78,20 +51,6 @@ class WorkerApp {
       }
     );
 
-    logger.info(`
-📊 Worker Application Started Successfully!
-🕐 Price Updates: Every 5 minutes
-🛒 Dealer Scraping: Every 15 minutes
-🔄 Scrape All Dealers: Every 5 minutes
-📚 Environment: ${process.env.NODE_ENV || 'development'}
-    `);
-
-    // Run initial jobs immediately
-    logger.info('⚡ Running initial jobs...');
-    await this.priceUpdateWorker.execute();
-    await delay(2000);
-    await this.dealerScraperWorker.execute();
-    await delay(2000);
     await scrapeAllDealers();
 
     // Keep the worker alive
@@ -116,9 +75,6 @@ class WorkerApp {
     this.isRunning = false;
     this.scheduler.stop();
 
-    await this.priceUpdateWorker.cleanup();
-    await this.dealerScraperWorker.cleanup();
-
     logger.info('✅ Worker Application shut down successfully');
     process.exit(0);
   }
@@ -141,7 +97,6 @@ const main = async (): Promise<void> => {
     await app.shutdown();
   });
 
-  // Handle uncaught errors
   process.on('uncaughtException', (error) => {
     logger.error({ error }, 'Uncaught exception');
     process.exit(1);

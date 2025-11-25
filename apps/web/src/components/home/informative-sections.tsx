@@ -26,77 +26,90 @@ interface MintDetails {
 
 const FuturisticMintCard = memo(({ mint }: { mint: MintDetails }) => {
   return (
-    <div
-      className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br ${mint.gradient} p-[1px] backdrop-blur-xl transition-all duration-700 hover:scale-[1.02] hover:shadow-2xl`}
-    >
-      {/* Glassmorphism background */}
-      <div className="relative h-full rounded-2xl bg-gradient-to-br from-background/80 via-background/60 to-background/40 backdrop-blur-2xl">
-        {/* Animated glow effect */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 opacity-0 blur-xl transition-opacity duration-700 group-hover:opacity-100" />
+    <div className="p-1">
+      <div
+        className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br ${mint.gradient} p-[1px] backdrop-blur-xl transition-all duration-700 hover:scale-[1.02] hover:shadow-2xl`}
+      >
+        {/* Glassmorphism background */}
+        <div className="relative h-full rounded-2xl bg-gradient-to-br from-background/80 via-background/60 to-background/40 backdrop-blur-2xl">
+          {/* Animated glow effect */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 opacity-0 blur-xl transition-opacity duration-700 group-hover:opacity-100" />
 
-        {/* Content */}
-        <div className="relative z-10 p-6 sm:p-8">
-          {/* Header */}
-          <div className="mb-6">
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-2xl font-bold tracking-tight text-foreground">{mint.name}</h3>
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/20 backdrop-blur-sm">
-                <span className="text-xs font-bold text-foreground">{mint.purity}</span>
+          {/* Content */}
+          <div className="relative z-10 p-6 sm:p-8">
+            {/* Header */}
+            <div className="mb-6">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-2xl font-bold tracking-tight text-foreground transition-colors duration-700 group-hover:text-foreground/100">
+                  {mint.name}
+                </h3>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/20 backdrop-blur-sm transition-colors duration-700 group-hover:bg-white/15">
+                  <span className="text-xs font-bold text-foreground transition-colors duration-700 group-hover:text-foreground/100">
+                    {mint.purity}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-1.5 w-1.5 rounded-full bg-cyan-400/80 shadow-[0_0_8px_rgba(34,211,238,0.6)] transition-all duration-700 group-hover:bg-cyan-400 group-hover:shadow-[0_0_12px_rgba(34,211,238,0.8)]" />
+                <span className="text-sm font-medium uppercase tracking-wider text-muted-foreground transition-colors duration-700 group-hover:text-foreground/80">
+                  {mint.country}
+                </span>
+                {mint.founded && (
+                  <>
+                    <span className="text-muted-foreground transition-colors duration-700 group-hover:text-foreground/60">
+                      •
+                    </span>
+                    <span className="text-xs text-muted-foreground transition-colors duration-700 group-hover:text-foreground/70">
+                      {mint.founded}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="h-1.5 w-1.5 rounded-full bg-cyan-400/80 shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
-              <span className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
-                {mint.country}
-              </span>
-              {mint.founded && (
-                <>
-                  <span className="text-muted-foreground">•</span>
-                  <span className="text-xs text-muted-foreground">{mint.founded}</span>
-                </>
-              )}
+
+            {/* Description */}
+            <p className="mb-6 text-sm leading-relaxed text-muted-foreground transition-colors duration-700 group-hover:text-foreground/70 sm:text-base">
+              {mint.description}
+            </p>
+
+            {/* Specialties */}
+            <div className="mb-6 space-y-3">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/60 transition-colors duration-700 group-hover:text-foreground/80">
+                Specialties
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {mint.specialties.map((specialty, idx) => (
+                  <span
+                    key={idx}
+                    className="rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-medium text-foreground/80 backdrop-blur-sm transition-colors duration-700 group-hover:border-white/30 group-hover:bg-white/10 group-hover:text-foreground/100"
+                  >
+                    {specialty}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Description */}
-          <p className="mb-6 text-sm leading-relaxed text-muted-foreground sm:text-base">
-            {mint.description}
-          </p>
-
-          {/* Specialties */}
-          <div className="mb-6 space-y-3">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/60">
-              Specialties
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {mint.specialties.map((specialty, idx) => (
-                <span
-                  key={idx}
-                  className="rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-medium text-foreground/80 backdrop-blur-sm"
-                >
-                  {specialty}
-                </span>
-              ))}
+            {/* Notable Products */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/60 transition-colors duration-700 group-hover:text-foreground/80">
+                Notable Products
+              </h4>
+              <ul className="space-y-1.5">
+                {mint.notableProducts.map((product, idx) => (
+                  <li
+                    key={idx}
+                    className="flex items-center gap-2 text-sm text-muted-foreground transition-colors duration-700 group-hover:text-foreground/70"
+                  >
+                    <div className="h-1 w-1 rounded-full bg-cyan-400/60 transition-all duration-700 group-hover:bg-cyan-400" />
+                    <span>{product}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
 
-          {/* Notable Products */}
-          <div className="space-y-2">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/60">
-              Notable Products
-            </h4>
-            <ul className="space-y-1.5">
-              {mint.notableProducts.map((product, idx) => (
-                <li key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="h-1 w-1 rounded-full bg-cyan-400/60" />
-                  <span>{product}</span>
-                </li>
-              ))}
-            </ul>
+            {/* Bottom accent line */}
+            <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
           </div>
-
-          {/* Bottom accent line */}
-          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
         </div>
       </div>
     </div>
@@ -183,10 +196,7 @@ export function InformativeSections() {
         </div>
 
         {/* Trusted Mints - Futuristic Design */}
-        <section
-          className="relative mb-24 overflow-hidden sm:mb-32"
-          aria-label="Trusted Mints & Manufacturers"
-        >
+        <section className="relative mb-24 sm:mb-32" aria-label="Trusted Mints & Manufacturers">
           {/* Futuristic background effects */}
           <div className="absolute inset-0 -z-10">
             <div className="absolute left-1/4 top-0 h-[600px] w-[600px] rounded-full bg-cyan-500/10 blur-3xl" />
@@ -206,7 +216,7 @@ export function InformativeSections() {
               institutions set the benchmark for excellence in precious metals production.
             </p>
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 -mx-1">
               <FuturisticMintCard
                 mint={{
                   name: 'PAMP Suisse',
