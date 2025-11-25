@@ -5,7 +5,6 @@ import { Coins, Building2, TrendingUp, Shield, Sparkles } from 'lucide-react';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
   Accordion,
@@ -14,27 +13,96 @@ import {
   AccordionTrigger,
 } from '@shared';
 
-const MintCard = memo(
-  ({ name, country, description }: { name: string; country: string; description: string }) => {
-    return (
-      <Card className="group relative h-full overflow-hidden border border-border/50 bg-card transition-all duration-500 hover:border-primary/20 hover:shadow-lg">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-        <CardHeader className="relative z-10">
-          <div className="mb-2">
-            <CardTitle className="text-lg font-semibold leading-tight">{name}</CardTitle>
-            <CardDescription className="mt-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              {country}
-            </CardDescription>
+interface MintDetails {
+  name: string;
+  country: string;
+  founded?: string;
+  purity: string;
+  specialties: string[];
+  notableProducts: string[];
+  description: string;
+  gradient: string;
+}
+
+const FuturisticMintCard = memo(({ mint }: { mint: MintDetails }) => {
+  return (
+    <div
+      className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br ${mint.gradient} p-[1px] backdrop-blur-xl transition-all duration-700 hover:scale-[1.02] hover:shadow-2xl`}
+    >
+      {/* Glassmorphism background */}
+      <div className="relative h-full rounded-2xl bg-gradient-to-br from-background/80 via-background/60 to-background/40 backdrop-blur-2xl">
+        {/* Animated glow effect */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 opacity-0 blur-xl transition-opacity duration-700 group-hover:opacity-100" />
+
+        {/* Content */}
+        <div className="relative z-10 p-6 sm:p-8">
+          {/* Header */}
+          <div className="mb-6">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-2xl font-bold tracking-tight text-foreground">{mint.name}</h3>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/20 backdrop-blur-sm">
+                <span className="text-xs font-bold text-foreground">{mint.purity}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 w-1.5 rounded-full bg-cyan-400/80 shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
+              <span className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+                {mint.country}
+              </span>
+              {mint.founded && (
+                <>
+                  <span className="text-muted-foreground">•</span>
+                  <span className="text-xs text-muted-foreground">{mint.founded}</span>
+                </>
+              )}
+            </div>
           </div>
-        </CardHeader>
-        <CardContent className="relative z-10">
-          <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
-        </CardContent>
-      </Card>
-    );
-  }
-);
-MintCard.displayName = 'MintCard';
+
+          {/* Description */}
+          <p className="mb-6 text-sm leading-relaxed text-muted-foreground sm:text-base">
+            {mint.description}
+          </p>
+
+          {/* Specialties */}
+          <div className="mb-6 space-y-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/60">
+              Specialties
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {mint.specialties.map((specialty, idx) => (
+                <span
+                  key={idx}
+                  className="rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-medium text-foreground/80 backdrop-blur-sm"
+                >
+                  {specialty}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Notable Products */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/60">
+              Notable Products
+            </h4>
+            <ul className="space-y-1.5">
+              {mint.notableProducts.map((product, idx) => (
+                <li key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="h-1 w-1 rounded-full bg-cyan-400/60" />
+                  <span>{product}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Bottom accent line */}
+          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
+        </div>
+      </div>
+    </div>
+  );
+});
+FuturisticMintCard.displayName = 'FuturisticMintCard';
 
 const FeatureCard = memo(({ title, description }: { title: string; description: string }) => {
   return (
@@ -114,48 +182,186 @@ export function InformativeSections() {
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
         </div>
 
-        {/* Trusted Mints */}
-        <section className="mb-24 sm:mb-32" aria-label="Trusted Mints & Manufacturers">
-          <SectionHeader
-            title="Trusted Mints & Manufacturers"
-            subtitle="World-renowned institutions guaranteeing quality, purity, and authenticity"
-            icon={Building2}
-          />
-          <p className="mb-10 max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            We track products from the world&apos;s most reputable mints and manufacturers, known
-            for their quality, purity standards, and global recognition.
-          </p>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <MintCard
-              name="PAMP Suisse"
-              country="Switzerland"
-              description="One of the world's leading precious metals refiners, known for the Lady Fortuna design and exceptional quality."
+        {/* Trusted Mints - Futuristic Design */}
+        <section
+          className="relative mb-24 overflow-hidden sm:mb-32"
+          aria-label="Trusted Mints & Manufacturers"
+        >
+          {/* Futuristic background effects */}
+          <div className="absolute inset-0 -z-10">
+            <div className="absolute left-1/4 top-0 h-[600px] w-[600px] rounded-full bg-cyan-500/10 blur-3xl" />
+            <div className="absolute right-1/4 bottom-0 h-[500px] w-[500px] rounded-full bg-blue-500/10 blur-3xl" />
+            <div className="absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-purple-500/5 blur-3xl" />
+          </div>
+
+          <div className="relative">
+            <SectionHeader
+              title="Trusted Mints & Manufacturers"
+              subtitle="World-renowned institutions at the forefront of precious metals innovation, combining centuries of tradition with cutting-edge technology"
+              icon={Building2}
             />
-            <MintCard
-              name="Royal Canadian Mint"
-              country="Canada"
-              description="Government-owned mint producing the iconic Maple Leaf coins with 99.99% purity guarantees."
-            />
-            <MintCard
-              name="US Mint"
-              country="United States"
-              description="Official mint of the United States, producing American Eagle and American Buffalo coins."
-            />
-            <MintCard
-              name="Perth Mint"
-              country="Australia"
-              description="Government-backed mint producing the Australian Kangaroo and other highly sought-after products."
-            />
-            <MintCard
-              name="Valcambi"
-              country="Switzerland"
-              description="Premium refiner producing Combibars and other innovative precious metal products."
-            />
-            <MintCard
-              name="Other Reputable Mints"
-              country="Global"
-              description="We also track products from other trusted mints including Credit Suisse, Johnson Matthey, and more."
-            />
+            <p className="mb-12 max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              We track products from the world&apos;s most reputable mints and manufacturers, each
+              representing the pinnacle of quality, purity standards, and global recognition. These
+              institutions set the benchmark for excellence in precious metals production.
+            </p>
+
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <FuturisticMintCard
+                mint={{
+                  name: 'PAMP Suisse',
+                  country: 'Switzerland',
+                  founded: '1977',
+                  purity: '99.99%',
+                  specialties: ['Refining', 'Design Innovation', 'Certification'],
+                  notableProducts: [
+                    'Lady Fortuna Series',
+                    'Fortuna Gold Bars',
+                    'CertiPAMP Bars',
+                    'InGold Series',
+                  ],
+                  description:
+                    "One of the world's leading precious metals refiners, PAMP Suisse combines Swiss precision with artistic excellence. Known for their iconic Lady Fortuna design and innovative CertiPAMP technology, they set industry standards for quality and authenticity.",
+                  gradient: 'from-cyan-500/20 via-blue-500/20 to-cyan-500/20',
+                }}
+              />
+              <FuturisticMintCard
+                mint={{
+                  name: 'Royal Canadian Mint',
+                  country: 'Canada',
+                  founded: '1908',
+                  purity: '99.99%',
+                  specialties: ['Government Backing', 'Maple Leaf Series', 'Security Features'],
+                  notableProducts: [
+                    'Gold Maple Leaf',
+                    'Silver Maple Leaf',
+                    'Platinum Maple Leaf',
+                    'Palladium Maple Leaf',
+                  ],
+                  description:
+                    "As a Crown corporation of Canada, the Royal Canadian Mint produces some of the world's most recognized bullion coins. Their Maple Leaf series features advanced security features and is backed by the Canadian government, ensuring exceptional quality and liquidity.",
+                  gradient: 'from-blue-500/20 via-indigo-500/20 to-blue-500/20',
+                }}
+              />
+              <FuturisticMintCard
+                mint={{
+                  name: 'US Mint',
+                  country: 'United States',
+                  founded: '1792',
+                  purity: '99.99%',
+                  specialties: ['Legal Tender', 'Eagle Series', 'Buffalo Series'],
+                  notableProducts: [
+                    'American Gold Eagle',
+                    'American Silver Eagle',
+                    'American Buffalo',
+                    'Platinum Eagle',
+                  ],
+                  description:
+                    'The official mint of the United States, established by Congress in 1792. Produces legal tender bullion coins including the iconic American Eagle and American Buffalo series. These coins are recognized worldwide and carry the full faith and credit of the U.S. government.',
+                  gradient: 'from-purple-500/20 via-violet-500/20 to-purple-500/20',
+                }}
+              />
+              <FuturisticMintCard
+                mint={{
+                  name: 'Perth Mint',
+                  country: 'Australia',
+                  founded: '1899',
+                  purity: '99.99%',
+                  specialties: ['Kangaroo Series', 'Lunar Series', 'Government Backing'],
+                  notableProducts: [
+                    'Australian Kangaroo',
+                    'Australian Koala',
+                    'Lunar Series',
+                    'Perth Mint Bars',
+                  ],
+                  description:
+                    "Australia's oldest operating mint and a government enterprise of Western Australia. Known for innovative designs and the popular Kangaroo and Lunar series. Perth Mint products are backed by the Western Australian government and recognized globally for quality.",
+                  gradient: 'from-emerald-500/20 via-teal-500/20 to-emerald-500/20',
+                }}
+              />
+              <FuturisticMintCard
+                mint={{
+                  name: 'Valcambi',
+                  country: 'Switzerland',
+                  founded: '1961',
+                  purity: '99.99%',
+                  specialties: ['Combibars', 'Innovation', 'Swiss Quality'],
+                  notableProducts: [
+                    'Combibar Technology',
+                    'Valcambi Gold Bars',
+                    'Silver Bars',
+                    'Platinum Bars',
+                  ],
+                  description:
+                    'A premium Swiss refiner known for revolutionary products like the Combibar—a bar that can be broken into smaller units while maintaining individual assay certification. Valcambi combines Swiss precision with innovative design, making them a leader in flexible precious metals products.',
+                  gradient: 'from-amber-500/20 via-orange-500/20 to-amber-500/20',
+                }}
+              />
+              <FuturisticMintCard
+                mint={{
+                  name: 'Other Reputable Mints',
+                  country: 'Global',
+                  purity: '99.9%+',
+                  specialties: ['Diversity', 'Global Recognition', 'Quality Standards'],
+                  notableProducts: [
+                    'Credit Suisse Bars',
+                    'Johnson Matthey',
+                    'Heraeus',
+                    'Argor-Heraeus',
+                  ],
+                  description:
+                    'We also track products from other trusted mints and refiners including Credit Suisse, Johnson Matthey, Heraeus, Argor-Heraeus, and more. Each maintains rigorous quality standards and global recognition, ensuring your investment meets the highest industry benchmarks.',
+                  gradient: 'from-slate-500/20 via-gray-500/20 to-slate-500/20',
+                }}
+              />
+            </div>
+
+            {/* Additional info section */}
+            <div className="mt-12 rounded-2xl border border-white/10 bg-gradient-to-br from-background/60 via-background/40 to-background/60 p-8 backdrop-blur-2xl sm:p-10">
+              <div className="mx-auto max-w-3xl">
+                <h3 className="mb-4 text-xl font-bold text-foreground sm:text-2xl">
+                  What Makes These Mints Trusted?
+                </h3>
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-semibold uppercase tracking-wider text-foreground/80">
+                      Certification & Assay
+                    </h4>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      Each product carries distinct hallmarks, serial numbers, and assay
+                      certificates guaranteeing weight, purity, and authenticity.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-semibold uppercase tracking-wider text-foreground/80">
+                      Global Recognition
+                    </h4>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      Products from these mints are recognized and easily liquidated worldwide,
+                      ensuring maximum liquidity for your investment.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-semibold uppercase tracking-wider text-foreground/80">
+                      Quality Standards
+                    </h4>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      Rigorous quality control processes ensure consistent weight, purity, and
+                      finish across all products.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-semibold uppercase tracking-wider text-foreground/80">
+                      Innovation
+                    </h4>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      Continuous innovation in security features, design, and manufacturing
+                      processes keeps these mints at the forefront of the industry.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
