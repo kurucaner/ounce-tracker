@@ -138,8 +138,6 @@ export function DealersListing() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-
       <main className="flex-1">
         <section
           className="border-b bg-muted/40 px-4 py-4 sm:px-6 sm:py-6"

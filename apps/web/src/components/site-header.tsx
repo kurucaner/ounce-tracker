@@ -1,12 +1,13 @@
 import Link from 'next/link';
-import { Coins } from 'lucide-react';
+import Image from 'next/image';
 
 export const SiteHeader = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-14 max-w-5xl items-center px-6">
         <Link href="/" className="flex items-center space-x-2">
-          <Coins className="h-6 w-6" />
+          {/* <Coins className="h-6 w-6" /> */}
+          <Image src="/logo.png" alt="OunceTracker" width={24} height={24} />
           <span className="font-bold">OunceTracker</span>
         </Link>
         <nav className="flex flex-1 items-center justify-end space-x-6 text-sm font-medium">
