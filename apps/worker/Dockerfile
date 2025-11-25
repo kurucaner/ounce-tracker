@@ -44,7 +44,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Install system dependencies for Chromium
-# Essential packages for Playwright on Alpine
+# Install packages that we know exist in Alpine
+# For libatk-1.0.so.0, we'll check what provides it or install manually
 RUN apk add --no-cache \
     ca-certificates \
     freetype \
@@ -55,7 +56,6 @@ RUN apk add --no-cache \
     ttf-opensans \
     udev \
     glib \
-    at-spi2-atk \
     libx11 \
     libxcomposite \
     libxdamage \
@@ -67,7 +67,9 @@ RUN apk add --no-cache \
     libdrm \
     libxkbcommon \
     alsa-lib \
-    mesa
+    mesa \
+    cairo \
+    pango
 
 # Copy workspace configuration
 COPY --from=builder /app/package.json ./package.json
