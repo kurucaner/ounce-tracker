@@ -161,27 +161,36 @@ export async function scrapeBullionExchanges(
     // Use 'domcontentloaded' for faster loading, and a longer timeout for reliability
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
 
+    const outOfStockElement = await page.$('[class*="outOfStock"]');
+
     // Wait for the specific element that contains the pricing table to appear,
     // which is more reliable than a fixed timeout.
-    await page.waitForSelector(':text("Quantity")', { timeout: 10000 });
+    let price = 0;
 
-    // Call the newly implemented extraction logic
-    const priceText = await extractPriceFromPage(page);
+    if (!outOfStockElement) {
+      await page.waitForSelector(':text("Quantity")', { timeout: 10000 });
 
-    if (!priceText) {
-      throw new Error('Price not found on page after JavaScript rendering');
-    }
+      // Call the newly implemented extraction logic
+      const priceText = await extractPriceFromPage(page);
 
-    // Standard cleaning and parsing logic (kept from original snippet)
-    const cleanedPrice = priceText.replaceAll(/[^0-9.]/g, '');
-    const price = Number.parseFloat(cleanedPrice);
+      if (!priceText) {
+        throw new Error('Price not found on page after JavaScript rendering');
+      }
 
-    if (Number.isNaN(price) || price <= 0) {
-      throw new Error(`Invalid price parsed: ${priceText}`);
+      // Standard cleaning and parsing logic (kept from original snippet)
+      const cleanedPrice = priceText.replaceAll(/[^0-9.]/g, '');
+      price = Number.parseFloat(cleanedPrice);
+
+      if (Number.isNaN(price) || price <= 0) {
+        throw new Error(`Invalid price parsed: ${priceText}`);
+      }
+    } else {
+      console.info('⚠️ Product is out of stock');
     }
 
     console.info(`✅ Bullion Exchanges - ${productConfig.name}: $${price.toFixed(2)}`);
-    return { price, url, productName: productConfig.name };
+
+    return { price, url, productName: productConfig.name, inStock: !outOfStockElement };
   } catch (error) {
     console.error(`❌ Failed to scrape Bullion Exchanges - ${productConfig.name}:`, error);
     throw error;

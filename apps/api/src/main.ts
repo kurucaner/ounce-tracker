@@ -4,7 +4,6 @@ import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import { type ApiResponse } from '@shared';
 import { healthRoutes } from './routes/health';
-import { productRoutes } from './routes/products';
 
 const PORT = process.env.PORT ? Number.parseInt(process.env.PORT) : 4000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -45,7 +44,6 @@ const createServer = async () => {
 
   // Register routes
   await fastify.register(healthRoutes, { prefix: '/health' });
-  await fastify.register(productRoutes, { prefix: '/api/products' });
 
   // Global error handler
   fastify.setErrorHandler((error: any, request, reply) => {

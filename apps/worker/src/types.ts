@@ -2,6 +2,7 @@ export interface ScraperResult {
   price: number;
   url: string;
   productName: string;
+  inStock: boolean;
 }
 
 export interface ProductConfig {
@@ -16,4 +17,7 @@ export interface DealerConfig {
   products: ProductConfig[];
 }
 
-export type ScraperFunction = (productConfig: ProductConfig, baseUrl: string) => Promise<ScraperResult>;
+export type ScraperFunction = (
+  productConfig: ProductConfig,
+  baseUrl: string
+) => Promise<ScraperResult>;
