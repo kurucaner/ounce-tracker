@@ -1,20 +1,13 @@
 # Build stage
-FROM oven/bun:1.1.34-alpine AS builder
+FROM oven/bun:1.1.34 AS builder
 
 WORKDIR /app
 
 # Install system dependencies for Chromium and Node.js/npm
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
-    freetype \
-    freetype-dev \
-    harfbuzz \
-    nodejs \
-    npm \
-    nss \
-    ttf-freefont \
-    ttf-opensans \
-    udev
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy workspace configuration
 COPY package.json bun.lock bunfig.toml ./
@@ -38,39 +31,16 @@ WORKDIR /app/apps/worker
 RUN npx playwright install chromium
 
 # Production stage
-FROM oven/bun:1.1.34-alpine AS runner
+FROM oven/bun:1.1.34 AS runner
 
 WORKDIR /app
 ENV NODE_ENV=production
 
 # Install system dependencies for Chromium
-# Install packages that we know exist in Alpine
-# For libatk-1.0.so.0, we'll check what provides it or install manually
-RUN apk add --no-cache \
+# Use Playwright's install-deps which knows the right packages for Debian
+RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
-    freetype \
-    freetype-dev \
-    harfbuzz \
-    nss \
-    ttf-freefont \
-    ttf-opensans \
-    udev \
-    glib \
-    libx11 \
-    libxcomposite \
-    libxdamage \
-    libxext \
-    libxfixes \
-    libxrandr \
-    libxtst \
-    dbus \
-    libdrm \
-    libxkbcommon \
-    alsa-lib \
-    mesa \
-    cairo \
-    pango \
-    atk-dev
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy workspace configuration
 COPY --from=builder /app/package.json ./package.json
@@ -86,6 +56,10 @@ COPY --from=builder /app/apps/worker ./apps/worker
 
 # Install production dependencies
 RUN bun install --production --frozen-lockfile
+
+# Install Playwright system dependencies (Debian/Ubuntu)
+# This installs all required libraries including libatk-1.0.so.0
+RUN cd /app/apps/worker && npx playwright install-deps chromium
 
 # Copy Playwright browsers from builder stage
 RUN mkdir -p /root/.cache/ms-playwright
