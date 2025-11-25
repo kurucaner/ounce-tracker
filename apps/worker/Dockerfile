@@ -44,7 +44,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Install system dependencies for Chromium
-# Using Playwright's install-deps to get all required libraries
+# Essential packages for Playwright on Alpine
 RUN apk add --no-cache \
     ca-certificates \
     freetype \
@@ -61,11 +61,9 @@ RUN apk add --no-cache \
     libxext \
     libxfixes \
     libxrandr \
-    libxss \
     libxtst \
-    gtk+3.0 \
+    gtk+3 \
     dbus \
-    at-spi2-atk \
     libdrm \
     libxkbcommon \
     alsa-lib \
