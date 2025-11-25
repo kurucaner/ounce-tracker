@@ -38,8 +38,6 @@ WORKDIR /app/apps/worker
 RUN npx playwright install chromium
 
 # Production stage
-FROM oven/bun:1.1.34-alpine AS runner
-
 WORKDIR /app
 ENV NODE_ENV=production
 
