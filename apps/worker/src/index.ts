@@ -45,7 +45,7 @@ class WorkerApp {
     // Schedule scrape-all-dealers every 5 minutes
     this.scheduler.scheduleJob(
       'scrape-all-dealers',
-      60 * 5000, // 5 minutes
+      60 * 30000, // 30 minutes
       async () => {
         await scrapeAllDealers();
       }
