@@ -38,10 +38,13 @@ WORKDIR /app/apps/worker
 RUN npx playwright install chromium
 
 # Production stage
+FROM oven/bun:1.1.34-alpine AS runner
+
 WORKDIR /app
 ENV NODE_ENV=production
 
 # Install system dependencies for Chromium
+# Using Playwright's install-deps to get all required libraries
 RUN apk add --no-cache \
     ca-certificates \
     freetype \
@@ -50,7 +53,23 @@ RUN apk add --no-cache \
     nss \
     ttf-freefont \
     ttf-opensans \
-    udev
+    udev \
+    glib \
+    libx11 \
+    libxcomposite \
+    libxdamage \
+    libxext \
+    libxfixes \
+    libxrandr \
+    libxss \
+    libxtst \
+    gtk+3.0 \
+    dbus \
+    at-spi2-atk \
+    libdrm \
+    libxkbcommon \
+    alsa-lib \
+    mesa
 
 # Copy workspace configuration
 COPY --from=builder /app/package.json ./package.json
