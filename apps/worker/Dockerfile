@@ -38,21 +38,29 @@ COPY --from=builder /app/packages/shared ./packages/shared
 # Copy worker app source files
 COPY --from=builder /app/apps/worker ./apps/worker
 
-# Install production dependencies
-RUN bun install --production --frozen-lockfile
-
-# Install system dependencies for Chromium
+# Install system dependencies for Chromium (must be before Playwright)
+# Also install nodejs/npm for npx (required by Playwright install command)
 RUN apk add --no-cache \
-    nss \
+    ca-certificates \
     freetype \
     freetype-dev \
     harfbuzz \
-    ca-certificates \
-    ttf-freefont
+    nodejs \
+    npm \
+    nss \
+    ttf-freefont \
+    ttf-opensans \
+    udev
+
+# Install production dependencies
+RUN bun install --production --frozen-lockfile
 
 # Install Playwright browsers (as root)
 # Only "chromium" is needed; headless binary is included.
-RUN bunx playwright install chromium
+# Change to worker directory to ensure playwright can find package.json
+WORKDIR /app/apps/worker
+RUN npx playwright install chromium
+WORKDIR /app
 
 # Start worker - Bun runs TypeScript directly
 CMD ["bun", "apps/worker/src/index.ts"]
