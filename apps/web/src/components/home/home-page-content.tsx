@@ -125,10 +125,13 @@ export function HomePageContent() {
       <SiteHeader />
 
       <main className="flex-1">
-        <section className="border-b bg-muted/40 px-6 py-6" aria-label="Product Selection">
+        <section
+          className="border-b bg-muted/40 px-4 py-4 sm:px-6 sm:py-6"
+          aria-label="Product Selection"
+        >
           <div className="mx-auto max-w-5xl">
             {/* Product Selector */}
-            <div className="mb-6">
+            <div>
               <label
                 htmlFor="product-select"
                 className="mb-2 block text-sm font-medium text-muted-foreground"
@@ -136,7 +139,7 @@ export function HomePageContent() {
                 Select Product
               </label>
               <Select value={selectedProductId} onValueChange={handleProductChange}>
-                <SelectTrigger id="product-select" className="w-full max-w-md bg-background">
+                <SelectTrigger id="product-select" className="w-full bg-background sm:max-w-md">
                   <SelectValue placeholder="Select a product..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -151,13 +154,16 @@ export function HomePageContent() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-6 py-8" aria-label="Price Comparison">
+        <section
+          className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8"
+          aria-label="Price Comparison"
+        >
           {(() => {
             if (productsLoading) {
               return (
-                <div className="flex h-[400px] items-center justify-center">
+                <div className="flex h-[300px] items-center justify-center sm:h-[400px]">
                   <div className="text-center">
-                    <p className="text-muted-foreground">Loading dealers...</p>
+                    <p className="text-sm text-muted-foreground sm:text-base">Loading dealers...</p>
                   </div>
                 </div>
               );
@@ -165,9 +171,9 @@ export function HomePageContent() {
 
             if (listingsLoading) {
               return (
-                <div className="flex h-[400px] items-center justify-center">
+                <div className="flex h-[300px] items-center justify-center sm:h-[400px]">
                   <div className="text-center">
-                    <p className="text-muted-foreground">Loading prices...</p>
+                    <p className="text-sm text-muted-foreground sm:text-base">Loading prices...</p>
                   </div>
                 </div>
               );
@@ -175,9 +181,11 @@ export function HomePageContent() {
 
             if (listings.length === 0) {
               return (
-                <div className="flex h-[400px] items-center justify-center rounded-lg border border-dashed">
-                  <div className="text-center">
-                    <p className="text-muted-foreground">No listings available for this product</p>
+                <div className="flex h-[300px] items-center justify-center rounded-lg border border-dashed sm:h-[400px]">
+                  <div className="text-center px-4">
+                    <p className="text-sm text-muted-foreground sm:text-base">
+                      No listings available for this product
+                    </p>
                   </div>
                 </div>
               );
@@ -185,13 +193,84 @@ export function HomePageContent() {
 
             return (
               <div>
-                <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Price Comparison</h2>
-                  <Badge variant="secondary" className="text-sm">
+                <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <h2 className="text-base font-semibold sm:text-lg">Price Comparison</h2>
+                  <Badge variant="secondary" className="w-fit text-xs sm:text-sm">
                     {listings.length} {listings.length === 1 ? 'listing' : 'listings'}
                   </Badge>
                 </div>
-                <div className="rounded-lg border">
+
+                {/* Mobile Card Layout */}
+                <div className="space-y-3 md:hidden">
+                  {listings.map((listing, index) => {
+                    const isLowest = listing.price === lowestPrice;
+                    const priceDifference = listing.price - lowestPrice;
+
+                    // Calculate gradient position (0 = lowest price, 1 = highest price)
+                    const priceRange = highestPrice - lowestPrice;
+                    const gradientPosition =
+                      priceRange > 0 ? (listing.price - lowestPrice) / priceRange : 0;
+                    const priceColor = getPriceGradientColor(gradientPosition);
+
+                    return (
+                      <div
+                        key={`${listing.dealerSlug}-${index}`}
+                        className="rounded-lg border bg-card p-4 shadow-sm"
+                      >
+                        <div className="space-y-3">
+                          {/* Dealer and Price Row */}
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex min-w-0 flex-1 items-center gap-2">
+                              {isLowest && <Trophy className="h-4 w-4 shrink-0 text-yellow-500" />}
+                              <Link
+                                href={listing.dealerWebsiteUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="truncate font-medium text-sm text-blue-900 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                              >
+                                {listing.dealerName}
+                              </Link>
+                            </div>
+                            <div className="flex shrink-0 flex-col items-end gap-0.5">
+                              <span className="text-lg font-semibold" style={{ color: priceColor }}>
+                                {formatPrice(listing.price)}
+                              </span>
+                              {!isLowest && priceDifference > 0 && (
+                                <span className="text-xs text-muted-foreground">
+                                  +{formatPrice(priceDifference)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Stock, Link, and Updated Row */}
+                          <div className="flex items-center justify-between gap-2 border-t pt-2">
+                            <Badge
+                              variant={listing.inStock ? 'success' : 'secondary'}
+                              className="whitespace-nowrap text-xs"
+                            >
+                              {listing.inStock ? 'In Stock' : 'Out'}
+                            </Badge>
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                              <span>{formatTime(listing.updatedAt)}</span>
+                              <a
+                                href={listing.productUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 hover:text-foreground"
+                              >
+                                <ExternalLink className="h-3.5 w-3.5" />
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Desktop Table Layout */}
+                <div className="hidden rounded-lg border md:block">
                   <Table>
                     <TableHeader>
                       <TableRow className="hover:bg-transparent">
@@ -257,7 +336,7 @@ export function HomePageContent() {
                               <div className="flex justify-center">
                                 <Badge
                                   variant={listing.inStock ? 'success' : 'secondary'}
-                                  className="text-xs"
+                                  className="whitespace-nowrap text-xs"
                                 >
                                   {listing.inStock ? 'In Stock' : 'Out'}
                                 </Badge>
