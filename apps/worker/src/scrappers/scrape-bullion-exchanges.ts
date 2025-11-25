@@ -167,7 +167,9 @@ export async function scrapeBullionExchanges(
     // which is more reliable than a fixed timeout.
     let price = 0;
 
-    if (!outOfStockElement) {
+    if (outOfStockElement) {
+      console.info('⚠️ Product is out of stock');
+    } else {
       await page.waitForSelector(':text("Quantity")', { timeout: 10000 });
 
       // Call the newly implemented extraction logic
@@ -184,8 +186,6 @@ export async function scrapeBullionExchanges(
       if (Number.isNaN(price) || price <= 0) {
         throw new Error(`Invalid price parsed: ${priceText}`);
       }
-    } else {
-      console.info('⚠️ Product is out of stock');
     }
 
     console.info(`✅ Bullion Exchanges - ${productConfig.name}: $${price.toFixed(2)}`);
