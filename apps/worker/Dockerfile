@@ -14,7 +14,7 @@ COPY packages/shared ./packages/shared
 COPY apps/worker ./apps/worker
 
 # Install dependencies for the entire workspace
-RUN bun install --frozen-lockfile
+RUN bun install
 
 # Build shared package first (still needed as it's a workspace package)
 WORKDIR /app/packages/shared

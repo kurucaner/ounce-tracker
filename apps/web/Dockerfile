@@ -14,7 +14,7 @@ COPY packages/shared ./packages/shared
 COPY apps/web ./apps/web
 
 # Install dependencies for the entire workspace
-RUN bun install --frozen-lockfile
+RUN bun install
 
 # Build shared package first
 WORKDIR /app/packages/shared
