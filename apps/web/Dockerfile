@@ -42,6 +42,10 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/apps/web/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/BUILD_ID ./apps/web/.next/BUILD_ID
+
+# Change to the app directory where server.js and package.json are located
+WORKDIR /app/apps/web
 
 USER nextjs
 
@@ -50,6 +54,6 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Start Next.js server (standalone mode - path depends on monorepo structure)
+# Start Next.js server (standalone mode)
 CMD ["bun", "run", "start"]
 
