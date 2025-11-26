@@ -38,14 +38,20 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy built application and full .next directory (needed for 'next start')
-COPY --from=builder /app/apps/web/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next ./.next
-COPY --from=builder /app/apps/web/package.json ./package.json
-COPY --from=builder /app/apps/web/next.config.mjs ./next.config.mjs
+# Copy workspace root files
+COPY --from=builder /app/package.json /app/bun.lock /app/bunfig.toml ./
 
-# Install production dependencies (including next CLI)
+# Copy shared package (built dist + package.json for workspace resolution)
+COPY --from=builder --chown=nextjs:nodejs /app/packages/shared ./packages/shared
+
+# Copy entire web app (includes .next, public, package.json, next.config.mjs, etc.)
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web ./apps/web
+
+# Install production dependencies (including next CLI and workspace deps)
 RUN bun install --production --frozen-lockfile
+
+# Change to web app directory for running
+WORKDIR /app/apps/web
 
 USER nextjs
 

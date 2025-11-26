@@ -90,8 +90,9 @@ const main = async (): Promise<void> => {
   });
 
   process.on('unhandledRejection', (reason, promise) => {
-    logger.error({ reason, promise }, 'Unhandled rejection');
-    process.exit(1);
+    logger.error({ reason, promise }, 'Unhandled rejection - logging but continuing');
+    // Don't exit - log and continue to prevent worker crashes
+    // The error is already logged, and the scraper loop will continue
   });
 
   try {

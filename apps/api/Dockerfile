@@ -35,13 +35,20 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 apiuser
 
-# Copy built application
-COPY --from=builder --chown=apiuser:nodejs /app/apps/api/dist ./dist
-COPY --from=builder --chown=apiuser:nodejs /app/packages/shared/dist ./packages/shared/dist
-COPY --from=builder /app/apps/api/package.json ./package.json
+# Copy workspace root files
+COPY --from=builder /app/package.json /app/bun.lock /app/bunfig.toml ./
+
+# Copy shared package (built dist + package.json for workspace resolution)
+COPY --from=builder --chown=apiuser:nodejs /app/packages/shared ./packages/shared
+
+# Copy entire api app (includes dist, package.json, etc.)
+COPY --from=builder --chown=apiuser:nodejs /app/apps/api ./apps/api
 
 # Install production dependencies only
 RUN bun install --production --frozen-lockfile
+
+# Change to api directory for running
+WORKDIR /app/apps/api
 
 USER apiuser
 

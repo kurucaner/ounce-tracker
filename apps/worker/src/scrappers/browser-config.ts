@@ -113,16 +113,19 @@ export async function safeCloseBrowser(browser: Browser | null | undefined): Pro
     );
 
     // Now close the browser with aggressive timeout
-    await Promise.race([
-      browser.close().catch(() => {
-        // Ignore browser close errors
-      }),
-      new Promise<void>((resolve) => {
-        setTimeout(() => {
-          console.warn('⚠️  Browser close timeout, continuing anyway');
-          resolve();
-        }, 2000); // 2 second timeout (reduced from 3s)
-      }),
+    // Wrap everything in Promise.allSettled to ensure no unhandled rejections
+    await Promise.allSettled([
+      Promise.race([
+        browser.close().catch(() => {
+          // Ignore browser close errors
+        }),
+        new Promise<void>((resolve) => {
+          setTimeout(() => {
+            console.warn('⚠️  Browser close timeout, continuing anyway');
+            resolve();
+          }, 2000); // 2 second timeout
+        }),
+      ]),
     ]);
   } catch {
     // Ignore all close errors - browser might already be closed or in bad state
