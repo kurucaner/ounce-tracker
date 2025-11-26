@@ -55,7 +55,14 @@ async function extractBullionTradingPriceFromPage(page: Page): Promise<string | 
   return priceText;
 }
 
-// --------------------------------------------------------------------------------
+/**
+ * Random delay to simulate human behavior
+ * Returns a delay between min and max milliseconds
+ */
+function randomDelay(min: number, max: number): Promise<void> {
+  const delay = Math.floor(Math.random() * (max - min + 1)) + min;
+  return new Promise((resolve) => setTimeout(resolve, delay));
+}
 
 /**
  * Main scraper function for Bullion Trading LLC.
@@ -71,11 +78,43 @@ export async function scrapeBullionTradingLLC(
 
   console.info(`🔍 Scraping Bullion Trading LLC - ${productConfig.name}...`);
 
-  // Navigate to the product URL (browser is already launched and page is ready)
-  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
+  // Add a longer random delay before navigation to make it look more human-like
+  // Cloudflare tracks rapid navigation patterns, so we need longer delays
+  await randomDelay(5000, 10000); // 5-10 seconds random delay before navigation
 
-  // Wait for the price element to appear
-  await page.waitForSelector('.woocommerce-Price-amount.amount', { timeout: 10000 });
+  // Navigate to the product URL with networkidle to ensure all resources are loaded
+  // This is important for Cloudflare-protected sites
+  await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
+
+  // After Cloudflare challenge, add a longer delay to let the page fully settle
+  // This helps avoid triggering another challenge immediately
+  await randomDelay(2000, 4000);
+
+  // Wait for the price element to appear (with longer timeout for Cloudflare sites)
+  // If challenge completed, this should work. If not, we'll get a clear error.
+  try {
+    await page.waitForSelector('.woocommerce-Price-amount.amount', { timeout: 20000 });
+  } catch (error) {
+    // If price element not found, check if we're still on a challenge page
+    const isStillChallenging = await page.evaluate(() => {
+      const bodyText = document.body.textContent || '';
+      return (
+        bodyText.includes('challenges.cloudflare.com') ||
+        bodyText.includes('Checking your browser') ||
+        bodyText.includes('Please wait') ||
+        bodyText.includes('Just a moment')
+      );
+    });
+    if (isStillChallenging) {
+      // If we're being re-challenged, wait longer and try to get clearance again
+      console.warn('⚠️ Cloudflare re-challenging detected, waiting longer...');
+      await randomDelay(2000, 3000); // Longer delay after re-challenge
+      // Try waiting for price element again
+      await page.waitForSelector('.woocommerce-Price-amount.amount', { timeout: 20000 });
+    } else {
+      throw error; // Re-throw original error if not a challenge issue
+    }
+  }
 
   // Call the extraction logic
   const priceText = await extractBullionTradingPriceFromPage(page);

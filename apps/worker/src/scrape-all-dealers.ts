@@ -8,7 +8,7 @@ import { scrapeNYGoldCo } from './scrappers/scrape-new-york-gold-co';
 import { scrapeBullionExchanges } from './scrappers/scrape-bullion-exchanges';
 import { scrapeNYCBullion } from './scrappers/scrape-nyc-bullion';
 import { scrapeBullionTradingLLC } from './scrappers/scrape-bullion-trading-llc';
-import type { ScraperFunction, DealerConfig, ProductConfig } from './types';
+import type { ScraperFunction } from './types';
 import { scrapeJMBullion } from './scrappers/scrape-jm-bullion';
 import { scrapeAMPEX } from './scrappers/scrape-ampex';
 import { scrapeSDBullion } from './scrappers/scrape-sd-bullion';
@@ -99,9 +99,13 @@ async function updatePrice(
 /**
  * Scrape all dealers and products
  * Uses a single browser instance for everything (launched once, never closed)
+ * For Cloudflare-protected sites, creates a new page for each product to avoid navigation history tracking
  * Tracks and displays summary of successful and failed scrapes
  */
-async function scrapeAll(page: import('playwright').Page): Promise<void> {
+async function scrapeAll(
+  browser: import('playwright').Browser,
+  defaultPage: import('playwright').Page
+): Promise<void> {
   console.info('\n🚀 Starting scrape cycle...\n');
 
   const successful: Array<{ dealer: string; product: string; price: number }> = [];
@@ -119,14 +123,32 @@ async function scrapeAll(page: import('playwright').Page): Promise<void> {
       continue;
     }
 
-    // Scrape all products for this dealer using the same browser/page
+    // For Cloudflare-protected sites, use a new page for each product
+    // This avoids navigation history tracking
+    const isCloudflareProtected = dealer.slug === 'bullion-trading-llc';
+
+    // Scrape all products for this dealer
     for (const product of dealer.products) {
+      let pageToUse = defaultPage;
+
+      // Create a fresh page for Cloudflare-protected sites to avoid navigation history
+      if (isCloudflareProtected) {
+        try {
+          pageToUse = await createPageWithHeaders(browser);
+          console.info(
+            '📄 Created new page for Cloudflare-protected site (fresh navigation history)'
+          );
+        } catch (error) {
+          console.warn('⚠️ Failed to create new page, using default page:', error);
+          pageToUse = defaultPage;
+        }
+      }
+
       try {
-        const result = await retry(() => scraper(product, dealer.url, page));
+        const result = await retry(() => scraper(product, dealer.url, pageToUse));
         await retry(() =>
           updatePrice(dealer.slug, product.name, result.price, result.url, result.inStock)
         );
-        console.info(`✅ ${dealer.name} - ${product.name}: $${result.price.toFixed(2)}`);
         successful.push({
           dealer: dealer.name,
           product: product.name,
@@ -140,10 +162,19 @@ async function scrapeAll(page: import('playwright').Page): Promise<void> {
           product: product.name,
           error: errorMessage,
         });
+      } finally {
+        // Close the page if we created a new one (for Cloudflare sites)
+        if (isCloudflareProtected && pageToUse !== defaultPage) {
+          try {
+            await pageToUse.close();
+          } catch {
+            // Ignore errors when closing
+          }
+        }
       }
 
-      // Small delay between products to avoid overwhelming the site
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const delay = Math.floor(Math.random() * 2000) + 1000;
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
 
     // Small delay between dealers
@@ -185,17 +216,17 @@ async function scrapeAll(page: import('playwright').Page): Promise<void> {
 export async function scrapeAllDealers(): Promise<void> {
   console.info('🚀 Launching browser (will stay open for entire worker lifecycle)...\n');
   const browser = await launchBrowser();
-  const page = await createPageWithHeaders(browser);
+  const defaultPage = await createPageWithHeaders(browser);
   console.info('✅ Browser ready, starting scrape loop...\n');
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
-      await scrapeAll(page);
+      await scrapeAll(browser, defaultPage);
     } catch (error) {
       console.error('❌ Scrape cycle error:', error);
     }
-    // Wait 1 second before next cycle
+    // Wait 30 seconds before next cycle
     await new Promise((resolve) => setTimeout(resolve, 30000));
   }
 

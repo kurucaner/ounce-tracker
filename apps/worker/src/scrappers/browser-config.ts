@@ -14,17 +14,22 @@ export const BROWSER_CONFIG = {
    * Set to false to see browser windows (useful for debugging)
    * Set to true for production (faster, no GUI)
    */
-  headless: false,
-  slowMo: 3000,
+  headless: true,
+  slowMo: 0, // Removed slowMo - it makes the browser look suspicious
 
   /**
    * Browser launch arguments
+   * Added more arguments to make the browser look more like a real user
    */
   launchArgs: [
     '--no-sandbox',
     '--disable-setuid-sandbox',
     '--disable-blink-features=AutomationControlled',
     '--disable-dev-shm-usage',
+    '--disable-web-security', // Helps bypass some restrictions
+    '--disable-features=IsolateOrigins,site-per-process',
+    '--window-size=1920,1080', // Realistic window size
+    '--start-maximized',
   ],
 
   /**
@@ -33,9 +38,16 @@ export const BROWSER_CONFIG = {
   httpHeaders: {
     'User-Agent':
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Accept-Language': 'en-US,en;q=0.5',
+    Accept:
+      'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Accept-Encoding': 'gzip, deflate, br',
     'Cache-Control': 'max-age=0',
+    'Sec-Fetch-Dest': 'document',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Site': 'none',
+    'Sec-Fetch-User': '?1',
+    'Upgrade-Insecure-Requests': '1',
   },
 };
 
@@ -54,6 +66,7 @@ export async function launchBrowser(): Promise<Browser> {
 
 /**
  * Create a new page and set up HTTP headers with timeout protection
+ * Also sets viewport and other properties to look more like a real browser
  */
 export async function createPageWithHeaders(browser: Browser): Promise<Page> {
   // Wrap newPage() with timeout since it doesn't have a built-in timeout option
@@ -65,7 +78,35 @@ export async function createPageWithHeaders(browser: Browser): Promise<Page> {
   });
 
   const page = await Promise.race([pagePromise, timeoutPromise]);
+
+  // Set realistic viewport size
+  await page.setViewportSize({ width: 1920, height: 1080 });
+
+  // Set extra HTTP headers
   await page.setExtraHTTPHeaders(BROWSER_CONFIG.httpHeaders);
+
+  // Override navigator.webdriver to hide automation
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'webdriver', {
+      get: () => false,
+    });
+
+    // Override chrome object
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (globalThis as any).chrome = {
+      runtime: {},
+    };
+
+    // Override permissions
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const originalQuery = (globalThis.navigator as any).permissions.query;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (globalThis.navigator as any).permissions.query = (parameters: { name: string }) =>
+      parameters.name === 'notifications'
+        ? Promise.resolve({ state: Notification.permission } as PermissionStatus)
+        : originalQuery(parameters);
+  });
+
   return page;
 }
 
