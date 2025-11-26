@@ -51,5 +51,5 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Start Next.js server (standalone mode - path depends on monorepo structure)
-CMD ["bun", "apps/web/server.js"]
+CMD ["bun", "run", "start"]
 
