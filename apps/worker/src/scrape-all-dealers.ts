@@ -93,56 +93,55 @@ async function updatePrice(
     .eq('product_id', product.id);
 
   if (error) throw error;
-  console.log(`💾 Updated ${dealerSlug} - ${productName}: $${price.toFixed(2)}`);
-}
-
-/**
- * Scrape one product using an existing page (browser reuse)
- */
-async function scrapeProduct(
-  dealer: DealerConfig,
-  product: ProductConfig,
-  page: import('playwright').Page
-): Promise<void> {
-  const scraper = SCRAPER_MAP[dealer.slug];
-  if (!scraper) {
-    console.error(`❌ No scraper for ${dealer.slug}`);
-    return;
-  }
-
-  try {
-    const result = await retry(() => scraper(product, dealer.url, page));
-    await retry(() =>
-      updatePrice(dealer.slug, product.name, result.price, result.url, result.inStock)
-    );
-    console.log(`✅ ${dealer.name} - ${product.name}: $${result.price.toFixed(2)}`);
-  } catch (error) {
-    console.error(
-      `❌ Failed ${dealer.name} - ${product.name}:`,
-      error instanceof Error ? error.message : error
-    );
-  }
+  console.info(`💾 Updated ${dealerSlug} - ${productName}: $${price.toFixed(2)}`);
 }
 
 /**
  * Scrape all dealers and products
  * Uses a single browser instance for everything (launched once, never closed)
+ * Tracks and displays summary of successful and failed scrapes
  */
 async function scrapeAll(page: import('playwright').Page): Promise<void> {
-  console.log('\n🚀 Starting scrape cycle...\n');
+  console.info('\n🚀 Starting scrape cycle...\n');
+
+  const successful: Array<{ dealer: string; product: string; price: number }> = [];
+  const failed: Array<{ dealer: string; product: string; error?: string }> = [];
 
   for (const dealer of DEALERS) {
-    console.log(`\n🏢 Scraping ${dealer.name}...`);
+    console.info(`\n🏢 Scraping ${dealer.name}...`);
 
     const scraper = SCRAPER_MAP[dealer.slug];
     if (!scraper) {
       console.error(`❌ No scraper for ${dealer.slug}`);
+      for (const product of dealer.products) {
+        failed.push({ dealer: dealer.name, product: product.name, error: 'No scraper found' });
+      }
       continue;
     }
 
     // Scrape all products for this dealer using the same browser/page
     for (const product of dealer.products) {
-      await scrapeProduct(dealer, product, page);
+      try {
+        const result = await retry(() => scraper(product, dealer.url, page));
+        await retry(() =>
+          updatePrice(dealer.slug, product.name, result.price, result.url, result.inStock)
+        );
+        console.info(`✅ ${dealer.name} - ${product.name}: $${result.price.toFixed(2)}`);
+        successful.push({
+          dealer: dealer.name,
+          product: product.name,
+          price: result.price,
+        });
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error(`❌ Failed ${dealer.name} - ${product.name}:`, errorMessage);
+        failed.push({
+          dealer: dealer.name,
+          product: product.name,
+          error: errorMessage,
+        });
+      }
+
       // Small delay between products to avoid overwhelming the site
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
@@ -151,7 +150,32 @@ async function scrapeAll(page: import('playwright').Page): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 
-  console.log('\n✅ Scrape cycle completed\n');
+  // Display summary
+  console.info('\n' + '='.repeat(60));
+  console.info('📊 SCRAPE CYCLE SUMMARY');
+  console.info('='.repeat(60));
+
+  console.info(`\n✅ Successfully Scraped (${successful.length}):`);
+  if (successful.length > 0) {
+    successful.forEach((item) => {
+      console.info(`   • ${item.dealer} - ${item.product}: $${item.price.toFixed(2)}`);
+    });
+  } else {
+    console.info('   (none)');
+  }
+
+  console.info(`\n❌ Failed to Scrape (${failed.length}):`);
+  if (failed.length > 0) {
+    failed.forEach((item) => {
+      const errorMsg = item.error ? ` - ${item.error.split('\n')[0]}` : '';
+      console.info(`   • ${item.dealer} - ${item.product}${errorMsg}`);
+    });
+  } else {
+    console.info('   (none)');
+  }
+
+  console.info(`\n📈 Total: ${successful.length} successful, ${failed.length} failed`);
+  console.info('='.repeat(60) + '\n');
 }
 
 /**
@@ -159,10 +183,10 @@ async function scrapeAll(page: import('playwright').Page): Promise<void> {
  * Launches browser once at startup and reuses it forever
  */
 export async function scrapeAllDealers(): Promise<void> {
-  console.log('🚀 Launching browser (will stay open for entire worker lifecycle)...\n');
+  console.info('🚀 Launching browser (will stay open for entire worker lifecycle)...\n');
   const browser = await launchBrowser();
   const page = await createPageWithHeaders(browser);
-  console.log('✅ Browser ready, starting scrape loop...\n');
+  console.info('✅ Browser ready, starting scrape loop...\n');
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
@@ -172,7 +196,7 @@ export async function scrapeAllDealers(): Promise<void> {
       console.error('❌ Scrape cycle error:', error);
     }
     // Wait 1 second before next cycle
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 30000));
   }
 
   // Browser stays open - never closed (worker runs forever)
