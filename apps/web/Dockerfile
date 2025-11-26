@@ -38,14 +38,14 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy built application
+# Copy built application and full .next directory (needed for 'next start')
 COPY --from=builder /app/apps/web/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/BUILD_ID ./apps/web/.next/BUILD_ID
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next ./.next
+COPY --from=builder /app/apps/web/package.json ./package.json
+COPY --from=builder /app/apps/web/next.config.mjs ./next.config.mjs
 
-# Change to the app directory where server.js and package.json are located
-WORKDIR /app/apps/web
+# Install production dependencies (including next CLI)
+RUN bun install --production --frozen-lockfile
 
 USER nextjs
 
