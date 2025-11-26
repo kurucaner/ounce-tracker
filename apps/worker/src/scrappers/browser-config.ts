@@ -14,7 +14,7 @@ export const BROWSER_CONFIG = {
    * Set to false to see browser windows (useful for debugging)
    * Set to true for production (faster, no GUI)
    */
-  headless: true,
+  headless: false,
   slowMo: 0, // Removed slowMo - it makes the browser look suspicious
 
   /**
