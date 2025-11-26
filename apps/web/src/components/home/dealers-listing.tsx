@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from '@shared';
 import { Badge } from '@/components/ui/badge';
-import { SiteHeader } from '@/components/site-header';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { queryKeys, queryFns, queryOptions } from '@/lib/queries';
