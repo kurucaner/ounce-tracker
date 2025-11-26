@@ -31,6 +31,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Perth Mint',
         productUrl: '/gold/gold-bars/1-oz-gold-bar-perth-mint-in-assay',
       },
+      {
+        name: '1 oz Gold Bar Credit Suisse',
+        productUrl: '/gold/gold-bars/1-oz-gold-bar-credit-suisse-in-assay',
+      },
     ],
   },
   {
@@ -49,6 +53,10 @@ export const DEALERS: DealerConfig[] = [
       {
         name: '1 oz Gold Bar Perth Mint',
         productUrl: '/1-oz-perth-mint-gold-bar-in-assay',
+      },
+      {
+        name: '1 oz Gold Bar Credit Suisse',
+        productUrl: '/1-oz-credit-suisse-gold-bar-in-assay',
       },
     ],
   },
@@ -69,6 +77,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Perth Mint',
         productUrl: '/1-oz-gold-bar-perth-1perth',
       },
+      {
+        name: '1 oz Gold Bar Credit Suisse',
+        productUrl: '/1-oz-gold-bar-credit-suisse-1cs',
+      },
     ],
   },
   {
@@ -87,6 +99,10 @@ export const DEALERS: DealerConfig[] = [
       {
         name: '1 oz Gold Bar Perth Mint',
         productUrl: '/product/1-oz-gold-bar-perth-mint-in-assay',
+      },
+      {
+        name: '1 oz Gold Bar Credit Suisse',
+        productUrl: '/product/1-oz-credit-suisse-gold-barin-assay',
       },
     ],
   },
@@ -107,6 +123,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Perth Mint',
         productUrl: '/1-oz-perth-mint-gold-bar',
       },
+      {
+        name: '1 oz Gold Bar Credit Suisse',
+        productUrl: '/1-oz-credit-suisse-gold-bar',
+      },
     ],
   },
   {
@@ -125,6 +145,10 @@ export const DEALERS: DealerConfig[] = [
       {
         name: '1 oz Gold Bar Perth Mint',
         productUrl: '/product/57159/1-oz-gold-bar-perth-mint-in-assay',
+      },
+      {
+        name: '1 oz Gold Bar Credit Suisse',
+        productUrl: '/product/11950/1-oz-gold-bar-credit-suisse-in-assay',
       },
     ],
   },
@@ -145,6 +169,10 @@ export const DEALERS: DealerConfig[] = [
       //   name: '1 oz Gold Bar Perth Mint',
       //   productUrl: '/new-1-oz-perth-mint-gold-bar',
       // },
+      // {
+      //   name: '1 oz Gold Bar Credit Suisse',
+      //   productUrl: '/1-oz-credit-suisse-gold-bar-in-assay',
+      // },
     ],
   },
   {
@@ -163,6 +191,10 @@ export const DEALERS: DealerConfig[] = [
       {
         name: '1 oz Gold Bar Perth Mint',
         productUrl: '/product/1-oz-perth-mint-gold-bar',
+      },
+      {
+        name: '1 oz Gold Bar Credit Suisse',
+        productUrl: '/product/1-oz-credit-suisse-gold-bar',
       },
     ],
   },
@@ -183,6 +215,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Perth Mint',
         productUrl: '/purchase-bullion/1-oz-gold-bar-perth-mint',
       },
+      // {
+      //   name: '1 oz Gold Bar Credit Suisse',
+      //   productUrl: '/purchase-bullion/1-oz-credit-suisse-gold-bar',
+      // },
     ],
   },
   {
@@ -202,6 +238,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Perth Mint',
         productUrl: '/product/perth-gold-bar-1-oz',
       },
+      // {
+      //   name: '1 oz Gold Bar Credit Suisse',
+      //   productUrl: '/product/credit-suisse-gold-bar-1-oz',
+      // },
     ],
   },
   {
