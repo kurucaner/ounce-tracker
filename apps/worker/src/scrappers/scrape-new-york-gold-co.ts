@@ -6,7 +6,11 @@ import * as cheerio from 'cheerio';
  * Uses cheerio to parse static HTML
  * Selector: span.woocommerce-Price-amount.amount bdi
  */
-export async function scrapeNYGoldCo(productConfig: ProductConfig, baseUrl: string): Promise<ScraperResult> {
+export async function scrapeNYGoldCo(
+  productConfig: ProductConfig,
+  baseUrl: string,
+  _page: import('playwright').Page // Not used - this scraper uses fetch instead of browser
+): Promise<ScraperResult> {
   const url = baseUrl + productConfig.productUrl;
 
   try {
@@ -33,8 +37,10 @@ export async function scrapeNYGoldCo(productConfig: ProductConfig, baseUrl: stri
       throw new Error(`Invalid price parsed: ${priceText}`);
     }
 
+    const inStock = true; // NY Gold Co doesn't show out-of-stock, assume in stock
+
     console.info(`✅ NY Gold Co - ${productConfig.name}: $${price.toFixed(2)}`);
-    return { price, url, productName: productConfig.name };
+    return { price, url, productName: productConfig.name, inStock };
   } catch (error) {
     console.error(`❌ Failed to scrape NY Gold Co - ${productConfig.name}:`, error);
     throw error;

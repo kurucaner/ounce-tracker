@@ -1,6 +1,6 @@
 import type { Page, ElementHandle } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
-import { launchBrowser, createPageWithHeaders, safeCloseBrowser } from './browser-config';
+// Browser is now managed by scrape-all-dealers.ts
 
 /**
  * Extracts the target price from the Bullion Exchanges product page DOM.
@@ -145,68 +145,56 @@ async function extractPriceFromPage(page: Page): Promise<string | null> {
  */
 export async function scrapeBullionExchanges(
   productConfig: ProductConfig,
-  baseUrl: string
+  baseUrl: string,
+  page: Page
 ): Promise<ScraperResult> {
   const url = baseUrl + productConfig.productUrl;
 
-  let browser;
+  console.info(`🔍 Scraping Bullion Exchanges - ${productConfig.name}...`);
+
+  // Navigate to the product URL (browser is already launched and page is ready)
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
+
+  // .outOfStock-vsbi
+  // find the class name that contains 'outOfStock' in playwright
+  let outOfStockElement = false;
   try {
-    console.info(
-      `🔍 Scraping Bullion Exchanges - ${productConfig.name} (using stealth browser)...`
-    );
-
-    browser = await launchBrowser();
-    const page = await createPageWithHeaders(browser);
-
-    // Use 'domcontentloaded' for faster loading, and a longer timeout for reliability
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
-
-    // .outOfStock-vsbi
-    // find the class name that contains 'outOfStock' in playwright
-    let outOfStockElement = false;
-    try {
-      outOfStockElement = await page
-        .locator('.stock-owQx.outOfStock-vsbi')
-        .waitFor({ state: 'visible', timeout: 1000 })
-        .then(() => {
-          return page.locator('.stock-owQx.outOfStock-vsbi').isVisible();
-        });
-    } catch {
-      console.log('✅ Could not find visible out-of-stock element.');
-    }
-
-    // Wait for the specific element that contains the pricing table to appear,
-    // which is more reliable than a fixed timeout.
-    let price = 0;
-
-    if (outOfStockElement) {
-      console.info('⚠️ Product is out of stock');
-    } else {
-      await page.waitForSelector(':text("Quantity")', { timeout: 10000 });
-
-      // Call the newly implemented extraction logic
-      const priceText = await extractPriceFromPage(page);
-
-      if (!priceText) {
-        throw new Error('Price not found on page after JavaScript rendering');
-      }
-
-      // Standard cleaning and parsing logic (kept from original snippet)
-      const cleanedPrice = priceText.replaceAll(/[^0-9.]/g, '');
-      price = Number.parseFloat(cleanedPrice);
-
-      if (Number.isNaN(price) || price <= 0) {
-        throw new Error(`Invalid price parsed: ${priceText}`);
-      }
-    }
-
-    console.info(`✅ Bullion Exchanges - ${productConfig.name}: $${price.toFixed(2)}`);
-
-    return { price, url, productName: productConfig.name, inStock: !outOfStockElement };
-  } catch (error) {
-    console.error(`❌ Failed to scrape Bullion Exchanges - ${productConfig.name}:`, error);
-    throw error;
-  } finally {
-    await safeCloseBrowser(browser);
+    outOfStockElement = await page
+      .locator('.stock-owQx.outOfStock-vsbi')
+      .waitFor({ state: 'visible', timeout: 1000 })
+      .then(() => {
+        return page.locator('.stock-owQx.outOfStock-vsbi').isVisible();
+      });
+  } catch {
+    console.log('✅ Could not find visible out-of-stock element.');
   }
+
+  // Wait for the specific element that contains the pricing table to appear,
+  // which is more reliable than a fixed timeout.
+  let price = 0;
+
+  if (outOfStockElement) {
+    console.info('⚠️ Product is out of stock');
+  } else {
+    await page.waitForSelector(':text("Quantity")', { timeout: 10000 });
+
+    // Call the newly implemented extraction logic
+    const priceText = await extractPriceFromPage(page);
+
+    if (!priceText) {
+      throw new Error('Price not found on page after JavaScript rendering');
+    }
+
+    // Standard cleaning and parsing logic (kept from original snippet)
+    const cleanedPrice = priceText.replaceAll(/[^0-9.]/g, '');
+    price = Number.parseFloat(cleanedPrice);
+
+    if (Number.isNaN(price) || price <= 0) {
+      throw new Error(`Invalid price parsed: ${priceText}`);
+    }
+  }
+
+  console.info(`✅ Bullion Exchanges - ${productConfig.name}: $${price.toFixed(2)}`);
+
+  return { price, url, productName: productConfig.name, inStock: !outOfStockElement };
 }

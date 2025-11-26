@@ -1,6 +1,6 @@
 import type { Page } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
-import { launchBrowser, createPageWithHeaders, safeCloseBrowser } from './browser-config';
+// Browser is now managed by scrape-all-dealers.ts
 
 /**
  * Extracts the price for the 1+ quantity, Check/Wire payment method.
@@ -67,17 +67,15 @@ async function extractPriceFromPage(page: Page): Promise<number | null> {
 
 export async function scrapeSDBullion(
   productConfig: ProductConfig,
-  baseUrl: string
+  baseUrl: string,
+  page: Page
 ): Promise<ScraperResult> {
   const url = baseUrl + productConfig.productUrl;
 
-  let browser;
-  try {
-    console.info(`🔍 Scraping SD Bullion - ${productConfig.name} (using stealth browser)...`);
+  console.info(`🔍 Scraping SD Bullion - ${productConfig.name}...`);
 
-    browser = await launchBrowser();
-    const page = await createPageWithHeaders(browser);
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
+  // Navigate to the product URL (browser is already launched and page is ready)
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
 
     // Wait for the price element to appear (loaded dynamically via JavaScript)
     // Try primary selector first, fallback to table
@@ -99,14 +97,9 @@ export async function scrapeSDBullion(
       throw new Error('Price not found using JavaScript data extraction.');
     }
 
-    const price = priceNumber;
+  const price = priceNumber;
+  const inStock = true; // SD Bullion doesn't show out-of-stock, assume in stock
 
-    console.info(`✅ SD Bullion - ${productConfig.name}: $${price.toFixed(2)}`);
-    return { price, url, productName: productConfig.name };
-  } catch (error) {
-    console.error(`❌ Failed to scrape SD Bullion - ${productConfig.name}:`, error);
-    throw error;
-  } finally {
-    await safeCloseBrowser(browser);
-  }
+  console.info(`✅ SD Bullion - ${productConfig.name}: $${price.toFixed(2)}`);
+  return { price, url, productName: productConfig.name, inStock };
 }

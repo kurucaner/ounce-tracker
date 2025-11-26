@@ -1,6 +1,5 @@
 import type { Page } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
-import { launchBrowser, createPageWithHeaders, safeCloseBrowser } from './browser-config';
 
 /**
  * Extracts the primary price by locating the <span id="price_..."> element
@@ -68,41 +67,34 @@ async function extractPriceFromPage(page: Page): Promise<number | null> {
 
 export async function scrapeBGASC(
   productConfig: ProductConfig,
-  baseUrl: string
+  baseUrl: string,
+  page: Page
 ): Promise<ScraperResult> {
   const url = baseUrl + productConfig.productUrl;
 
-  let browser;
+  console.info(`🔍 Scraping BGASC - ${productConfig.name}...`);
+
+  // Navigate to the product URL (browser is already launched and page is ready)
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
+
+  // Wait for the price element to appear (loaded dynamically via JavaScript)
+  // Try primary selector first, fallback to table
   try {
-    console.info(`🔍 Scraping BGASC - ${productConfig.name} (using stealth browser)...`);
-
-    browser = await launchBrowser();
-    const page = await createPageWithHeaders(browser);
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
-
-    // Wait for the price element to appear (loaded dynamically via JavaScript)
-    // Try primary selector first, fallback to table
-    try {
-      await page.waitForSelector('.payment-inner span[id^="price_"]', { timeout: 10000 });
-    } catch {
-      // Fallback: wait for the product table
-      await page.waitForSelector('#producttable', { timeout: 10000 });
-    }
-
-    const priceNumber = await extractPriceFromPage(page);
-
-    if (priceNumber === null) {
-      throw new Error('Price not found using JavaScript data extraction.');
-    }
-
-    const price = priceNumber;
-
-    console.info(`✅ BGASC - ${productConfig.name}: $${price.toFixed(2)}`);
-    return { price, url, productName: productConfig.name };
-  } catch (error) {
-    console.error(`❌ Failed to scrape BGASC - ${productConfig.name}:`, error);
-    throw error;
-  } finally {
-    await safeCloseBrowser(browser);
+    await page.waitForSelector('.payment-inner span[id^="price_"]', { timeout: 10000 });
+  } catch {
+    // Fallback: wait for the product table
+    await page.waitForSelector('#producttable', { timeout: 10000 });
   }
+
+  const priceNumber = await extractPriceFromPage(page);
+
+  if (priceNumber === null) {
+    throw new Error('Price not found using JavaScript data extraction.');
+  }
+
+  const price = priceNumber;
+  const inStock = true; // BGASC doesn't show out-of-stock, assume in stock
+
+  console.info(`✅ BGASC - ${productConfig.name}: $${price.toFixed(2)}`);
+  return { price, url, productName: productConfig.name, inStock };
 }

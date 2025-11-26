@@ -19,5 +19,6 @@ export interface DealerConfig {
 
 export type ScraperFunction = (
   productConfig: ProductConfig,
-  baseUrl: string
+  baseUrl: string,
+  page: import('playwright').Page
 ) => Promise<ScraperResult>;

@@ -1,6 +1,6 @@
 import type { Page } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
-import { launchBrowser, createPageWithHeaders, safeCloseBrowser } from './browser-config';
+// Browser is now managed by scrape-all-dealers.ts
 
 /**
  * Extracts the "As Low As" price and returns it as a number.
@@ -61,17 +61,15 @@ async function extractPriceFromPage(page: Page): Promise<number | null> {
 
 export async function scrapeJMBullion(
   productConfig: ProductConfig,
-  baseUrl: string
+  baseUrl: string,
+  page: Page
 ): Promise<ScraperResult> {
   const url = baseUrl + productConfig.productUrl;
 
-  let browser;
-  try {
-    console.info(`🔍 Scraping JM Bullion - ${productConfig.name} (using stealth browser)...`);
+  console.info(`🔍 Scraping JM Bullion - ${productConfig.name}...`);
 
-    browser = await launchBrowser();
-    const page = await createPageWithHeaders(browser);
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
+  // Navigate to the product URL (browser is already launched and page is ready)
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
 
     // Wait for the "As Low As" text to appear (loaded dynamically via JavaScript)
     await page.waitForSelector(':text("As Low As")', { timeout: 10000 });
@@ -82,14 +80,9 @@ export async function scrapeJMBullion(
       throw new Error('Price not found using JavaScript data extraction.');
     }
 
-    const price = priceNumber;
+  const price = priceNumber;
+  const inStock = true; // JM Bullion doesn't show out-of-stock, assume in stock
 
-    console.info(`✅ JM Bullion - ${productConfig.name}: $${price}`);
-    return { price, url, productName: productConfig.name };
-  } catch (error) {
-    console.error(`❌ Failed to scrape JM Bullion - ${productConfig.name}:`, error);
-    throw error;
-  } finally {
-    await safeCloseBrowser(browser);
-  }
+  console.info(`✅ JM Bullion - ${productConfig.name}: $${price.toFixed(2)}`);
+  return { price, url, productName: productConfig.name, inStock };
 }

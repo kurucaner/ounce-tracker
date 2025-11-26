@@ -1,6 +1,6 @@
 import type { Page } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
-import { launchBrowser, createPageWithHeaders, safeCloseBrowser } from './browser-config';
+// Browser is now managed by scrape-all-dealers.ts
 
 /**
  * Extracts the initial price from the embedded JavaScript data.
@@ -70,17 +70,15 @@ async function extractPriceFromPage(page: Page): Promise<number | null> {
 
 export async function scrapeNYCBullion(
   productConfig: ProductConfig,
-  baseUrl: string
+  baseUrl: string,
+  page: Page
 ): Promise<ScraperResult> {
   const url = baseUrl + productConfig.productUrl;
 
-  let browser;
-  try {
-    console.info(`🔍 Scraping NYC Bullion - ${productConfig.name} (using stealth browser)...`);
+  console.info(`🔍 Scraping NYC Bullion - ${productConfig.name}...`);
 
-    browser = await launchBrowser();
-    const page = await createPageWithHeaders(browser);
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
+  // Navigate to the product URL (browser is already launched and page is ready)
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
 
     // Wait for the price script to be loaded (NYC Bullion uses JavaScript to set prices)
     // Wait for any script tag that contains 'initPrice' - this indicates price data is loaded
@@ -98,14 +96,9 @@ export async function scrapeNYCBullion(
       throw new Error('Price not found using JavaScript data extraction.');
     }
 
-    const price = priceNumber;
+  const price = priceNumber;
+  const inStock = true; // NYC Bullion doesn't show out-of-stock, assume in stock
 
-    console.info(`✅ NYC Bullion - ${productConfig.name}: $${price.toFixed(2)}`);
-    return { price, url, productName: productConfig.name };
-  } catch (error) {
-    console.error(`❌ Failed to scrape NYC Bullion - ${productConfig.name}:`, error);
-    throw error;
-  } finally {
-    await safeCloseBrowser(browser);
-  }
+  console.info(`✅ NYC Bullion - ${productConfig.name}: $${price.toFixed(2)}`);
+  return { price, url, productName: productConfig.name, inStock };
 }

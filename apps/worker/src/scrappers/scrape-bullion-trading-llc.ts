@@ -1,6 +1,6 @@
 import type { Page } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
-import { launchBrowser, createPageWithHeaders, safeCloseBrowser } from './browser-config';
+// Browser is now managed by scrape-all-dealers.ts
 
 /**
  * Extracts the primary price from the Bullion Trading LLC product page DOM.
@@ -64,48 +64,37 @@ async function extractBullionTradingPriceFromPage(page: Page): Promise<string | 
  */
 export async function scrapeBullionTradingLLC(
   productConfig: ProductConfig,
-  baseUrl: string
+  baseUrl: string,
+  page: Page
 ): Promise<ScraperResult> {
   const url = baseUrl + productConfig.productUrl;
 
-  let browser;
-  try {
-    console.info(
-      `🔍 Scraping Bullion Trading LLC - ${productConfig.name} (using stealth browser)...`
-    );
+  console.info(`🔍 Scraping Bullion Trading LLC - ${productConfig.name}...`);
 
-    // Launch browser with stealth plugin (automatically handles bot detection)
-    browser = await launchBrowser();
-    const page = await createPageWithHeaders(browser);
+  // Navigate to the product URL (browser is already launched and page is ready)
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
 
-    // Navigate and wait for content
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
+  // Wait for the price element to appear
+  await page.waitForSelector('.woocommerce-Price-amount.amount', { timeout: 10000 });
 
-    // Wait for the price element to appear
-    await page.waitForSelector('.woocommerce-Price-amount.amount', { timeout: 10000 });
+  // Call the extraction logic
+  const priceText = await extractBullionTradingPriceFromPage(page);
 
-    // Call the extraction logic
-    const priceText = await extractBullionTradingPriceFromPage(page);
-
-    if (!priceText) {
-      throw new Error('Price not found on page after JavaScript rendering');
-    }
-
-    // Standard cleaning and parsing logic
-    // Removes non-digit characters except the decimal point (e.g., removes '$', ',')
-    const cleanedPrice = priceText.replaceAll(/[^0-9.]/g, '');
-    const price = Number.parseFloat(cleanedPrice);
-
-    if (Number.isNaN(price) || price <= 0) {
-      throw new Error(`Invalid price parsed: ${priceText}`);
-    }
-
-    console.info(`✅ Bullion Trading LLC - ${productConfig.name}: $${price.toFixed(2)}`);
-    return { price, url, productName: productConfig.name };
-  } catch (error) {
-    console.error(`❌ Failed to scrape Bullion Trading LLC - ${productConfig.name}:`, error);
-    throw error;
-  } finally {
-    await safeCloseBrowser(browser);
+  if (!priceText) {
+    throw new Error('Price not found on page after JavaScript rendering');
   }
+
+  // Standard cleaning and parsing logic
+  // Removes non-digit characters except the decimal point (e.g., removes '$', ',')
+  const cleanedPrice = priceText.replaceAll(/[^0-9.]/g, '');
+  const price = Number.parseFloat(cleanedPrice);
+
+  if (Number.isNaN(price) || price <= 0) {
+    throw new Error(`Invalid price parsed: ${priceText}`);
+  }
+
+  const inStock = true; // Bullion Trading LLC doesn't show out-of-stock, assume in stock
+
+  console.info(`✅ Bullion Trading LLC - ${productConfig.name}: $${price.toFixed(2)}`);
+  return { price, url, productName: productConfig.name, inStock };
 }
