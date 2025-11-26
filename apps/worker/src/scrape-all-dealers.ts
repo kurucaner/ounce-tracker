@@ -1,6 +1,6 @@
 /**
- * Generic Scraper Orchestrator
- * Fetches live prices from all dealers for all products and updates Supabase
+ * Simple Scraper - Scrapes all dealers and updates database
+ * Loops continuously with retries on failure
  */
 import { createClient } from '@supabase/supabase-js';
 import { DEALERS } from './scrappers/dealers';
@@ -8,7 +8,7 @@ import { scrapeNYGoldCo } from './scrappers/scrape-new-york-gold-co';
 import { scrapeBullionExchanges } from './scrappers/scrape-bullion-exchanges';
 import { scrapeNYCBullion } from './scrappers/scrape-nyc-bullion';
 import { scrapeBullionTradingLLC } from './scrappers/scrape-bullion-trading-llc';
-import type { ScraperFunction, ScraperResult, DealerConfig, ProductConfig } from './types';
+import type { ScraperFunction, DealerConfig, ProductConfig } from './types';
 import { scrapeJMBullion } from './scrappers/scrape-jm-bullion';
 import { scrapeAMPEX } from './scrappers/scrape-ampex';
 import { scrapeSDBullion } from './scrappers/scrape-sd-bullion';
@@ -17,12 +17,10 @@ import { scrapePimbex } from './scrappers/scrape-pimbex';
 import { scrapeGoldDealerCom } from './scrappers/scrape-golddealercom';
 import { scrapeHollywoodGoldExchange } from './scrappers/scrape-hollywood-gold-exchange';
 
-// Initialize Supabase client with service role key
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
   auth: { persistSession: false },
 });
 
-// Map dealer slugs to their scraper functions
 const SCRAPER_MAP: Record<string, ScraperFunction> = {
   'new-york-gold-co': scrapeNYGoldCo,
   'bullion-exchanges': scrapeBullionExchanges,
@@ -38,340 +36,122 @@ const SCRAPER_MAP: Record<string, ScraperFunction> = {
 };
 
 /**
- * Helper to add timeout to Supabase queries
- * Properly handles PromiseLike queries that might hang
+ * Retry a function up to 3 times
  */
-async function withTimeout<T>(
-  query: PromiseLike<T>,
-  timeoutMs: number,
-  errorMessage: string
-): Promise<T> {
-  // Convert PromiseLike to actual Promise and race it with timeout
-  const queryPromise = Promise.resolve(query);
-
-  const timeoutPromise = new Promise<T>((_, reject) => {
-    setTimeout(() => {
-      reject(new Error(`${errorMessage} (timeout after ${timeoutMs}ms)`));
-    }, timeoutMs);
-  });
-
-  return Promise.race([queryPromise, timeoutPromise]);
-}
-
-/**
- * Retry a function with exponential backoff
- */
-async function retryWithBackoff<T>(
-  fn: () => Promise<T>,
-  maxRetries: number = 3,
-  initialDelayMs: number = 1000
-): Promise<T> {
+async function retry<T>(fn: () => Promise<T>, maxAttempts = 3): Promise<T> {
   let lastError: unknown;
-
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       return await fn();
     } catch (error) {
       lastError = error;
-
-      // Don't retry on the last attempt
-      if (attempt === maxRetries - 1) {
-        throw error;
+      if (attempt < maxAttempts) {
+        console.warn(`⚠️  Attempt ${attempt}/${maxAttempts} failed, retrying...`);
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // 2s delay
       }
-
-      // Exponential backoff: 1s, 2s, 4s
-      const delayMs = initialDelayMs * Math.pow(2, attempt);
-      console.warn(`⚠️  Retry attempt ${attempt + 1}/${maxRetries} after ${delayMs}ms...`);
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
   }
-
   throw lastError;
 }
 
 /**
- * Update dealer listing in Supabase with retry logic and overall timeout protection
+ * Update price in database
  */
-async function updateListingPrice({
-  dealerSlug,
-  productName,
-  price,
-  productUrl,
-  inStock,
-}: {
-  dealerSlug: string;
-  productName: string;
-  price: number;
-  productUrl: string;
-  inStock: boolean;
-}): Promise<void> {
-  // Overall timeout: 10 seconds total (covers all retries)
-  // This ensures the function never hangs indefinitely
-  const overallTimeoutMs = 10000;
+async function updatePrice(
+  dealerSlug: string,
+  productName: string,
+  price: number,
+  url: string,
+  inStock: boolean
+): Promise<void> {
+  const { data: dealer } = await supabase
+    .from('dealers')
+    .select('id')
+    .eq('slug', dealerSlug)
+    .single();
+  if (!dealer) throw new Error(`Dealer not found: ${dealerSlug}`);
 
-  const updateOperation = async (): Promise<void> => {
-    // Retry the entire database update operation (3 attempts with exponential backoff)
-    await retryWithBackoff(
-      async () => {
-        // Get dealer ID with timeout
-        const dealerQuery = supabase.from('dealers').select('id').eq('slug', dealerSlug).single();
+  const { data: product } = await supabase
+    .from('products')
+    .select('id')
+    .eq('name', productName)
+    .single();
+  if (!product) throw new Error(`Product not found: ${productName}`);
 
-        const { data: dealer, error: dealerError } = await withTimeout(
-          dealerQuery,
-          10000, // 10 second timeout
-          `Dealer query timeout for ${dealerSlug}`
-        );
+  const { error } = await supabase
+    .from('dealer_listings')
+    .upsert({
+      dealer_id: dealer.id,
+      product_id: product.id,
+      price,
+      product_url: url,
+      in_stock: inStock,
+      currency: 'USD',
+    })
+    .eq('dealer_id', dealer.id)
+    .eq('product_id', product.id);
 
-        if (dealerError || !dealer) {
-          throw new Error(`Dealer not found: ${dealerSlug}`);
-        }
+  if (error) throw error;
+  console.log(`💾 Updated ${dealerSlug} - ${productName}: $${price.toFixed(2)}`);
+}
 
-        // Get product ID with timeout
-        const productQuery = supabase
-          .from('products')
-          .select('id')
-          .eq('name', productName)
-          .single();
-
-        const { data: product, error: productError } = await withTimeout(
-          productQuery,
-          10000, // 10 second timeout
-          `Product query timeout for ${productName}`
-        );
-
-        if (productError || !product) {
-          throw new Error(`Product not found: ${productName}`);
-        }
-
-        // Update dealer listing with timeout
-        const updateQuery = supabase
-          .from('dealer_listings')
-          .upsert({
-            dealer_id: dealer.id,
-            product_id: product.id,
-            currency: 'USD',
-            in_stock: inStock,
-            price,
-            product_url: productUrl,
-          })
-          .eq('dealer_id', dealer.id)
-          .eq('product_id', product.id);
-
-        const { error: updateError } = await withTimeout(
-          updateQuery,
-          10000, // 10 second timeout
-          `Update listing timeout for ${dealerSlug} - ${productName}`
-        );
-
-        if (updateError) {
-          throw new Error(`Failed to update listing: ${updateError.message}`);
-        }
-      },
-      3,
-      1000
-    ); // 3 retries, starting with 1 second delay
-
-    console.info(`💾 Updated ${dealerSlug} - ${productName}: $${price.toFixed(2)}`);
-  };
+/**
+ * Scrape one product for one dealer
+ */
+async function scrapeProduct(dealer: DealerConfig, product: ProductConfig): Promise<void> {
+  const scraper = SCRAPER_MAP[dealer.slug];
+  if (!scraper) {
+    console.error(`❌ No scraper for ${dealer.slug}`);
+    return;
+  }
 
   try {
-    // Wrap entire operation with overall timeout
-    await withTimeout(
-      updateOperation(),
-      overallTimeoutMs,
-      `Overall timeout for updateListingPrice: ${dealerSlug} - ${productName}`
+    const result = await retry(() => scraper(product, dealer.url));
+    await retry(() =>
+      updatePrice(dealer.slug, product.name, result.price, result.url, result.inStock)
     );
+    console.log(`✅ ${dealer.name} - ${product.name}: $${result.price.toFixed(2)}`);
   } catch (error) {
-    console.error(`❌ Failed to update ${dealerSlug} - ${productName}:`, error);
-    throw error;
+    console.error(
+      `❌ Failed ${dealer.name} - ${product.name}:`,
+      error instanceof Error ? error.message : error
+    );
+  } finally {
+    // Small delay to prevent overwhelming the system with browser launches
+    // 2 seconds is enough - browsers are heavy but we need to balance speed vs stability
+    await new Promise((resolve) => setTimeout(resolve, 2000));
   }
 }
 
 /**
- * Scrape a single product for a dealer with retry logic
+ * Scrape all dealers and products
  */
-async function scrapeProduct(
-  dealer: DealerConfig,
-  product: ProductConfig,
-  scraperFn: ScraperFunction
-): Promise<ScraperResult | null> {
-  const maxRetries = 3; // 3 total attempts (initial + 2 retries)
-  const retryDelayMs = 3000; // 3 second delay between retries
-  const scraperTimeoutMs = 30000; // 30 second timeout for entire scraper operation
+async function scrapeAll(): Promise<void> {
+  console.log('\n🚀 Starting scrape cycle...\n');
 
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      if (attempt > 0) {
-        // Show retry number (1-based) out of total retries
-        // attempt=1 (first retry) shows "retry 1/2", attempt=2 (second retry) shows "retry 2/2"
-        const retryNumber = attempt; // 1 for first retry, 2 for second retry
-        const totalRetries = maxRetries - 1; // 2 retries (3 total attempts - 1 initial)
-        console.warn(
-          `🔄 Retrying ${dealer.name} - ${product.name} (retry ${retryNumber}/${totalRetries})...`
-        );
-        await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
-      }
-
-      // Wrap scraper call with timeout to prevent hanging
-      const result = await withTimeout(
-        scraperFn(product, dealer.url),
-        scraperTimeoutMs,
-        `Scraper timeout for ${dealer.name} - ${product.name}`
-      );
-
-      // Wrap DB update with timeout at scrapeProduct level (safety net)
-      // This ensures one hanging update doesn't block all subsequent products
-      const dbUpdateTimeoutMs = 15000; // 15 seconds
-
-      try {
-        await withTimeout(
-          updateListingPrice({
-            dealerSlug: dealer.slug,
-            productName: product.name,
-            price: result.price,
-            productUrl: result.url,
-            inStock: result.inStock,
-          }),
-          dbUpdateTimeoutMs,
-          `DB update timeout at scrapeProduct level: ${dealer.name} - ${product.name}`
-        );
-      } catch (dbError) {
-        // Log DB update failure but don't fail the entire scrape
-        const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
-        const shortMessage = errorMessage.split('\n')[0];
-        console.error(`⚠️  DB update failed for ${dealer.name} - ${product.name}: ${shortMessage}`);
-        // Return null to skip this product but continue with others
-        return null;
-      }
-
-      return result;
-    } catch (error) {
-      // If this is the last attempt, log and give up
-      if (attempt === maxRetries - 1) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        const shortMessage = errorMessage.split('\n')[0];
-        console.error(
-          `⚠️  Skipping ${dealer.name} - ${product.name} after ${maxRetries} attempts: ${shortMessage}`
-        );
-        return null; // Return null to continue with other products
-      }
-      // Otherwise, the loop will retry
-    }
-  }
-
-  return null;
-}
-
-/**
- * Scrape all products for a dealer
- */
-async function scrapeDealer(dealer: DealerConfig): Promise<Record<string, number>> {
-  try {
+  for (const dealer of DEALERS) {
     console.log(`\n🏢 Scraping ${dealer.name}...`);
-
-    const scraperFn = SCRAPER_MAP[dealer.slug];
-    if (!scraperFn) {
-      console.error(`❌ No scraper function found for dealer: ${dealer.slug}`);
-      return {};
-    }
-
-    const results: Record<string, number> = {};
-
     for (const product of dealer.products) {
-      try {
-        const result = await scrapeProduct(dealer, product, scraperFn);
-        if (result) {
-          results[product.name] = result.price;
-        }
-      } catch (error) {
-        // Individual product failure - log and continue
-        console.error(`⚠️  Failed to scrape ${dealer.name} - ${product.name}:`, error);
-        // Continue with next product
-      }
-
-      // Add 2 second delay after each product scraping
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await scrapeProduct(dealer, product);
+      // Delay is already in scrapeProduct's finally block
     }
-
-    return results;
-  } catch (error) {
-    // Entire dealer failure - log and return empty results
-    console.error(`❌ Failed to scrape dealer ${dealer.name}:`, error);
-    return {};
   }
+
+  console.log('\n✅ Scrape cycle completed\n');
 }
 
 /**
- * Main execution
+ * Main loop - runs continuously
  */
-async function run(): Promise<void> {
-  console.log('🚀 Starting multi-product scraper for all dealers...\n');
-
-  // Validate environment variables
-  if (!process.env.SUPABASE_URL) {
-    throw new Error('Missing SUPABASE_URL environment variable');
-  }
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable');
-  }
-
-  try {
-    const allResults: Record<string, Record<string, number>> = {};
-
-    // Scrape each dealer - wrap in try-catch to continue even if one fails
-    for (const dealer of DEALERS) {
-      try {
-        const dealerResults = await scrapeDealer(dealer);
-        if (Object.keys(dealerResults).length > 0) {
-          allResults[dealer.slug] = dealerResults;
-        }
-      } catch (error) {
-        // Dealer-level error - log and continue with next dealer
-        console.error(`❌ Error processing dealer ${dealer.name}:`, error);
-        // Continue with next dealer
-      }
+export async function scrapeAllDealers(): Promise<void> {
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    try {
+      await scrapeAll();
+    } catch (error) {
+      console.error('❌ Scrape cycle error:', error);
     }
-
-    // Summary
-    console.log('\n✅ Scraping completed!');
-    console.log('📊 Updated prices:');
-
-    for (const [dealerSlug, products] of Object.entries(allResults)) {
-      console.log(`\n  ${dealerSlug}:`);
-      for (const [productName, price] of Object.entries(products)) {
-        console.log(`    - ${productName}: $${price.toFixed(2)}`);
-      }
-    }
-
-    const totalUpdates = Object.values(allResults).reduce(
-      (sum, products) => sum + Object.keys(products).length,
-      0
-    );
-
-    console.log(`\n📈 Total listings updated: ${totalUpdates}`);
-
-    if (totalUpdates === 0) {
-      console.warn('⚠️  Warning: No listings were updated. Some scrapers may have failed.');
-      // Don't throw - allow scheduler to retry on next interval
-    }
-  } catch (error) {
-    console.error('\n❌ Fatal error in scraper:', error);
-    // Log but don't throw - allow scheduler to continue and retry
-    // This prevents the entire worker from crashing
-  }
-}
-
-// Export the run function for scheduler integration
-export { run as scrapeAllDealers };
-
-// Run the scraper if called directly (not imported)
-if (import.meta.main) {
-  try {
-    await run();
-    console.log('\n✅ Process completed successfully');
-    process.exit(0);
-  } catch (error) {
-    console.error('\n❌ Process failed:', error);
-    process.exit(1);
+    // Wait 1 second before next cycle
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 }

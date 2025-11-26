@@ -27,16 +27,10 @@ export default function RootLayout({
                 <span className="font-bold">Admin</span>
               </Link>
               <nav className="flex flex-1 items-center justify-end space-x-6 text-sm font-medium">
-                <Link
-                  href="/dealers"
-                  className="transition-colors hover:text-foreground/80"
-                >
+                <Link href="/dealers" className="transition-colors hover:text-foreground/80">
                   Dealers
                 </Link>
-                <Link
-                  href="/products"
-                  className="transition-colors hover:text-foreground/80"
-                >
+                <Link href="/products" className="transition-colors hover:text-foreground/80">
                   Products
                 </Link>
               </nav>
@@ -48,4 +42,3 @@ export default function RootLayout({
     </html>
   );
 }
-

@@ -42,10 +42,12 @@ export const BROWSER_CONFIG = {
  * Launch a browser with the shared configuration
  */
 export async function launchBrowser(): Promise<Browser> {
+  // Increased timeout to handle system load - no artificial delay needed
+  // The delay between scrapes in scrape-all-dealers.ts is sufficient
   return chromium.launch({
     headless: BROWSER_CONFIG.headless,
     args: BROWSER_CONFIG.launchArgs,
-    timeout: 5000,
+    timeout: 30000, // 30 seconds to handle system load
   });
 }
 
@@ -57,8 +59,8 @@ export async function createPageWithHeaders(browser: Browser): Promise<Page> {
   const pagePromise = browser.newPage();
   const timeoutPromise = new Promise<Page>((_, reject) => {
     setTimeout(() => {
-      reject(new Error('browser.newPage() timeout: Timeout 5000ms exceeded'));
-    }, 5000);
+      reject(new Error('browser.newPage() timeout: Timeout 15000ms exceeded'));
+    }, 15000); // Increased to 15 seconds
   });
 
   const page = await Promise.race([pagePromise, timeoutPromise]);
@@ -67,8 +69,8 @@ export async function createPageWithHeaders(browser: Browser): Promise<Page> {
 }
 
 /**
- * Safely close browser with timeout to prevent hanging
- * Especially important when page.goto() times out and browser is in bad state
+ * Safely close browser - simplified version
+ * Just close it and ignore errors (browser might already be closed)
  */
 export async function safeCloseBrowser(browser: Browser | null | undefined): Promise<void> {
   if (!browser) {
@@ -76,59 +78,32 @@ export async function safeCloseBrowser(browser: Browser | null | undefined): Pro
   }
 
   try {
-    // Close all pages first - this prevents browser.close() from waiting
-    // for ongoing network requests, JavaScript execution, or WebSocket connections
+    // Try to close all pages first (best practice)
     const contexts = browser.contexts();
-    const allPages: Page[] = [];
     for (const context of contexts) {
-      allPages.push(...context.pages());
+      for (const page of context.pages()) {
+        await page.close().catch(() => {
+          // Ignore - page might already be closed
+        });
+      }
+      await context.close().catch(() => {
+        // Ignore - context might already be closed
+      });
     }
 
-    // Close all pages with aggressive timeout
-    await Promise.allSettled(
-      allPages.map((page: Page) =>
-        Promise.race([
-          page.close().catch(() => {
-            // Ignore page close errors
-          }),
-          new Promise<void>((resolve) => {
-            setTimeout(() => resolve(), 500); // 500ms timeout per page
-          }),
-        ])
-      )
-    );
-
-    // Close all contexts
-    await Promise.allSettled(
-      contexts.map((context) =>
-        Promise.race([
-          context.close().catch(() => {
-            // Ignore context close errors
-          }),
-          new Promise<void>((resolve) => {
-            setTimeout(() => resolve(), 500);
-          }),
-        ])
-      )
-    );
-
-    // Now close the browser with aggressive timeout
-    // Wrap everything in Promise.allSettled to ensure no unhandled rejections
-    await Promise.allSettled([
-      Promise.race([
-        browser.close().catch(() => {
-          // Ignore browser close errors
-        }),
-        new Promise<void>((resolve) => {
-          setTimeout(() => {
-            console.warn('⚠️  Browser close timeout, continuing anyway');
-            resolve();
-          }, 2000); // 2 second timeout
-        }),
-      ]),
-    ]);
+    // Close browser with timeout - if it takes more than 3 seconds, give up
+    await Promise.race([
+      browser.close(),
+      new Promise<void>((resolve) => {
+        setTimeout(() => {
+          console.warn('⚠️  Browser close timeout, continuing anyway');
+          resolve();
+        }, 3000);
+      }),
+    ]).catch(() => {
+      // Ignore all errors - browser cleanup is best-effort
+    });
   } catch {
-    // Ignore all close errors - browser might already be closed or in bad state
-    // This is expected when browser is in a bad state after timeout
+    // Ignore all errors - browser might already be closed
   }
 }
