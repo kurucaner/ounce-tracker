@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { QueryProvider } from '@/components/query-provider';
 import { DatadogRumProvider } from '@/components/datadog-rum-provider';
+import { GoogleTagManager } from '@/components/gtm';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -35,6 +36,7 @@ export default function RootLayout({
       <link rel="favicon-16x16" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
       <link rel="favicon" type="image/x-icon" sizes="any" href="/favicon.ico" />
       <body className={inter.className}>
+        <GoogleTagManager />
         <DatadogRumProvider />
         <QueryProvider>{children}</QueryProvider>
       </body>

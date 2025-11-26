@@ -96,6 +96,8 @@ async function updatePrice(
   console.info(`💾 Updated ${dealerSlug} - ${productName}: $${price.toFixed(2)}`);
 }
 
+const CLOUDFLARE_PROTECTED_DEALERS = new Set(['bullion-trading-llc']);
+
 /**
  * Scrape all dealers and products
  * Uses a single browser instance for everything (launched once, never closed)
@@ -125,7 +127,7 @@ async function scrapeAll(
 
     // For Cloudflare-protected sites, use a new page for each product
     // This avoids navigation history tracking
-    const isCloudflareProtected = dealer.slug === 'bullion-trading-llc';
+    const isCloudflareProtected = CLOUDFLARE_PROTECTED_DEALERS.has(dealer.slug);
 
     // Scrape all products for this dealer
     for (const product of dealer.products) {
