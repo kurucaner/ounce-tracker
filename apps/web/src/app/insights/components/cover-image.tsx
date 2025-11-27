@@ -13,7 +13,7 @@ export default function CoverImage(props: Readonly<CoverImageProps>) {
   const { image: source, priority } = props;
   const image = source?.asset?._ref ? (
     <Image
-      className="object-cover"
+      className="h-full w-full object-cover"
       width={getImageDimensions(source?.asset?._ref).width}
       height={getImageDimensions(source?.asset?._ref).height}
       alt={stegaClean(source?.alt) || ''}
@@ -22,5 +22,5 @@ export default function CoverImage(props: Readonly<CoverImageProps>) {
     />
   ) : null;
 
-  return <div className="relative">{image}</div>;
+  return <div className="relative h-full w-full">{image}</div>;
 }

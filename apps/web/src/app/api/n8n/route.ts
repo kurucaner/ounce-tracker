@@ -60,7 +60,14 @@ export const POST = async (request: NextRequest) => {
       tags: string[];
       content: unknown[];
       date: string;
-      coverImage?: unknown;
+      coverImage?: {
+        _type: 'image';
+        asset: {
+          _ref: string;
+          _type: 'reference';
+        };
+        alt: string;
+      };
     } = {
       _type: 'post',
       title: body.title,

@@ -1,5 +1,5 @@
-import { client } from 'app/posts/sanity/lib/client';
-import { token } from 'app/posts/sanity/lib/token';
+import { client } from '../../../insights/sanity/lib/client';
+import { token } from '../../../insights/sanity/lib/token';
 import { defineEnableDraftMode } from 'next-sanity/draft-mode';
 
 /**

@@ -9,6 +9,7 @@ import Tag from '@/components/tag-f';
 import Image from 'next/image';
 import Link from 'next/link';
 import PortableText from '../components/portable-text';
+import CoverImage from '../components/cover-image';
 import { sanityFetch } from '../sanity/lib/live';
 import { postPagesSlugs, postQuery } from '../sanity/lib/queries';
 import { resolveOpenGraphImage, urlForImage } from '../sanity/lib/utils';
@@ -73,6 +74,8 @@ export default async function PostPage(props: Props) {
   const prev = allPosts[postIndex + 1];
   const next = allPosts[postIndex - 1];
 
+  console.log('post', post);
+
   return (
     <LayoutWrapper>
       <ScrollTopAndComment />
@@ -99,6 +102,15 @@ export default async function PostPage(props: Props) {
               </div>
             </div>
           </header>
+          {post.coverImage?.asset?._ref && (
+            <div className="mb-12 -mx-4 sm:mx-0 xl:mx-0">
+              <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+                <div className="absolute inset-0">
+                  <CoverImage image={post.coverImage} priority />
+                </div>
+              </div>
+            </div>
+          )}
           <div className="grid-rows-[auto_1fr] divide-y divide-gray-200 pb-8 xl:grid xl:grid-cols-4 xl:gap-x-6 xl:divide-y-0 dark:divide-gray-700">
             <dl className="pt-6 pb-10 xl:border-b xl:border-gray-200 xl:pt-11 xl:dark:border-gray-700">
               <dt className="sr-only">Authors</dt>
