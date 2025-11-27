@@ -1,8 +1,13 @@
 import type { MetadataRoute } from 'next';
-import { createSupabaseServerClient } from '@/lib/supabase-server';
+import { sanityFetch } from './insights/sanity/lib/live';
+import { sitemapData } from './insights/sanity/lib/queries';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ouncetracker.com';
+
+  const allPostsAndPages = await sanityFetch({
+    query: sitemapData,
+  });
 
   const routes: MetadataRoute.Sitemap = [
     {
@@ -31,26 +36,43 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Add dynamic product pages
-  try {
-    const supabase = createSupabaseServerClient();
-    const { data: products } = await supabase
-      .from('products')
-      .select('id, updated_at')
-      .order('updated_at', { ascending: false });
+  // Add dynamic routes from Sanity (posts and pages)
+  if (allPostsAndPages?.data && allPostsAndPages.data.length > 0) {
+    for (const p of allPostsAndPages.data) {
+      let priority: number;
+      let changeFrequency:
+        | 'monthly'
+        | 'always'
+        | 'hourly'
+        | 'daily'
+        | 'weekly'
+        | 'yearly'
+        | 'never'
+        | undefined;
+      let url: string;
 
-    if (products) {
-      products.forEach((product) => {
-        routes.push({
-          url: `${baseUrl}/?product=${product.id}`,
-          lastModified: product.updated_at ? new Date(product.updated_at) : new Date(),
-          changeFrequency: 'hourly',
-          priority: 0.9,
-        });
+      switch (p._type) {
+        case 'page':
+          priority = 0.8;
+          changeFrequency = 'monthly';
+          url = `${baseUrl}/${p.slug}`;
+          break;
+        case 'post':
+          priority = 0.5;
+          changeFrequency = 'never';
+          url = `${baseUrl}/insights/${p.slug}`;
+          break;
+        default:
+          continue;
+      }
+
+      routes.push({
+        url,
+        lastModified: p._updatedAt ? new Date(p._updatedAt) : new Date(),
+        priority,
+        changeFrequency,
       });
     }
-  } catch (error) {
-    console.error('Error generating sitemap:', error);
   }
 
   return routes;

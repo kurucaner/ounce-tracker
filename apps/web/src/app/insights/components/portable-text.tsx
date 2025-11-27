@@ -54,7 +54,7 @@ export default function CustomPortableText({
       h1: ({ children, value }) => {
         const slug = value?._key || generateSlug(children);
         return (
-          <h1 id={slug} className="group relative scroll-mt-20">
+          <h1 id={slug} className="group relative font-bold mb-6 scroll-mt-20">
             {children}
             <a
               href={`#${slug}`}
@@ -79,6 +79,23 @@ export default function CustomPortableText({
           </h2>
         );
       },
+      h3: ({ children, value }) => {
+        const slug = value?._key || generateSlug(children);
+        return (
+          <h3 id={slug} className="group relative font-bold mb-2 scroll-mt-20">
+            {children}
+            <a
+              href={`#${slug}`}
+              className="absolute top-0 bottom-0 left-0 -ml-6 flex items-center opacity-0 transition-opacity group-hover:opacity-100"
+            >
+              <Link2 className="h-4 w-4" />
+            </a>
+          </h3>
+        );
+      },
+      normal: ({ children }) => (
+        <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">{children}</p>
+      ),
     },
     list: {
       bullet: ({ children }) => (
