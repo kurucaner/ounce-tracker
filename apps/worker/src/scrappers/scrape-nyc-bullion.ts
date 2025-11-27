@@ -80,8 +80,40 @@ export async function scrapeNYCBullion(
   // Navigate to the product URL (browser is already launched and page is ready)
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
 
-    // Wait for the price script to be loaded (NYC Bullion uses JavaScript to set prices)
-    // Wait for any script tag that contains 'initPrice' - this indicates price data is loaded
+  // Check for out-of-stock element
+  // Multiple selectors to catch different variations of out-of-stock indicators
+  let outOfStockElement = false;
+  try {
+    // Check for error message div with "out of stock" text
+    const errorMessageVisible = await page
+      .locator('div.message.error:has-text("out of stock")')
+      .waitFor({ state: 'visible', timeout: 1000 })
+      .then(() => {
+        return page.locator('div.message.error:has-text("out of stock")').isVisible();
+      })
+      .catch(() => false);
+
+    // Also check for "Out Of Stock" text in flex container
+    const outOfStockTextVisible = await page
+      .locator('div:has-text("Out Of Stock")')
+      .waitFor({ state: 'visible', timeout: 1000 })
+      .then(() => {
+        return page.locator('div:has-text("Out Of Stock")').isVisible();
+      })
+      .catch(() => false);
+
+    outOfStockElement = errorMessageVisible || outOfStockTextVisible;
+  } catch {
+    console.info('✅ Could not find visible out-of-stock element.');
+  }
+
+  // Wait for the price script to be loaded (NYC Bullion uses JavaScript to set prices)
+  // Wait for any script tag that contains 'initPrice' - this indicates price data is loaded
+  let price = 0;
+
+  if (outOfStockElement) {
+    console.info('⚠️ Product is out of stock');
+  } else {
     await page.waitForFunction(
       () => {
         const scripts = Array.from(document.querySelectorAll('script'));
@@ -96,9 +128,9 @@ export async function scrapeNYCBullion(
       throw new Error('Price not found using JavaScript data extraction.');
     }
 
-  const price = priceNumber;
-  const inStock = true; // NYC Bullion doesn't show out-of-stock, assume in stock
+    price = priceNumber;
+  }
 
   console.info(`✅ NYC Bullion - ${productConfig.name}: $${price.toFixed(2)}`);
-  return { price, url, productName: productConfig.name, inStock };
+  return { price, url, productName: productConfig.name, inStock: !outOfStockElement };
 }
