@@ -68,6 +68,12 @@ export const allPostsQuery = defineQuery(`
   }
 `);
 
+export const getLastTwentyPostsQuery = defineQuery(`
+  *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc) [0...20] {
+    ${postFields}
+  }
+`);
+
 export const morePostsQuery = defineQuery(`
   *[_type == "post" && _id != $skip && defined(slug.current)] | order(date desc, _updatedAt desc) [0...$limit] {
     ${postFields}

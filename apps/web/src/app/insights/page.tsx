@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import { AllPosts } from './components/posts';
 import { sanityFetch } from './sanity/lib/live';
-import { allPostsQuery } from './sanity/lib/queries';
+import { getLastTwentyPostsQuery } from './sanity/lib/queries';
 
-const MAX_DISPLAY = 15;
+const MAX_DISPLAY = 20;
 
 export default async function Page() {
-  const { data: posts } = await sanityFetch({ query: allPostsQuery });
+  const { data: posts } = await sanityFetch({ query: getLastTwentyPostsQuery });
   return (
     <>
       <div className="divide-y divide-gray-200 dark:divide-gray-700">

@@ -4,12 +4,10 @@ import Tag from '@/components/tag-f';
 import { parseLocalDate } from '@/lib/helpers';
 import type { AllPostsQueryResult } from '../sanity.types';
 import { sanityFetch } from '../sanity/lib/live';
-import { allPostsQuery, morePostsQuery } from '../sanity/lib/queries';
+import { getLastTwentyPostsQuery, morePostsQuery } from '../sanity/lib/queries';
 import Avatar from './avatar-f';
 import DateComponent from './date';
 import OnBoarding from './onboarding-f';
-
-const MAX_DISPLAY = 15;
 
 const Post = ({ post }: { post: AllPostsQueryResult[number] }) => {
   const { _id, title, slug, excerpt, date, author } = post;
@@ -71,7 +69,7 @@ export const MorePosts = async ({ skip, limit }: { skip: string; limit: number }
 };
 
 export const AllPosts = async () => {
-  const { data: posts } = await sanityFetch({ query: allPostsQuery });
+  const { data: posts } = await sanityFetch({ query: getLastTwentyPostsQuery });
 
   if (!posts || posts.length === 0) {
     return <OnBoarding />;
@@ -80,7 +78,7 @@ export const AllPosts = async () => {
   return (
     <ul className="divide-y divide-gray-200 dark:divide-gray-700">
       {!posts.length && 'No posts found.'}
-      {posts.slice(0, MAX_DISPLAY).map((post: AllPostsQueryResult[number]) => {
+      {posts.map((post: AllPostsQueryResult[number]) => {
         const { _id, slug, date, title, excerpt, tags } = post;
         return (
           <li key={_id} className="py-12">
