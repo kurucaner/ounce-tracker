@@ -7,6 +7,7 @@ This directory contains shared configuration files used across all apps in the O
 ### Tailwind CSS Preset (`tailwind.preset.ts`)
 
 A shared Tailwind CSS preset that includes:
+
 - Consistent color tokens (border, input, ring, background, etc.)
 - Unified theme configuration
 - Standard border radius values
@@ -33,6 +34,7 @@ export default config;
 ### PostCSS Config (`postcss.config.mjs`)
 
 Standard PostCSS configuration with:
+
 - Tailwind CSS plugin
 - Autoprefixer plugin
 
@@ -52,11 +54,13 @@ Copy this file to your app's root directory or reference it directly.
 When creating a new app that needs Tailwind CSS:
 
 1. Install Tailwind dependencies in your app:
+
    ```bash
    bun add -d tailwindcss autoprefixer postcss tailwindcss-animate
    ```
 
 2. Create `tailwind.config.ts` that extends the shared preset:
+
    ```typescript
    import type { Config } from 'tailwindcss';
    import sharedPreset from '../../packages/shared/tailwind.preset';
@@ -99,4 +103,3 @@ const config: Config = {
 
 - ✅ `apps/web`
 - ✅ `apps/admin`
-

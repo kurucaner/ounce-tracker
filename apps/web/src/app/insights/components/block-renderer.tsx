@@ -25,7 +25,12 @@ const Blocks = {
 /**
  * Used by the <PageBuilder>, this component renders a the component that matches the block type.
  */
-export default function BlockRenderer({ block, index, pageId, pageType }: Readonly<BlockProps>) {
+export default function BlockRenderer({
+  block,
+  index: _index,
+  pageId,
+  pageType,
+}: Readonly<BlockProps>) {
   const Component = Blocks[block._type] as React.FC<{ block: BlockType }>;
 
   // Block does exist

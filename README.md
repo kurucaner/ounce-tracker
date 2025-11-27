@@ -114,6 +114,7 @@ The following services will be available:
 #### `apps/web` - Frontend Application
 
 Next.js 15 application with:
+
 - App Router architecture
 - shadcn/ui component library
 - Tailwind CSS for styling
@@ -121,12 +122,14 @@ Next.js 15 application with:
 - Imports shared types from `@shared` package
 
 **Key Files**:
+
 - `src/app/page.tsx` - Homepage
 - `src/components/ui/` - shadcn/ui components
 - `next.config.mjs` - Next.js configuration
 - `tailwind.config.ts` - Tailwind configuration
 
 **Development**:
+
 ```bash
 cd apps/web
 bun dev          # Start dev server
@@ -138,6 +141,7 @@ bun run lint     # Lint code
 #### `apps/api` - Backend API
 
 Fastify-based REST API with:
+
 - Health check endpoints
 - Product management routes
 - CORS, Helmet, Rate Limiting
@@ -145,6 +149,7 @@ Fastify-based REST API with:
 - Uses shared types from `@shared` package
 
 **Key Endpoints**:
+
 - `GET /health` - Health check
 - `GET /health/ready` - Readiness probe
 - `GET /health/live` - Liveness probe
@@ -152,6 +157,7 @@ Fastify-based REST API with:
 - `GET /api/products/:id` - Get product by ID
 
 **Development**:
+
 ```bash
 cd apps/api
 bun dev          # Start dev server with hot reload
@@ -163,11 +169,13 @@ bun run lint     # Lint code
 #### `apps/worker` - Background Worker
 
 Custom job scheduler for:
+
 - Scraping dealer websites
 - Updating spot prices
 - Running background jobs
 
 **Features**:
+
 - Job scheduler with configurable intervals
 - Price update worker (every 5 minutes)
 - Dealer scraper worker (every 15 minutes)
@@ -175,6 +183,7 @@ Custom job scheduler for:
 - Structured logging
 
 **Development**:
+
 ```bash
 cd apps/worker
 bun dev          # Start worker with hot reload
@@ -190,6 +199,7 @@ bun run lint     # Lint code
 Contains shared TypeScript code used across all apps:
 
 **Types** (`src/types/index.ts`):
+
 - `Metal` enum (GOLD, SILVER, PLATINUM, PALLADIUM)
 - `Product` interface
 - `Dealer` interface
@@ -198,6 +208,7 @@ Contains shared TypeScript code used across all apps:
 - `Pagination` and `PaginatedResponse<T>` interfaces
 
 **Utils** (`src/utils/index.ts`):
+
 - `calculatePremium()` - Calculate premium over spot price
 - `calculatePricePerOunce()` - Calculate per-ounce pricing
 - `formatPrice()` - Format currency
@@ -207,6 +218,7 @@ Contains shared TypeScript code used across all apps:
 - `isWithinMinutes()` - Date comparison utility
 
 **Development**:
+
 ```bash
 cd packages/shared
 bun run build    # Build package
@@ -293,16 +305,20 @@ bun run clean            # Remove all node_modules and build artifacts
 Configure the following in `docker-compose.yml` or create a `.env` file:
 
 **Database**:
+
 - `DATABASE_URL` - PostgreSQL connection string
 
 **Redis**:
+
 - `REDIS_URL` - Redis connection string
 
 **API**:
+
 - `PORT` - API server port (default: 4000)
 - `CORS_ORIGIN` - Allowed CORS origin
 
 **Web**:
+
 - `NEXT_PUBLIC_API_URL` - Backend API URL
 
 ## 📝 Development Guidelines
@@ -372,4 +388,3 @@ This project is private and proprietary.
 ---
 
 **Built with ❤️ using Bun, Next.js, TypeScript, and Docker**
-

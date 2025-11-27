@@ -102,3 +102,15 @@ export const pagesSlugs = defineQuery(`
   *[_type == "page" && defined(slug.current)]
   {"slug": slug.current}
 `);
+
+// Get all unique tags from posts
+export const allTagsQuery = defineQuery(`
+  array::unique(*[_type == "post" && defined(tags) && count(tags) > 0].tags[])
+`);
+
+// Get posts by tag
+export const postsByTagQuery = defineQuery(`
+  *[_type == "post" && defined(slug.current) && $tag in tags] | order(date desc, _updatedAt desc) {
+    ${postFields}
+  }
+`);
