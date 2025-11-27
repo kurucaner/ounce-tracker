@@ -40,7 +40,7 @@ export default async function InsightsLayout({ children }: Readonly<InsightsLayo
   const { isEnabled: isDraftMode } = await draftMode();
 
   return (
-    <div className="flex flex-col max-w-5xl mx-auto py-12">
+    <div className="flex flex-col max-w-5xl mx-auto py-8 px-2">
       {/* The <Toaster> component is responsible for rendering toast notifications used in /app/client-utils.ts and /app/components/DraftModeToast.tsx */}
       {isDraftMode && (
         <>
