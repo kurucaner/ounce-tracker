@@ -152,34 +152,34 @@ const renderLink = ({ children, value: link }: RenderLinkProps) => {
   return <ResolvedLink link={link}>{children}</ResolvedLink>;
 };
 
+const components: PortableTextComponents = {
+  block: {
+    h1: renderH1,
+    h2: renderH2,
+    h3: renderH3,
+    normal: renderNormal,
+    hr: renderHr,
+  },
+  list: {
+    bullet: renderBulletList,
+    number: renderNumberList,
+  },
+  listItem: {
+    bullet: renderBulletListItem,
+    number: renderNumberListItem,
+  },
+  types: {
+    image: renderImage,
+  },
+  marks: {
+    link: renderLink,
+  },
+};
+
 export default function CustomPortableText({
   className,
   value,
 }: Readonly<CustomPortableTextProps>) {
-  const components: PortableTextComponents = {
-    block: {
-      h1: renderH1,
-      h2: renderH2,
-      h3: renderH3,
-      normal: renderNormal,
-      hr: renderHr,
-    },
-    list: {
-      bullet: renderBulletList,
-      number: renderNumberList,
-    },
-    listItem: {
-      bullet: renderBulletListItem,
-      number: renderNumberListItem,
-    },
-    types: {
-      image: renderImage,
-    },
-    marks: {
-      link: renderLink,
-    },
-  };
-
   return (
     <div
       className={[

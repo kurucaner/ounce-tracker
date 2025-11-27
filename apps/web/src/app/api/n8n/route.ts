@@ -50,10 +50,6 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
-    if (!body.category) {
-      return NextResponse.json({ error: 'Category is required' }, { status: 400 });
-    }
-
     // Create the post document
     const post: {
       _type: string;
@@ -61,7 +57,6 @@ export const POST = async (request: NextRequest) => {
       slug: { _type: string; current: string };
       excerpt: string;
       author: { _type: string; _ref: string };
-      category: string;
       tags: string[];
       content: unknown[];
       date: string;
@@ -78,7 +73,6 @@ export const POST = async (request: NextRequest) => {
         _type: 'reference',
         _ref: body?.authorId || '',
       },
-      category: body.category,
       tags: body?.tags || [],
       content: body?.content || [],
       date: body.date || new Date().toISOString(),

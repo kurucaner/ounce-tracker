@@ -56,22 +56,6 @@ export const post = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'category',
-      title: 'Category',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Chess', value: 'chess' },
-          { title: 'F1', value: 'f1' },
-          { title: 'Sports', value: 'sports' },
-          { title: 'Technology', value: 'technology' },
-          { title: 'General', value: 'general' },
-        ],
-        layout: 'dropdown',
-      },
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
       name: 'tags',
       title: 'Tags',
       type: 'array',
