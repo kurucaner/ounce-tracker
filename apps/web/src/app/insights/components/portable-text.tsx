@@ -20,31 +20,58 @@ interface CustomPortableTextProps {
   className?: string;
   value: PortableTextBlock[];
 }
+
+// Helper function to generate a slug from text content
+function generateSlug(children: React.ReactNode): string {
+  let text = '';
+
+  if (typeof children === 'string') {
+    text = children;
+  } else if (Array.isArray(children)) {
+    text = children.map((child) => (typeof child === 'string' ? child : '')).join('');
+  }
+
+  if (!text) {
+    return 'heading';
+  }
+
+  return (
+    text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^(-+|-+)$/g, '') || 'heading'
+  );
+}
+
 export default function CustomPortableText({
   className,
   value,
 }: Readonly<CustomPortableTextProps>) {
   const components: PortableTextComponents = {
     block: {
-      h1: ({ children, value }) => (
-        // Add an anchor to the h1
-        <h1 className="group relative">
-          {children}
-          <a
-            href={`#${value?._key}`}
-            className="absolute top-0 bottom-0 left-0 -ml-6 flex items-center opacity-0 transition-opacity group-hover:opacity-100"
-          >
-            <Link2 className="h-4 w-4" />
-          </a>
-        </h1>
-      ),
-      h2: ({ children, value }) => {
-        // Add an anchor to the h2
+      h1: ({ children, value }) => {
+        const slug = value?._key || generateSlug(children);
         return (
-          <h2 className="group relative font-bold mb-2">
+          <h1 id={slug} className="group relative scroll-mt-20">
             {children}
             <a
-              href={`#${value?._key}`}
+              href={`#${slug}`}
+              className="absolute top-0 bottom-0 left-0 -ml-6 flex items-center opacity-0 transition-opacity group-hover:opacity-100"
+            >
+              <Link2 className="h-4 w-4" />
+            </a>
+          </h1>
+        );
+      },
+      h2: ({ children, value }) => {
+        const slug = value?._key || generateSlug(children);
+        return (
+          <h2 id={slug} className="group relative font-bold mb-2 scroll-mt-20">
+            {children}
+            <a
+              href={`#${slug}`}
               className="absolute top-0 bottom-0 left-0 -ml-6 flex items-center opacity-0 transition-opacity group-hover:opacity-100"
             >
               <Link2 className="h-4 w-4" />
