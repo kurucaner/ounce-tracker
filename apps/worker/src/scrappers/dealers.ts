@@ -35,6 +35,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Credit Suisse',
         productUrl: '/gold/gold-bars/1-oz-gold-bar-credit-suisse-in-assay',
       },
+      {
+        name: '1 oz Gold Bar Valcambi Suisse',
+        productUrl: '/gold/gold-bars/1-oz-gold-bar-valcambi-suisse-in-assay',
+      },
     ],
   },
   {
@@ -57,6 +61,10 @@ export const DEALERS: DealerConfig[] = [
       {
         name: '1 oz Gold Bar Credit Suisse',
         productUrl: '/1-oz-credit-suisse-gold-bar-in-assay',
+      },
+      {
+        name: '1 oz Gold Bar Valcambi Suisse',
+        productUrl: '/1-oz-gold-bar-valcambi-suisse-in-assay',
       },
     ],
   },
@@ -81,6 +89,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Credit Suisse',
         productUrl: '/1-oz-gold-bar-credit-suisse-1cs',
       },
+      {
+        name: '1 oz Gold Bar Valcambi Suisse',
+        productUrl: '/1-oz-gold-bar-valcambi-1valg',
+      },
     ],
   },
   {
@@ -103,6 +115,10 @@ export const DEALERS: DealerConfig[] = [
       {
         name: '1 oz Gold Bar Credit Suisse',
         productUrl: '/product/1-oz-credit-suisse-gold-barin-assay',
+      },
+      {
+        name: '1 oz Gold Bar Valcambi Suisse',
+        productUrl: '/product/1-oz-valcambi-gold-barin-assay',
       },
     ],
   },
@@ -127,6 +143,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Credit Suisse',
         productUrl: '/1-oz-credit-suisse-gold-bar',
       },
+      {
+        name: '1 oz Gold Bar Valcambi Suisse',
+        productUrl: '/1-oz-valcambi-gold-bar-new-w-assay',
+      },
     ],
   },
   {
@@ -149,6 +169,10 @@ export const DEALERS: DealerConfig[] = [
       {
         name: '1 oz Gold Bar Credit Suisse',
         productUrl: '/product/11950/1-oz-gold-bar-credit-suisse-in-assay',
+      },
+      {
+        name: '1 oz Gold Bar Valcambi Suisse',
+        productUrl: '/product/81534/1-oz-gold-bar-valcambi-in-assay',
       },
     ],
   },
@@ -173,6 +197,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Credit Suisse',
         productUrl: '/1-oz-credit-suisse-gold-bar-in-assay',
       },
+      {
+        name: '1 oz Gold Bar Valcambi Suisse',
+        productUrl: '/1oz-valcambi-gold-bar-in-assay',
+      },
     ],
   },
   {
@@ -196,6 +224,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Credit Suisse',
         productUrl: '/product/1-oz-credit-suisse-gold-bar',
       },
+      {
+        name: '1 oz Gold Bar Valcambi Suisse',
+        productUrl: '/product/1-oz-valcambi-gold-bar',
+      },
     ],
   },
   {
@@ -207,10 +239,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar PAMP Suisse Lady Fortuna',
         productUrl: '/purchase-bullion/1-oz-gold-bar-pamp-fortuna',
       },
-      // {
-      //   name: '1 oz Gold Bar Royal Canadian Mint',
-      //   productUrl: '/purchase-bullion/1-oz-gold-bar-rcm-proudly-canadian/',
-      // },
+      {
+        name: '1 oz Gold Bar Royal Canadian Mint',
+        productUrl: '/purchase-bullion/1-oz-gold-bar-royal-canadian-mint',
+      },
       {
         name: '1 oz Gold Bar Perth Mint',
         productUrl: '/purchase-bullion/1-oz-gold-bar-perth-mint',
@@ -219,6 +251,10 @@ export const DEALERS: DealerConfig[] = [
       //   name: '1 oz Gold Bar Credit Suisse',
       //   productUrl: '/purchase-bullion/1-oz-credit-suisse-gold-bar',
       // },
+      {
+        name: '1 oz Gold Bar Valcambi Suisse',
+        productUrl: '/purchase-bullion/1-oz-gold-bar-valcambi',
+      },
     ],
   },
   {
@@ -242,6 +278,10 @@ export const DEALERS: DealerConfig[] = [
       //   name: '1 oz Gold Bar Credit Suisse',
       //   productUrl: '/product/credit-suisse-gold-bar-1-oz',
       // },
+      {
+        name: '1 oz Gold Bar Valcambi Suisse',
+        productUrl: '/product/valcambi-suisse-gold-bar-1-oz',
+      },
     ],
   },
   {
@@ -260,6 +300,10 @@ export const DEALERS: DealerConfig[] = [
       {
         name: '1 oz Gold Bar Perth Mint',
         productUrl: '/product/1-oz-gold-bar-perth-mint-carded',
+      },
+      {
+        name: '1 oz Gold Bar Valcambi Suisse',
+        productUrl: '/product/1-oz-gold-bar-valcambi-carded',
       },
     ],
   },
