@@ -95,6 +95,10 @@ const renderNormal = ({ children }: { children?: React.ReactNode }) => {
   return <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">{children}</p>;
 };
 
+const renderHr = () => {
+  return <hr className="my-8 border-t border-gray-300 dark:border-gray-700" />;
+};
+
 const renderBulletList = ({ children }: { children?: React.ReactNode }) => {
   return (
     <ul className="my-6 ml-6 list-disc space-y-2 [&>li]:pl-2 dark:[&>li]:text-gray-300">
@@ -158,6 +162,7 @@ export default function CustomPortableText({
       h2: renderH2,
       h3: renderH3,
       normal: renderNormal,
+      hr: renderHr,
     },
     list: {
       bullet: renderBulletList,

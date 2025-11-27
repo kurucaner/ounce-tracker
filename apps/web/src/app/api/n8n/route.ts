@@ -55,7 +55,18 @@ export const POST = async (request: NextRequest) => {
     }
 
     // Create the post document
-    const post = {
+    const post: {
+      _type: string;
+      title: string;
+      slug: { _type: string; current: string };
+      excerpt: string;
+      author: { _type: string; _ref: string };
+      category: string;
+      tags: string[];
+      content: unknown[];
+      date: string;
+      coverImage?: unknown;
+    } = {
       _type: 'post',
       title: body.title,
       slug: {
@@ -71,8 +82,12 @@ export const POST = async (request: NextRequest) => {
       tags: body?.tags || [],
       content: body?.content || [],
       date: body.date || new Date().toISOString(),
-      coverImage: body?.coverImage || null,
     };
+
+    // Only include coverImage if it's provided and not null
+    if (body?.coverImage) {
+      post.coverImage = body.coverImage;
+    }
 
     // Create the document in Sanity
     const result = await writeClient.create(post);
