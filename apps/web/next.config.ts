@@ -1,5 +1,6 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+import { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@shared'],
   output: 'standalone',
@@ -11,6 +12,7 @@ const nextConfig = {
       },
     ],
   },
+  devIndicators: false,
 };
 
 export default nextConfig;
