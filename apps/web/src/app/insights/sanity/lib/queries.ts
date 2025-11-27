@@ -62,11 +62,11 @@ export const sitemapData = defineQuery(`
   }
 `);
 
-export const allPostsQuery = /* groq */ `
+export const allPostsQuery = defineQuery(`
   *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc) {
     ${postFields}
   }
-`;
+`);
 
 export const morePostsQuery = defineQuery(`
   *[_type == "post" && _id != $skip && defined(slug.current)] | order(date desc, _updatedAt desc) [0...$limit] {

@@ -1,4 +1,4 @@
-import siteMetadata from '@/lib/site-metadata';
+import { siteMetadata } from '@/lib/site-metadata';
 import Link from 'next/link';
 import { AllPosts } from './components/posts';
 import { sanityFetch } from './sanity/lib/live';
@@ -16,20 +16,12 @@ export default async function Page() {
             Daily Mayhem
           </h1>
           <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">
-            {siteMetadata?.description?.split('#').map((part: string, index: number) =>
-              index === 0 ? (
-                part
-              ) : (
-                <span key={index} className="text-primary-500 dark:text-primary-400">
-                  #{part}
-                </span>
-              )
-            )}
+            {siteMetadata.description}
           </p>
         </div>
         <AllPosts />
       </div>
-      {posts.length > MAX_DISPLAY && (
+      {posts && posts.length > MAX_DISPLAY && (
         <div className="flex justify-end text-base leading-6 font-medium">
           <Link
             href="/see-everything"

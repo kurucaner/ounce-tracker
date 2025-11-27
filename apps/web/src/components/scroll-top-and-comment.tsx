@@ -1,57 +1,57 @@
-'use client'
+'use client';
 
-import siteMetadata from '@/data/siteMetadata'
-import { useCallback, useEffect, useState } from 'react'
+// import { siteMetadata } from '@/lib/site-metadata';
+import { useCallback, useEffect, useState } from 'react';
 
 // Throttle function to limit how often the scroll handler runs
 const useThrottle = (callback: () => void, delay: number) => {
-  const [throttledCallback, setThrottledCallback] = useState<() => void>(() => callback)
+  const [throttledCallback, setThrottledCallback] = useState<() => void>(() => callback);
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout
+    let timeoutId: NodeJS.Timeout;
 
     const throttled = () => {
-      clearTimeout(timeoutId)
-      timeoutId = setTimeout(callback, delay)
-    }
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(callback, delay);
+    };
 
-    setThrottledCallback(() => throttled)
+    setThrottledCallback(() => throttled);
 
-    return () => clearTimeout(timeoutId)
-  }, [callback, delay])
+    return () => clearTimeout(timeoutId);
+  }, [callback, delay]);
 
-  return throttledCallback
-}
+  return throttledCallback;
+};
 
 const ScrollTopAndComment = () => {
-  const [show, setShow] = useState(false)
+  const [show, setShow] = useState(false);
 
   const handleWindowScroll = useCallback(() => {
-    if (window.scrollY > 50) setShow(true)
-    else setShow(false)
-  }, [])
+    if (window.scrollY > 50) setShow(true);
+    else setShow(false);
+  }, []);
 
-  const throttledScrollHandler = useThrottle(handleWindowScroll, 100) // Throttle to 100ms
+  const throttledScrollHandler = useThrottle(handleWindowScroll, 100); // Throttle to 100ms
 
   useEffect(() => {
     // Use passive listener for better performance
-    window.addEventListener('scroll', throttledScrollHandler, { passive: true })
-    return () => window.removeEventListener('scroll', throttledScrollHandler)
-  }, [throttledScrollHandler])
+    window.addEventListener('scroll', throttledScrollHandler, { passive: true });
+    return () => window.removeEventListener('scroll', throttledScrollHandler);
+  }, [throttledScrollHandler]);
 
   const handleScrollTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-  const handleScrollToComment = () => {
-    document.getElementById('comment')?.scrollIntoView({ behavior: 'smooth' })
-  }
+  // const handleScrollToComment = () => {
+  //   document.getElementById('comment')?.scrollIntoView({ behavior: 'smooth' });
+  // };
 
   return (
     <div
       className={`fixed right-8 bottom-8 hidden flex-col gap-3 ${show ? 'md:flex' : 'md:hidden'}`}
     >
-      {siteMetadata.comments?.provider && (
+      {/* {siteMetadata.comments?.provider && (
         <button
           aria-label="Scroll To Comment"
           onClick={handleScrollToComment}
@@ -65,7 +65,7 @@ const ScrollTopAndComment = () => {
             />
           </svg>
         </button>
-      )}
+      )} */}
       <button
         aria-label="Scroll To Top"
         onClick={handleScrollTop}
@@ -80,7 +80,7 @@ const ScrollTopAndComment = () => {
         </svg>
       </button>
     </div>
-  )
-}
+  );
+};
 
-export default ScrollTopAndComment
+export default ScrollTopAndComment;
