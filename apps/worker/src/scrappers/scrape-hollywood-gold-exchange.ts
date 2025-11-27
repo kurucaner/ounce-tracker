@@ -39,7 +39,7 @@ async function extractPriceFromPage(page: Page): Promise<number | null> {
                 return price;
               }
             }
-          } catch (e) {
+          } catch {
             console.warn('⚠️ Failed to parse GTM JSON data.');
           }
         }
@@ -82,15 +82,47 @@ export async function scrapeHollywoodGoldExchange(
   // Navigate to the product URL (browser is already launched and page is ready)
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
 
+  // Check for out-of-stock element
+  // Multiple selectors to catch different variations of out-of-stock indicators
+  let outOfStockElement = false;
+  try {
+    // Check for span with "out-of-stock" class and "Sold out" text
+    const soldOutSpanVisible = await page
+      .locator('span.out-of-stock.product-label')
+      .waitFor({ state: 'visible', timeout: 1000 })
+      .then(() => {
+        return page.locator('span.out-of-stock.product-label').isVisible();
+      })
+      .catch(() => false);
+
+    // Check for p with "stock out-of-stock" classes
+    const outOfStockPVisible = await page
+      .locator('p.stock.out-of-stock')
+      .waitFor({ state: 'visible', timeout: 1000 })
+      .then(() => {
+        return page.locator('p.stock.out-of-stock').isVisible();
+      })
+      .catch(() => false);
+
+    outOfStockElement = soldOutSpanVisible || outOfStockPVisible;
+  } catch {
+    console.info('✅ Could not find visible out-of-stock element.');
+  }
+
+  let price = 0;
+
+  if (outOfStockElement) {
+    console.info('⚠️ Product is out of stock');
+  } else {
     const priceNumber = await extractPriceFromPage(page);
 
     if (priceNumber === null) {
       throw new Error('Price not found using JavaScript data extraction.');
     }
 
-  const price = priceNumber;
-  const inStock = true; // Hollywood Gold Exchange doesn't show out-of-stock, assume in stock
+    price = priceNumber;
+  }
 
   console.info(`✅ Hollywood Gold Exchange - ${productConfig.name}: $${price.toFixed(2)}`);
-  return { price, url, productName: productConfig.name, inStock };
+  return { price, url, productName: productConfig.name, inStock: !outOfStockElement };
 }
