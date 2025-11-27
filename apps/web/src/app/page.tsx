@@ -1,4 +1,5 @@
 import { DealersListing } from '@/components/home/dealers-listing';
+import { DealersListingSkeleton } from '@/components/home/dealers-listing-skeleton';
 import { HomeStructuredData } from '@/components/home/home-structured-data';
 import { InformativeSections } from '@/components/home/informative-sections';
 import type { Metadata } from 'next';
@@ -145,7 +146,7 @@ export default async function HomePage() {
   return (
     <>
       <HomeStructuredData products={products} />
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<DealersListingSkeleton />}>
         <DealersListing />
       </Suspense>
       <InformativeSections />
