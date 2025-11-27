@@ -6,7 +6,6 @@ import LayoutWrapper from '@/components/LayoutWrapper';
 import PageTitle from '@/components/page-title';
 import ScrollTopAndComment from '@/components/scroll-top-and-comment';
 import Tag from '@/components/tag-f';
-import { siteMetadata } from '@/lib/site-metadata';
 import Image from 'next/image';
 import Link from 'next/link';
 import PortableText from '../components/portable-text';
@@ -86,7 +85,7 @@ export default async function PostPage(props: Props) {
                   <dt className="sr-only">Published on</dt>
                   <dd className="text-base leading-6 font-medium text-gray-500 dark:text-gray-400">
                     <time dateTime={post.date}>
-                      {new Date(post.date).toLocaleDateString(siteMetadata.locale, {
+                      {new Date(post.date).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',

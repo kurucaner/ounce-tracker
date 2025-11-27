@@ -15,6 +15,7 @@ import { Link2 } from 'lucide-react';
 
 import ResolvedLink from './resolved-link';
 import { urlForImage } from '../sanity/lib/utils';
+import { Link, SanityImage } from '../sanity.types';
 
 interface CustomPortableTextProps {
   className?: string;
@@ -39,11 +40,113 @@ function generateSlug(children: React.ReactNode): string {
     text
       .toLowerCase()
       .trim()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/[\s_-]+/g, '-')
-      .replace(/^(-+|-+)$/g, '') || 'heading'
+      .replaceAll(/[^\w\s-]/g, '')
+      .replaceAll(/[\s_-]+/g, '-')
+      .replaceAll(/^(-+|-+)$/g, '') || 'heading'
   );
 }
+
+const renderH1 = ({ children, value }: { children?: React.ReactNode; value: unknown }) => {
+  const slug = (value as { _key?: string })?._key || generateSlug(children);
+  return (
+    <h1 id={slug} className="group relative font-bold mb-6 scroll-mt-20">
+      {children}
+      <a
+        href={`#${slug}`}
+        className="absolute top-0 bottom-0 left-0 -ml-6 flex items-center opacity-0 transition-opacity group-hover:opacity-100"
+      >
+        <Link2 className="h-4 w-4" />
+      </a>
+    </h1>
+  );
+};
+
+const renderH2 = ({ children, value }: { children?: React.ReactNode; value: unknown }) => {
+  const slug = (value as { _key?: string })?._key || generateSlug(children);
+  return (
+    <h2 id={slug} className="group relative font-bold mb-2 scroll-mt-20">
+      {children}
+      <a
+        href={`#${slug}`}
+        className="absolute top-0 bottom-0 left-0 -ml-6 flex items-center opacity-0 transition-opacity group-hover:opacity-100"
+      >
+        <Link2 className="h-4 w-4" />
+      </a>
+    </h2>
+  );
+};
+
+const renderH3 = ({ children, value }: { children?: React.ReactNode; value: unknown }) => {
+  const slug = (value as { _key?: string })?._key || generateSlug(children);
+  return (
+    <h3 id={slug} className="group relative font-bold mb-2 scroll-mt-20">
+      {children}
+      <a
+        href={`#${slug}`}
+        className="absolute top-0 bottom-0 left-0 -ml-6 flex items-center opacity-0 transition-opacity group-hover:opacity-100"
+      >
+        <Link2 className="h-4 w-4" />
+      </a>
+    </h3>
+  );
+};
+
+const renderNormal = ({ children }: { children?: React.ReactNode }) => {
+  return <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">{children}</p>;
+};
+
+const renderBulletList = ({ children }: { children?: React.ReactNode }) => {
+  return (
+    <ul className="my-6 ml-6 list-disc space-y-2 [&>li]:pl-2 dark:[&>li]:text-gray-300">
+      {children}
+    </ul>
+  );
+};
+
+const renderNumberList = ({ children }: { children?: React.ReactNode }) => {
+  return (
+    <ol className="my-6 ml-6 list-decimal space-y-2 [&>li]:pl-2 dark:[&>li]:text-gray-300">
+      {children}
+    </ol>
+  );
+};
+
+const renderBulletListItem = ({ children }: { children?: React.ReactNode }) => {
+  return <li className="text-gray-700 dark:text-gray-300 leading-relaxed">{children}</li>;
+};
+
+const renderNumberListItem = ({ children }: { children?: React.ReactNode }) => {
+  return <li className="text-gray-700 dark:text-gray-300 leading-relaxed">{children}</li>;
+};
+
+const renderImage = ({ value }: { value: SanityImage }) => {
+  if (!value?.asset?._ref) {
+    return null;
+  }
+  return (
+    <figure className="my-8">
+      <Image
+        className="w-full rounded-lg"
+        src={urlForImage(value)?.url() as string}
+        alt={value.alt || ' '}
+        width={getImageDimensions(value?.asset?._ref).width}
+        height={getImageDimensions(value?.asset?._ref).height}
+        loading="lazy"
+      />
+      {value.alt && (
+        <figcaption className="mt-2 text-center text-sm text-gray-600">{value.alt}</figcaption>
+      )}
+    </figure>
+  );
+};
+
+interface RenderLinkProps {
+  children: React.ReactNode;
+  value?: Link;
+}
+const renderLink = ({ children, value: link }: RenderLinkProps) => {
+  return <ResolvedLink link={link}>{children}</ResolvedLink>;
+};
 
 export default function CustomPortableText({
   className,
@@ -51,100 +154,24 @@ export default function CustomPortableText({
 }: Readonly<CustomPortableTextProps>) {
   const components: PortableTextComponents = {
     block: {
-      h1: ({ children, value }) => {
-        const slug = value?._key || generateSlug(children);
-        return (
-          <h1 id={slug} className="group relative font-bold mb-6 scroll-mt-20">
-            {children}
-            <a
-              href={`#${slug}`}
-              className="absolute top-0 bottom-0 left-0 -ml-6 flex items-center opacity-0 transition-opacity group-hover:opacity-100"
-            >
-              <Link2 className="h-4 w-4" />
-            </a>
-          </h1>
-        );
-      },
-      h2: ({ children, value }) => {
-        const slug = value?._key || generateSlug(children);
-        return (
-          <h2 id={slug} className="group relative font-bold mb-2 scroll-mt-20">
-            {children}
-            <a
-              href={`#${slug}`}
-              className="absolute top-0 bottom-0 left-0 -ml-6 flex items-center opacity-0 transition-opacity group-hover:opacity-100"
-            >
-              <Link2 className="h-4 w-4" />
-            </a>
-          </h2>
-        );
-      },
-      h3: ({ children, value }) => {
-        const slug = value?._key || generateSlug(children);
-        return (
-          <h3 id={slug} className="group relative font-bold mb-2 scroll-mt-20">
-            {children}
-            <a
-              href={`#${slug}`}
-              className="absolute top-0 bottom-0 left-0 -ml-6 flex items-center opacity-0 transition-opacity group-hover:opacity-100"
-            >
-              <Link2 className="h-4 w-4" />
-            </a>
-          </h3>
-        );
-      },
-      normal: ({ children }) => (
-        <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">{children}</p>
-      ),
+      h1: renderH1,
+      h2: renderH2,
+      h3: renderH3,
+      normal: renderNormal,
     },
     list: {
-      bullet: ({ children }) => (
-        <ul className="my-6 ml-6 list-disc space-y-2 [&>li]:pl-2 dark:[&>li]:text-gray-300">
-          {children}
-        </ul>
-      ),
-      number: ({ children }) => (
-        <ol className="my-6 ml-6 list-decimal space-y-2 [&>li]:pl-2 dark:[&>li]:text-gray-300">
-          {children}
-        </ol>
-      ),
+      bullet: renderBulletList,
+      number: renderNumberList,
     },
     listItem: {
-      bullet: ({ children }) => (
-        <li className="text-gray-700 dark:text-gray-300 leading-relaxed">{children}</li>
-      ),
-      number: ({ children }) => (
-        <li className="text-gray-700 dark:text-gray-300 leading-relaxed">{children}</li>
-      ),
+      bullet: renderBulletListItem,
+      number: renderNumberListItem,
     },
     types: {
-      image: ({ value }) => {
-        if (!value?.asset?._ref) {
-          return null;
-        }
-        return (
-          <figure className="my-8">
-            <Image
-              className="w-full rounded-lg"
-              src={urlForImage(value)?.url() as string}
-              alt={value.alt || ' '}
-              width={getImageDimensions(value).width}
-              height={getImageDimensions(value).height}
-              loading="lazy"
-            />
-            {value.alt && (
-              <figcaption className="mt-2 text-center text-sm text-gray-600">
-                {value.alt}
-              </figcaption>
-            )}
-          </figure>
-        );
-      },
+      image: renderImage,
     },
     marks: {
-      link: ({ children, value: link }) => {
-        return <ResolvedLink link={link}>{children}</ResolvedLink>;
-      },
+      link: renderLink,
     },
   };
 
