@@ -39,6 +39,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Valcambi Suisse',
         productUrl: '/gold/gold-bars/1-oz-gold-bar-valcambi-suisse-in-assay',
       },
+      {
+        name: '1 oz Gold Bar Rand Refinery',
+        productUrl: '/gold/gold-bars/1-oz-gold-bar-rand-refinery-new-w-black-assay',
+      },
     ],
   },
   {
@@ -65,6 +69,10 @@ export const DEALERS: DealerConfig[] = [
       {
         name: '1 oz Gold Bar Valcambi Suisse',
         productUrl: '/1-oz-gold-bar-valcambi-suisse-in-assay',
+      },
+      {
+        name: '1 oz Gold Bar Rand Refinery',
+        productUrl: '/1-oz-rand-refinery-gold-bar-9999-fine-in-assay',
       },
     ],
   },
@@ -120,6 +128,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Valcambi Suisse',
         productUrl: '/product/1-oz-valcambi-gold-barin-assay',
       },
+      {
+        name: '1 oz Gold Bar Rand Refinery',
+        productUrl: '/product/1-oz-rand-refinery-gold-barblack-assay',
+      },
     ],
   },
   {
@@ -147,6 +159,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Valcambi Suisse',
         productUrl: '/1-oz-valcambi-gold-bar-new-w-assay',
       },
+      {
+        name: '1 oz Gold Bar Rand Refinery',
+        productUrl: '/1-oz-rand-refinery-gold-bar-black-assay',
+      },
     ],
   },
   {
@@ -173,6 +189,10 @@ export const DEALERS: DealerConfig[] = [
       {
         name: '1 oz Gold Bar Valcambi Suisse',
         productUrl: '/product/81534/1-oz-gold-bar-valcambi-in-assay',
+      },
+      {
+        name: '1 oz Gold Bar Rand Refinery',
+        productUrl: '/product/217834/1-oz-gold-bar-rand-black-assay',
       },
     ],
   },
@@ -228,6 +248,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Valcambi Suisse',
         productUrl: '/product/1-oz-valcambi-gold-bar',
       },
+      {
+        name: '1 oz Gold Bar Rand Refinery',
+        productUrl: '/product/1-oz-rand-refinery-gold-bar',
+      },
     ],
   },
   {
@@ -254,6 +278,10 @@ export const DEALERS: DealerConfig[] = [
       {
         name: '1 oz Gold Bar Valcambi Suisse',
         productUrl: '/purchase-bullion/1-oz-gold-bar-valcambi',
+      },
+      {
+        name: '1 oz Gold Bar Rand Refinery',
+        productUrl: '/purchase-bullion/1-oz-gold-bar-rand-refinery',
       },
     ],
   },

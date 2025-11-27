@@ -204,6 +204,7 @@ export default function ProductsPage() {
                     <SelectItem value="USMint">US Mint</SelectItem>
                     <SelectItem value="Valcambi">Valcambi</SelectItem>
                     <SelectItem value="CreditSuisse">Credit Suisse</SelectItem>
+                    <SelectItem value="RandRefinery">Rand Refinery</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
