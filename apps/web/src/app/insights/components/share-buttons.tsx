@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   FaCheck,
   FaEnvelope,
@@ -18,16 +18,15 @@ interface ShareButtonsProps {
   description?: string;
 }
 
-export const ShareButtons = ({ url, title, description = '' }: ShareButtonsProps) => {
+export const ShareButtons = ({ url, title: _title, description = '' }: ShareButtonsProps) => {
   const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const encodedUrl = encodeURIComponent(url);
   const encodedDescription = encodeURIComponent(description);
 
   const shareLinks = {
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}${
-      description ? `&quote=${encodedDescription}` : ''
-    }`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
     twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedDescription}`,
     linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
     reddit: `https://reddit.com/submit?url=${encodedUrl}&title=${encodedDescription}`,
@@ -37,13 +36,30 @@ export const ShareButtons = ({ url, title, description = '' }: ShareButtonsProps
 
   const copyToClipboard = async () => {
     try {
+      // Clear any existing timeout to prevent race conditions
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      timeoutRef.current = setTimeout(() => {
+        setCopied(false);
+        timeoutRef.current = null;
+      }, 2000);
     } catch (err) {
       console.error('Failed to copy: ', err);
     }
   };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const openShare = (platform: keyof typeof shareLinks) => {
     window.open(shareLinks[platform], '_blank', 'width=600,height=400');
@@ -109,7 +125,7 @@ export const ShareButtons = ({ url, title, description = '' }: ShareButtonsProps
           {/* Copy Link Button */}
           <button
             onClick={copyToClipboard}
-            className={`flex h-10 w-10 transform items-center justify-center rounded-full border border-gray-300 transition-all duration-200 ease-in-out hover:scale-105 active:scale-95 dark:border-gray-600 ${
+            className={`flex h-10 w-10 transform items-center justify-center rounded-full border border-gray-300 transition-all duration-200 ease-in-out active:scale-95 dark:border-gray-600 ${
               copied
                 ? 'border-green-500 bg-green-500 text-white'
                 : 'text-gray-600 hover:bg-gray-600 hover:text-white dark:text-gray-400'
@@ -121,14 +137,6 @@ export const ShareButtons = ({ url, title, description = '' }: ShareButtonsProps
           </button>
         </div>
       </div>
-
-      {copied && (
-        <div className="mt-2 text-center">
-          <span className="text-sm font-medium text-green-600 dark:text-green-400">
-            Link copied to clipboard!
-          </span>
-        </div>
-      )}
     </div>
   );
 };
