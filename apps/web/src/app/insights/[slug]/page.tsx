@@ -178,11 +178,11 @@ export default async function PostPage(props: Props) {
               </div>
               <div className="pt-4 xl:pt-8">
                 <Link
-                  href="/posts"
+                  href="/insights"
                   className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
-                  aria-label="Back to the blog"
+                  aria-label="Back to the insights"
                 >
-                  &larr; Back to the blog
+                  &larr; Back to the insights
                 </Link>
               </div>
             </footer>
