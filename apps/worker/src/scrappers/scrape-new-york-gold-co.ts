@@ -23,21 +23,31 @@ export async function scrapeNYGoldCo(
     const html = await response.text();
     const $ = cheerio.load(html);
 
-    const priceText = $('span.woocommerce-Price-amount.amount bdi').first().text().trim();
+    // Check for out-of-stock element
+    const outOfStockElement = $('p.stock.out-of-stock').first();
+    const isOutOfStock = outOfStockElement.length > 0 && outOfStockElement.is(':visible');
 
-    if (!priceText) {
-      throw new Error('Price element not found');
+    let price = 0;
+    let inStock = true;
+
+    if (isOutOfStock) {
+      console.info('⚠️ Product is out of stock');
+      inStock = false;
+    } else {
+      const priceText = $('span.woocommerce-Price-amount.amount bdi').first().text().trim();
+
+      if (!priceText) {
+        throw new Error('Price element not found');
+      }
+
+      // Example: "$4,170.49" -> 4170.49
+      const cleanedPrice = priceText.replaceAll(/[^0-9.]/g, '');
+      price = Number.parseFloat(cleanedPrice);
+
+      if (Number.isNaN(price) || price <= 0) {
+        throw new Error(`Invalid price parsed: ${priceText}`);
+      }
     }
-
-    // Example: "$4,170.49" -> 4170.49
-    const cleanedPrice = priceText.replaceAll(/[^0-9.]/g, '');
-    const price = Number.parseFloat(cleanedPrice);
-
-    if (Number.isNaN(price) || price <= 0) {
-      throw new Error(`Invalid price parsed: ${priceText}`);
-    }
-
-    const inStock = true; // NY Gold Co doesn't show out-of-stock, assume in stock
 
     console.info(`✅ NY Gold Co - ${productConfig.name}: $${price.toFixed(2)}`);
     return { price, url, productName: productConfig.name, inStock };
