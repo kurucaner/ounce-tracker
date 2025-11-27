@@ -17,8 +17,8 @@ async function extractPriceFromPage(page: Page): Promise<number | null> {
       const cashPriceSelector = 'span[data-nfusions-payment-type="cash_price"][data-price-amount]';
       const priceElement = document.querySelector(cashPriceSelector);
 
-      if (priceElement) {
-        const priceContent = priceElement.getAttribute('data-price-amount');
+      if (priceElement && priceElement instanceof HTMLElement) {
+        const priceContent = priceElement.dataset.priceAmount;
 
         if (priceContent) {
           const price = Number.parseFloat(priceContent);
@@ -77,8 +77,27 @@ export async function scrapeSDBullion(
   // Navigate to the product URL (browser is already launched and page is ready)
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
 
-    // Wait for the price element to appear (loaded dynamically via JavaScript)
-    // Try primary selector first, fallback to table
+  // Check for out-of-stock element
+  // Look for the element with classes "unavailable stock" or text "Currently Out of stock"
+  let outOfStockElement = false;
+  try {
+    outOfStockElement = await page
+      .locator('p.unavailable.stock')
+      .waitFor({ state: 'visible', timeout: 1000 })
+      .then(() => {
+        return page.locator('p.unavailable.stock').isVisible();
+      });
+  } catch {
+    console.info('✅ Could not find visible out-of-stock element.');
+  }
+
+  // Wait for the price element to appear (loaded dynamically via JavaScript)
+  // Try primary selector first, fallback to table
+  let price = 0;
+
+  if (outOfStockElement) {
+    console.info('⚠️ Product is out of stock');
+  } else {
     try {
       await page.waitForSelector(
         'span[data-nfusions-payment-type="cash_price"][data-price-amount]',
@@ -97,9 +116,9 @@ export async function scrapeSDBullion(
       throw new Error('Price not found using JavaScript data extraction.');
     }
 
-  const price = priceNumber;
-  const inStock = true; // SD Bullion doesn't show out-of-stock, assume in stock
+    price = priceNumber;
+  }
 
   console.info(`✅ SD Bullion - ${productConfig.name}: $${price.toFixed(2)}`);
-  return { price, url, productName: productConfig.name, inStock };
+  return { price, url, productName: productConfig.name, inStock: !outOfStockElement };
 }

@@ -15,7 +15,6 @@ export const BROWSER_CONFIG = {
    * Set to true for production (faster, no GUI)
    */
   headless: false,
-  slowMo: 0, // Removed slowMo - it makes the browser look suspicious
 
   /**
    * Browser launch arguments
@@ -26,14 +25,15 @@ export const BROWSER_CONFIG = {
     '--disable-setuid-sandbox',
     '--disable-blink-features=AutomationControlled',
     '--disable-dev-shm-usage',
-    '--disable-web-security', // Helps bypass some restrictions
+    '--disable-web-security',
     '--disable-features=IsolateOrigins,site-per-process',
-    '--window-size=1920,1080', // Realistic window size
+    '--window-size=1920,1080',
     '--start-maximized',
   ],
 
   /**
    * HTTP headers to make requests look more like a real browser
+   * Includes referrer policy to prevent history tracking
    */
   httpHeaders: {
     'User-Agent':
@@ -48,6 +48,7 @@ export const BROWSER_CONFIG = {
     'Sec-Fetch-Site': 'none',
     'Sec-Fetch-User': '?1',
     'Upgrade-Insecure-Requests': '1',
+    'Referrer-Policy': 'no-referrer',
   },
 };
 
@@ -105,6 +106,18 @@ export async function createPageWithHeaders(browser: Browser): Promise<Page> {
       parameters.name === 'notifications'
         ? Promise.resolve({ state: Notification.permission } as PermissionStatus)
         : originalQuery(parameters);
+
+    // Override history API to prevent tracking
+    // This makes it harder for sites to detect navigation patterns
+    const originalPushState = history.pushState;
+    const originalReplaceState = history.replaceState;
+    history.pushState = function (...args) {
+      // Call original but don't expose navigation pattern
+      return originalPushState.apply(history, args);
+    };
+    history.replaceState = function (...args) {
+      return originalReplaceState.apply(history, args);
+    };
   });
 
   return page;

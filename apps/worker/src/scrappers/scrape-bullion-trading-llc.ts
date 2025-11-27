@@ -84,7 +84,12 @@ export async function scrapeBullionTradingLLC(
 
   // Navigate to the product URL with networkidle to ensure all resources are loaded
   // This is important for Cloudflare-protected sites
-  await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
+  // Set referer to empty string to prevent history tracking
+  await page.goto(url, {
+    waitUntil: 'networkidle',
+    timeout: 60000,
+    referer: '', // No referrer to prevent history tracking
+  });
 
   // After Cloudflare challenge, add a longer delay to let the page fully settle
   // This helps avoid triggering another challenge immediately

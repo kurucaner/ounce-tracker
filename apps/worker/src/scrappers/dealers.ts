@@ -169,10 +169,10 @@ export const DEALERS: DealerConfig[] = [
       //   name: '1 oz Gold Bar Perth Mint',
       //   productUrl: '/new-1-oz-perth-mint-gold-bar',
       // },
-      // {
-      //   name: '1 oz Gold Bar Credit Suisse',
-      //   productUrl: '/1-oz-credit-suisse-gold-bar-in-assay',
-      // },
+      {
+        name: '1 oz Gold Bar Credit Suisse',
+        productUrl: '/1-oz-credit-suisse-gold-bar-in-assay',
+      },
     ],
   },
   {
