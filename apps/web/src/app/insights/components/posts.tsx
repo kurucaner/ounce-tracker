@@ -19,7 +19,7 @@ const Post = ({ post }: { post: AllPostsQueryResult[number] }) => {
       key={_id}
       className="group relative flex h-full flex-col justify-between rounded-lg border border-gray-200 bg-white p-6 transition-all hover:border-gray-300 hover:shadow-lg"
     >
-      <Link className="hover:text-brand transition-colors" href={`/posts/${slug}`}>
+      <Link className="hover:text-brand transition-colors" href={`/insights/${slug}`}>
         <span className="absolute inset-0 z-10" />
       </Link>
       <div>
@@ -96,7 +96,10 @@ export const AllPosts = async () => {
                   <div className="space-y-6">
                     <div>
                       <h2 className="text-2xl leading-8 font-bold tracking-tight">
-                        <Link href={`/posts/${slug}`} className="text-gray-900 dark:text-gray-100">
+                        <Link
+                          href={`/insights/${slug}`}
+                          className="text-gray-900 dark:text-gray-100"
+                        >
                           {title}
                         </Link>
                       </h2>
@@ -112,7 +115,7 @@ export const AllPosts = async () => {
                   </div>
                   <div className="text-base leading-6 font-medium">
                     <Link
-                      href={`/posts/${slug}`}
+                      href={`/insights/${slug}`}
                       className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
                       aria-label={`Read more: "${title}"`}
                     >

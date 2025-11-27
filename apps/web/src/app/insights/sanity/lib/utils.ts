@@ -68,7 +68,7 @@ export function linkResolver(link: Link | undefined) {
       break;
     case 'post':
       if (link?.post && typeof link.post === 'string') {
-        return `/posts/${link.post}`;
+        return `/insights/${link.post}`;
       }
       break;
     default:

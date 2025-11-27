@@ -45,7 +45,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         case 'post':
           priority = 0.5;
           changeFrequency = 'never';
-          url = `${domain}/posts/${p.slug}`;
+          url = `${domain}/insights/${p.slug}`;
           break;
       }
       sitemap.push({

@@ -12,6 +12,7 @@
   "dependencies": {
     "@datadog/browser-rum": "^6.24.1",
     "@datadog/browser-rum-react": "^6.24.1",
+    "@sanity/vision": "^4.19.0",
     "@shared": "workspace:*",
     "@supabase/supabase-js": "^2.83.0",
     "@tailwindcss/typography": "^0.5.19",
