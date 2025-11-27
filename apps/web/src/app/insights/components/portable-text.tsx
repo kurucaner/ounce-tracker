@@ -53,6 +53,26 @@ export default function CustomPortableText({
         );
       },
     },
+    list: {
+      bullet: ({ children }) => (
+        <ul className="my-6 ml-6 list-disc space-y-2 [&>li]:pl-2 dark:[&>li]:text-gray-300">
+          {children}
+        </ul>
+      ),
+      number: ({ children }) => (
+        <ol className="my-6 ml-6 list-decimal space-y-2 [&>li]:pl-2 dark:[&>li]:text-gray-300">
+          {children}
+        </ol>
+      ),
+    },
+    listItem: {
+      bullet: ({ children }) => (
+        <li className="text-gray-700 dark:text-gray-300 leading-relaxed">{children}</li>
+      ),
+      number: ({ children }) => (
+        <li className="text-gray-700 dark:text-gray-300 leading-relaxed">{children}</li>
+      ),
+    },
     types: {
       image: ({ value }) => {
         if (!value?.asset?._ref) {
@@ -95,8 +115,6 @@ export default function CustomPortableText({
         'prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-6',
         'prose-a:text-brand prose-a:no-underline hover:prose-a:underline',
         'prose-strong:text-gray-900 prose-strong:font-semibold',
-        'prose-ul:my-6 prose-ol:my-6',
-        'prose-li:text-gray-700 prose-li:leading-relaxed',
         'prose-code:text-brand prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded',
         'prose-blockquote:border-l-brand prose-blockquote:bg-gray-50 prose-blockquote:py-2 prose-blockquote:px-4',
         className,
