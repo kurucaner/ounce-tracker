@@ -25,7 +25,7 @@ export async function scrapeNYGoldCo(
 
     // Check for out-of-stock element
     const outOfStockElement = $('p.stock.out-of-stock').first();
-    const isOutOfStock = outOfStockElement.length > 0 && outOfStockElement.is(':visible');
+    const isOutOfStock = outOfStockElement.length > 0;
 
     let price = 0;
     let inStock = true;

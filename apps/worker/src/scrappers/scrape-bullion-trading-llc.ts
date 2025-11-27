@@ -1,6 +1,5 @@
 import type { Page } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
-// Browser is now managed by scrape-all-dealers.ts
 
 /**
  * Extracts the primary price from the Bullion Trading LLC product page DOM.
@@ -78,29 +77,19 @@ export async function scrapeBullionTradingLLC(
 
   console.info(`🔍 Scraping Bullion Trading LLC - ${productConfig.name}...`);
 
-  // Add a longer random delay before navigation to make it look more human-like
-  // Cloudflare tracks rapid navigation patterns, so we need longer delays
-  await randomDelay(5000, 10000); // 5-10 seconds random delay before navigation
+  await randomDelay(3000, 5000);
 
-  // Navigate to the product URL with networkidle to ensure all resources are loaded
-  // This is important for Cloudflare-protected sites
-  // Set referer to empty string to prevent history tracking
   await page.goto(url, {
     waitUntil: 'networkidle',
     timeout: 60000,
-    referer: '', // No referrer to prevent history tracking
+    referer: '',
   });
 
-  // After Cloudflare challenge, add a longer delay to let the page fully settle
-  // This helps avoid triggering another challenge immediately
   await randomDelay(2000, 4000);
 
-  // Wait for the price element to appear (with longer timeout for Cloudflare sites)
-  // If challenge completed, this should work. If not, we'll get a clear error.
   try {
     await page.waitForSelector('.woocommerce-Price-amount.amount', { timeout: 20000 });
   } catch (error) {
-    // If price element not found, check if we're still on a challenge page
     const isStillChallenging = await page.evaluate(() => {
       const bodyText = document.body.textContent || '';
       return (
@@ -111,25 +100,20 @@ export async function scrapeBullionTradingLLC(
       );
     });
     if (isStillChallenging) {
-      // If we're being re-challenged, wait longer and try to get clearance again
       console.warn('⚠️ Cloudflare re-challenging detected, waiting longer...');
-      await randomDelay(2000, 3000); // Longer delay after re-challenge
-      // Try waiting for price element again
+      await randomDelay(2000, 3000);
       await page.waitForSelector('.woocommerce-Price-amount.amount', { timeout: 20000 });
     } else {
-      throw error; // Re-throw original error if not a challenge issue
+      throw error;
     }
   }
 
-  // Call the extraction logic
   const priceText = await extractBullionTradingPriceFromPage(page);
 
   if (!priceText) {
     throw new Error('Price not found on page after JavaScript rendering');
   }
 
-  // Standard cleaning and parsing logic
-  // Removes non-digit characters except the decimal point (e.g., removes '$', ',')
   const cleanedPrice = priceText.replaceAll(/[^0-9.]/g, '');
   const price = Number.parseFloat(cleanedPrice);
 
@@ -137,7 +121,7 @@ export async function scrapeBullionTradingLLC(
     throw new Error(`Invalid price parsed: ${priceText}`);
   }
 
-  const inStock = true; // Bullion Trading LLC doesn't show out-of-stock, assume in stock
+  const inStock = true;
 
   console.info(`✅ Bullion Trading LLC - ${productConfig.name}: $${price.toFixed(2)}`);
   return { price, url, productName: productConfig.name, inStock };
