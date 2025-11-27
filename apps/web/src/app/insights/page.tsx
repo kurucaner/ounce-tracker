@@ -1,23 +1,45 @@
-import { SiteHeader } from '@/components/site-header';
-import { SiteFooter } from '@/components/site-footer';
-import { ComingSoon } from '@/components/coming-soon';
+import siteMetadata from '@/lib/site-metadata';
+import Link from 'next/link';
+import { AllPosts } from './components/posts';
+import { sanityFetch } from './sanity/lib/live';
+import { allPostsQuery } from './sanity/lib/queries';
 
-export const metadata = {
-  title: 'Insights | OunceTracker',
-  description: 'Market reports, news, and analysis for precious metals',
-};
+const MAX_DISPLAY = 15;
 
-export default function InsightsPage() {
+export default async function Page() {
+  const { data: posts } = await sanityFetch({ query: allPostsQuery });
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="flex-1">
-        <ComingSoon
-          title="Insights Coming Soon"
-          description="We're preparing market reports, news, and analysis for precious metals. Stay tuned for valuable insights to help you make informed decisions."
-        />
-      </main>
-      <SiteFooter />
-    </div>
+    <>
+      <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        <div className="space-y-2 pt-6 pb-8 md:space-y-5">
+          <h1 className="text-3xl leading-9 font-extrabold tracking-tight text-gray-900 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14 dark:text-gray-100">
+            Daily Mayhem
+          </h1>
+          <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">
+            {siteMetadata?.description?.split('#').map((part: string, index: number) =>
+              index === 0 ? (
+                part
+              ) : (
+                <span key={index} className="text-primary-500 dark:text-primary-400">
+                  #{part}
+                </span>
+              )
+            )}
+          </p>
+        </div>
+        <AllPosts />
+      </div>
+      {posts.length > MAX_DISPLAY && (
+        <div className="flex justify-end text-base leading-6 font-medium">
+          <Link
+            href="/see-everything"
+            className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
+            aria-label="All posts"
+          >
+            All Posts &rarr;
+          </Link>
+        </div>
+      )}
+    </>
   );
 }

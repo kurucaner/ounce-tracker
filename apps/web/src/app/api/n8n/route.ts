@@ -1,0 +1,127 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from 'next-sanity';
+
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET!;
+const token = process.env.SANITY_API_TOKEN!;
+
+if (!projectId || !dataset || !token) {
+  throw new Error('Missing Sanity environment variables');
+}
+
+// Create a write client
+const writeClient = createClient({
+  projectId,
+  dataset,
+  apiVersion: '2025-09-25',
+  useCdn: false,
+  token,
+});
+
+export const POST = async (request: NextRequest) => {
+  try {
+    // Get the API key from headers for authentication
+    const apiKey = request.headers.get('x-api-key');
+    const expectedApiKey = process.env.N8N_API_SECRET_KEY;
+
+    if (!expectedApiKey || apiKey !== expectedApiKey) {
+      return NextResponse.json({ error: 'Unauthorized - Invalid API Key' }, { status: 401 });
+    }
+
+    const body = await request.json();
+
+    // Validate required fields
+    if (!body.title) {
+      return NextResponse.json({ error: 'Title is required' }, { status: 400 });
+    }
+
+    if (!body.slug) {
+      return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
+    }
+
+    if (!body.authorId) {
+      return NextResponse.json({ error: 'Author ID is required' }, { status: 400 });
+    }
+
+    if (!body.content || !Array.isArray(body.content)) {
+      return NextResponse.json(
+        { error: 'Content is required and must be an array' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.category) {
+      return NextResponse.json({ error: 'Category is required' }, { status: 400 });
+    }
+
+    // Create the post document
+    const post = {
+      _type: 'post',
+      title: body.title,
+      slug: {
+        _type: 'slug',
+        current: body.slug,
+      },
+      excerpt: body?.excerpt || '',
+      author: {
+        _type: 'reference',
+        _ref: body?.authorId || '',
+      },
+      category: body.category,
+      tags: body?.tags || [],
+      content: body?.content || [],
+      date: body.date || new Date().toISOString(),
+      coverImage: body?.coverImage || null,
+    };
+
+    // Create the document in Sanity
+    const result = await writeClient.create(post);
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Post created successfully',
+        data: result,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error('Error creating post:', error);
+    return NextResponse.json(
+      {
+        error: 'Failed to create post',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
+  }
+};
+
+// GET endpoint to list all posts
+export const GET = async () => {
+  try {
+    const posts = await writeClient.fetch(
+      `*[_type == "post"] | order(date desc) {
+        _id,
+        title,
+        "slug": slug.current,
+        excerpt,
+        date,
+        category,
+        tags,
+        "author": author->{firstName, lastName}
+      }`
+    );
+
+    return NextResponse.json({ success: true, data: posts }, { status: 200 });
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    return NextResponse.json(
+      {
+        error: 'Failed to fetch posts',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
+  }
+};
