@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from 'next-sanity';
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET!;
+const projectId = process.env.SANITY_PROJECT_ID!;
+const dataset = process.env.SANITY_DATASET!;
 const token = process.env.SANITY_API_TOKEN!;
 
 if (!projectId || !dataset || !token) {
