@@ -64,7 +64,6 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
 export default async function PostPage(props: Props) {
   const params = await props.params;
   const { data: post } = await sanityFetch({ query: postQuery, params });
-  console.log('post', post);
   const { data: allPosts } = await sanityFetch({ query: postPagesSlugs, stega: false });
 
   if (!post?._id) {
@@ -74,8 +73,6 @@ export default async function PostPage(props: Props) {
   const postIndex = allPosts.findIndex((p: { slug: string }) => p.slug === post.slug);
   const prev = allPosts[postIndex + 1];
   const next = allPosts[postIndex - 1];
-
-  console.log('post', post);
 
   return (
     <LayoutWrapper>
