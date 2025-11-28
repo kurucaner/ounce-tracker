@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaLightbulb } from 'react-icons/fa';
+import { FaHome, FaLightbulb } from 'react-icons/fa';
 
 export const SiteHeader = () => {
   return (
@@ -11,12 +11,19 @@ export const SiteHeader = () => {
           <Image src="/logo.png" alt="OunceTracker" width={24} height={24} />
           <span className="font-bold">OunceTracker</span>
         </Link>
-        <nav className="flex flex-1 items-center justify-end space-x-6 text-sm font-medium">
+        <nav className="flex flex-1 items-center justify-end space-x-4 text-sm font-medium">
+          <Link
+            href="/"
+            className="flex items-center gap-1 transition-colors text-primary hover:text-primary/80 underline-offset-4 underline"
+          >
+            <FaHome className="h-4 w-4" />
+            Home
+          </Link>
           <Link
             href="/insights"
-            className="flex items-center gap-2 transition-colors text-foreground/90 hover:text-foreground"
+            className="flex items-center transition-colors text-primary hover:text-primary/80 underline-offset-4 underline"
           >
-            <FaLightbulb className="h-4 w-4" />
+            {/* <FaLightbulb className="h-4 w-4" /> */}
             Insights
           </Link>
         </nav>
