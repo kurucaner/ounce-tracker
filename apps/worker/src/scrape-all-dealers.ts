@@ -190,17 +190,6 @@ async function scrapeAll(
         .catch(() => {
           // Ignore errors - page might already be on about:blank
         });
-      // Clear any remaining requests/responses from memory
-      await defaultPage
-        .evaluate(() => {
-          // Clear any cached data
-          if ('performance' in globalThis && 'clearResourceTimings' in performance) {
-            performance.clearResourceTimings();
-          }
-        })
-        .catch(() => {
-          // Ignore errors
-        });
     } catch {
       // Ignore errors during cleanup
     }
@@ -252,23 +241,18 @@ function getMemoryUsage(): { heapUsed: number; heapTotal: number; external: numb
 
 /**
  * Clean up browser context to free memory
- * Note: We don't clear HTTP cache here to allow browser caching and reduce network traffic
  */
 async function cleanupBrowserContext(defaultPage: import('playwright').Page): Promise<void> {
   try {
     const context = defaultPage.context();
-    // Clear all cookies to free memory (but keep HTTP cache for network efficiency)
+    // Clear all cookies to free memory
     await context.clearCookies();
-    // Clear permissions
-    await context.clearPermissions();
     // Navigate to blank page to clear page state and navigation history
     await defaultPage
       .goto('about:blank', { waitUntil: 'domcontentloaded', timeout: 5000 })
       .catch(() => {
         // Ignore errors
       });
-    // Note: We intentionally don't clear HTTP cache here to reduce network traffic
-    // The browser's HTTP cache helps reduce ingress significantly
   } catch (error) {
     console.warn(
       '⚠️ Browser cleanup warning:',
@@ -279,19 +263,16 @@ async function cleanupBrowserContext(defaultPage: import('playwright').Page): Pr
 
 /**
  * Main loop - runs continuously
- * Launches browser once at startup and reuses it
- * Optionally restarts browser periodically to prevent memory leaks
+ * Launches browser once at startup and reuses it forever
  */
 export async function scrapeAllDealers(): Promise<void> {
-  console.info('🚀 Launching browser...\n');
-  let browser = await launchBrowser();
-  let defaultPage = await createPageWithHeaders(browser);
+  console.info('🚀 Launching browser (will stay open for entire worker lifecycle)...\n');
+  const browser = await launchBrowser();
+  const defaultPage = await createPageWithHeaders(browser);
   console.info('✅ Browser ready, starting scrape loop...\n');
 
   let cycleCount = 0;
-  const CLEANUP_INTERVAL = 5; // Clean up browser context every 5 cycles (more frequent)
-  const BROWSER_RESTART_INTERVAL = 100; // Restart browser every 100 cycles (~50 minutes) to prevent leaks
-  // Increased from 50 to 100 to reduce network traffic spikes from browser restarts
+  const CLEANUP_INTERVAL = 10; // Clean up browser context every 10 cycles
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
@@ -315,27 +296,6 @@ export async function scrapeAllDealers(): Promise<void> {
         console.info(
           `💾 Memory after cleanup: ${memoryAfterCleanup.heapUsed}MB / ${memoryAfterCleanup.heapTotal}MB`
         );
-      }
-
-      // Periodic browser restart to prevent memory leaks from accumulating
-      if (cycleCount % BROWSER_RESTART_INTERVAL === 0) {
-        console.info('🔄 Restarting browser to prevent memory leaks...');
-        try {
-          await defaultPage.close();
-          await browser.close();
-          // Small delay before restart
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-          browser = await launchBrowser();
-          defaultPage = await createPageWithHeaders(browser);
-          console.info('✅ Browser restarted successfully');
-          const memoryAfterRestart = getMemoryUsage();
-          console.info(
-            `💾 Memory after restart: ${memoryAfterRestart.heapUsed}MB / ${memoryAfterRestart.heapTotal}MB`
-          );
-        } catch (error) {
-          console.error('❌ Error restarting browser:', error);
-          // Try to continue with existing browser
-        }
       }
 
       // Force garbage collection if available (requires --expose-gc flag)
