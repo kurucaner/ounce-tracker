@@ -3,8 +3,11 @@ import { structureTool } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
 import { schemaTypes } from './schemaTypes/index';
 
-const projectId = process.env.SANITY_PROJECT_ID!;
-const dataset = process.env.SANITY_DATASET!;
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET!;
+
+console.log('projectId', projectId);
+console.log('dataset', dataset);
 
 const config = defineConfig({
   name: 'default',
