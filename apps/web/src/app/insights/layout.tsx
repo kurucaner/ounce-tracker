@@ -9,6 +9,7 @@ import * as demo from './sanity/lib/demo';
 import { sanityFetch, SanityLive } from './sanity/lib/live';
 import { settingsQuery } from './sanity/lib/queries';
 import { resolveOpenGraphImage } from './sanity/lib/utils';
+import { GoogleNewsletterCta } from '@/components/google-newsletter-cta';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { data: settings } = await sanityFetch({
@@ -41,6 +42,7 @@ export default async function InsightsLayout({ children }: Readonly<InsightsLayo
 
   return (
     <div className="flex flex-col max-w-5xl mx-auto py-8 px-2">
+      <GoogleNewsletterCta />
       {/* The <Toaster> component is responsible for rendering toast notifications used in /app/client-utils.ts and /app/components/DraftModeToast.tsx */}
       {isDraftMode && (
         <>
