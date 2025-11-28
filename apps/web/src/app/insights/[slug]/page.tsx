@@ -20,6 +20,10 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
+// Allow on-demand revalidation via revalidatePath in the n8n route
+// Pages are cached for performance but can be revalidated when new posts are created
+export const revalidate = 3600; // Revalidate every hour, or on-demand via revalidatePath
+
 /**
  * Generate the static params for the page.
  * Learn more: https://nextjs.org/docs/app/api-reference/functions/generate-static-params

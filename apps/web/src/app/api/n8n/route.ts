@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { createClient } from 'next-sanity';
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
@@ -96,6 +97,22 @@ export const POST = async (request: NextRequest) => {
 
     // Create the document in Sanity
     const result = await writeClient.create(post);
+
+    // Revalidate Next.js cache for the insights pages
+    // This ensures the new post appears immediately in production
+    try {
+      // Revalidate the main insights page
+      revalidatePath('/insights');
+      // Revalidate the specific post page
+      revalidatePath(`/insights/${body.slug}`);
+      // Revalidate all insights pages using a tag (if you use tags elsewhere)
+      revalidateTag('insights');
+      // Revalidate sitemap
+      revalidatePath('/sitemap.xml');
+    } catch (revalidateError) {
+      // Log but don't fail the request if revalidation fails
+      console.error('Revalidation error (non-fatal):', revalidateError);
+    }
 
     return NextResponse.json(
       {

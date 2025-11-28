@@ -5,6 +5,10 @@ import { getLastTwentyPostsQuery } from './sanity/lib/queries';
 
 const MAX_DISPLAY = 20;
 
+// Allow on-demand revalidation via revalidatePath in the n8n route
+// Pages are cached for performance but can be revalidated when new posts are created
+export const revalidate = 3600; // Revalidate every hour, or on-demand via revalidatePath
+
 export default async function Page() {
   const { data: posts } = await sanityFetch({ query: getLastTwentyPostsQuery });
   return (

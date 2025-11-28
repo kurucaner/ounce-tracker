@@ -69,7 +69,12 @@ export const MorePosts = async ({ skip, limit }: { skip: string; limit: number }
 };
 
 export const AllPosts = async () => {
-  const { data: posts } = await sanityFetch({ query: getLastTwentyPostsQuery });
+  // Use stega: false to ensure we get published content from CDN
+  // The revalidation in the n8n route will ensure fresh data
+  const { data: posts } = await sanityFetch({
+    query: getLastTwentyPostsQuery,
+    stega: false,
+  });
   console.log('posts', posts);
 
   if (!posts || posts.length === 0) {
