@@ -7,6 +7,7 @@ import { GoogleTagManager } from '@/components/gtm';
 import { Toaster } from 'sonner';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
+import { ThemeProvider } from 'next-themes';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -44,9 +45,16 @@ export default function RootLayout({
         <GoogleTagManager />
         <DatadogRumProvider />
         <QueryProvider>
-          <SiteHeader />
-          {children}
-          <SiteFooter />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SiteHeader />
+            {children}
+            <SiteFooter />
+          </ThemeProvider>
         </QueryProvider>
       </body>
     </html>
