@@ -27,7 +27,7 @@ export const ShareButtons = ({ url, title: _title, description = '' }: ShareButt
 
   const shareLinks = {
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
-    twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedDescription}`,
+    twitter: `https://x.com/intent/post?url=${encodedUrl}&text=${encodedDescription}`,
     linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
     reddit: `https://reddit.com/submit?url=${encodedUrl}&title=${encodedDescription}`,
     whatsapp: `https://wa.me/?text=${encodedDescription}%20${encodedUrl}`,

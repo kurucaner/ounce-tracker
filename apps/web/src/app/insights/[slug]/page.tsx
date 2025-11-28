@@ -15,6 +15,7 @@ import { postPagesSlugs, postQuery } from '../sanity/lib/queries';
 import { resolveOpenGraphImage, urlForImage } from '../sanity/lib/utils';
 import { ShareButtons } from '../components/share-buttons';
 import { PublishedAt } from '../components/published-at';
+import { ContributeWithGoogleButton } from '@/components/contribute-with-google-button';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -141,11 +142,16 @@ export default async function PostPage(props: Props) {
                   <PortableText value={post.content as PortableTextBlock[]} />
                 )}
               </div>
-              <ShareButtons
-                title={post.title}
-                url={`/insights/${post.slug}`}
-                description={post.excerpt || undefined}
-              />
+              <div className="space-y-6">
+                <ShareButtons
+                  title={post.title}
+                  url={`${process.env.NEXT_PUBLIC_SITE_URL}/insights/${post.slug}`}
+                  description={post.excerpt || undefined}
+                />
+                <div className="flex justify-center">
+                  <ContributeWithGoogleButton />
+                </div>
+              </div>
             </div>
             <footer>
               <div className="divide-gray-200 text-sm leading-5 font-medium xl:col-start-1 xl:row-start-2 xl:divide-y dark:divide-gray-700">
