@@ -55,7 +55,7 @@ COPY --from=builder /app/packages/shared ./packages/shared
 COPY --from=builder /app/apps/worker ./apps/worker
 
 # Install production dependencies
-RUN bun install --production --frozen-lockfile
+RUN bun install --production
 
 # Install Playwright system dependencies (Debian/Ubuntu)
 # This installs all required libraries including libatk-1.0.so.0

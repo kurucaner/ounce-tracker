@@ -48,7 +48,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/packages/shared ./packages/shared
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web ./apps/web
 
 # Install production dependencies (including next CLI and workspace deps)
-RUN bun install --production --frozen-lockfile
+RUN bun install --production
 
 # Change to web app directory for running
 WORKDIR /app/apps/web

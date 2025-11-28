@@ -45,7 +45,7 @@ COPY --from=builder --chown=apiuser:nodejs /app/packages/shared ./packages/share
 COPY --from=builder --chown=apiuser:nodejs /app/apps/api ./apps/api
 
 # Install production dependencies only
-RUN bun install --production --frozen-lockfile
+RUN bun install --production
 
 # Change to api directory for running
 WORKDIR /app/apps/api
