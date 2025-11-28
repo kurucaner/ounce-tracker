@@ -63,20 +63,20 @@ export async function scrapeGoldDealerCom(
   // Navigate to the product URL (browser is already launched and page is ready)
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
 
-    // Wait for the price element to appear (loaded dynamically via JavaScript)
-    // Try both selectors to be safe
-    try {
-      await page.waitForSelector('#priceBuySell2 span[itemprop="price"]', { timeout: 10000 });
-    } catch {
-      // Fallback: wait for the ID selector
-      await page.waitForSelector('#sellPrice', { timeout: 10000 });
-    }
+  // Wait for the price element to appear (loaded dynamically via JavaScript)
+  // Try both selectors to be safe
+  try {
+    await page.waitForSelector('#priceBuySell2 span[itemprop="price"]', { timeout: 10000 });
+  } catch {
+    // Fallback: wait for the ID selector
+    await page.waitForSelector('#sellPrice', { timeout: 10000 });
+  }
 
-    const priceNumber = await extractPriceFromPage(page);
+  const priceNumber = await extractPriceFromPage(page);
 
-    if (priceNumber === null) {
-      throw new Error('Price not found using JavaScript data extraction.');
-    }
+  if (priceNumber === null) {
+    throw new Error('Price not found using JavaScript data extraction.');
+  }
 
   const price = priceNumber;
   const inStock = true; // GoldDealer.com doesn't show out-of-stock, assume in stock

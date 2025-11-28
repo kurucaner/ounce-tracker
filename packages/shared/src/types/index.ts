@@ -79,4 +79,3 @@ export interface Pagination {
 export interface PaginatedResponse<T> extends ApiResponse<T[]> {
   pagination: Pagination;
 }
-

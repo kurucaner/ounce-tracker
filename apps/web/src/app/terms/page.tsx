@@ -1,6 +1,4 @@
 import type { Metadata } from 'next';
-import { SiteFooter } from '@/components/site-footer';
-import { SiteHeader } from '@/components/site-header';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
@@ -17,7 +15,6 @@ export default function TermsAndConditionsPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <SiteHeader />
       <main className="flex-1">
         <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="mb-8">
@@ -395,7 +392,6 @@ export default function TermsAndConditionsPage() {
           </div>
         </div>
       </main>
-      <SiteFooter />
     </div>
   );
 }

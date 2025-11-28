@@ -5,11 +5,13 @@ Internal admin panel for managing dealers and products in the OunceTracker syste
 ## Features
 
 ✅ **Dealer Management**
+
 - Add new bullion dealers
 - Automatic slug generation for URLs
 - Website URL tracking
 
 ✅ **Product Management**
+
 - Add precious metal products
 - Metal type selection (Gold, Silver, Platinum, Palladium)
 - Form type selection (Bar, Coin, Round)
@@ -17,6 +19,7 @@ Internal admin panel for managing dealers and products in the OunceTracker syste
 - Weight in troy ounces
 
 ✅ **Modern UI**
+
 - Built with shadcn/ui components
 - Clean, intuitive forms
 - Real-time validation
@@ -93,6 +96,7 @@ The admin panel will be available at: **http://localhost:3001**
 Create a new dealer.
 
 **Body:**
+
 ```json
 {
   "name": "APMEX",
@@ -106,6 +110,7 @@ Create a new dealer.
 Create a new product.
 
 **Body:**
+
 ```json
 {
   "name": "1 oz Gold Bar PAMP Suisse Lady Fortuna",
@@ -155,6 +160,7 @@ CREATE TABLE public.products (
 ## Components
 
 All UI components are from shadcn/ui:
+
 - `Button` - Action buttons
 - `Card` - Content containers
 - `Input` - Text inputs
@@ -164,6 +170,7 @@ All UI components are from shadcn/ui:
 ## Security
 
 ⚠️ **No Authentication**: This admin panel has no authentication. It should:
+
 - Only be accessible on internal networks
 - Never be exposed publicly
 - Use VPN or firewall rules for access control
@@ -201,4 +208,3 @@ bun start
 ---
 
 **Built with Next.js 15, Bun & Supabase**
-

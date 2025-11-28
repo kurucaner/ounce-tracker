@@ -33,6 +33,10 @@ export const queryFns = {
       throw new Error('Failed to fetch products');
     }
     const data: ProductsResponse = await response.json();
+
+    if (data.success && data.products.length > 0) {
+      localStorage.setItem('ounce-tracker-products', JSON.stringify(data.products));
+    }
     return data.products || [];
   },
 

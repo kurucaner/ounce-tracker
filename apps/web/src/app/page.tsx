@@ -1,11 +1,10 @@
 import { DealersListing } from '@/components/home/dealers-listing';
+import { DealersListingSkeleton } from '@/components/home/dealers-listing-skeleton';
 import { HomeStructuredData } from '@/components/home/home-structured-data';
 import { InformativeSections } from '@/components/home/informative-sections';
 import type { Metadata } from 'next';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { Suspense } from 'react';
-import { SiteFooter } from '@/components/site-footer';
-import { SiteHeader } from '@/components/site-header';
 
 /**
  * Generate dynamic metadata for SEO
@@ -147,12 +146,10 @@ export default async function HomePage() {
   return (
     <>
       <HomeStructuredData products={products} />
-      <SiteHeader />
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<DealersListingSkeleton />}>
         <DealersListing />
       </Suspense>
       <InformativeSections />
-      <SiteFooter />
     </>
   );
 }
