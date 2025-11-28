@@ -25,10 +25,11 @@ export default function DraftModeToast() {
         duration: Infinity,
         action: {
           label: 'Disable',
-          onClick: async () => {
-            await disableDraftMode();
-            startTransition(() => {
-              router.refresh();
+          onClick: () => {
+            disableDraftMode().then(() => {
+              startTransition(() => {
+                router.refresh();
+              });
             });
           },
         },
@@ -37,6 +38,7 @@ export default function DraftModeToast() {
         toast.dismiss(toastId);
       };
     }
+    return undefined;
   }, [env, router, isPresentationTool]);
 
   useEffect(() => {
@@ -46,6 +48,7 @@ export default function DraftModeToast() {
         toast.dismiss(toastId);
       };
     }
+    return undefined;
   }, [pending]);
 
   return null;

@@ -1,11 +1,4 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@shared';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@shared';
 
 export function DealersListingSkeleton() {
   return (
@@ -38,10 +31,7 @@ export function DealersListingSkeleton() {
             {/* Mobile Card Layout Skeleton */}
             <div className="space-y-3 md:hidden">
               {Array.from({ length: 5 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="rounded-lg border bg-card p-4 shadow-sm"
-                >
+                <div key={index} className="rounded-lg border bg-card p-4 shadow-sm">
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -117,4 +107,3 @@ export function DealersListingSkeleton() {
     </div>
   );
 }
-

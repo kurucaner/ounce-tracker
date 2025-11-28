@@ -46,7 +46,7 @@ export function resolveOpenGraphImage(
   if (!image) return;
   const url = urlForImage(image)?.width(1200).height(627).fit('crop').url();
   if (!url) return;
-  return { url, alt: image?.alt as string, width, height };
+  return { url, alt: image?.alt, width, height };
 }
 
 // Depending on the type of link, we need to fetch the corresponding page, post, or URL.  Otherwise return null.
@@ -65,12 +65,12 @@ export function linkResolver(link: Link | undefined) {
       if (link?.page && typeof link.page === 'string') {
         return `/${link.page}`;
       }
-      break;
+      return null;
     case 'post':
       if (link?.post && typeof link.post === 'string') {
         return `/insights/${link.post}`;
       }
-      break;
+      return null;
     default:
       return null;
   }

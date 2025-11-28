@@ -10,7 +10,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import PortableText from '../components/portable-text';
 import CoverImage from '../components/cover-image';
-import { SocialShare } from '../components/social-share';
 import { sanityFetch } from '../sanity/lib/live';
 import { postPagesSlugs, postQuery } from '../sanity/lib/queries';
 import { resolveOpenGraphImage, urlForImage } from '../sanity/lib/utils';
