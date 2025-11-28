@@ -70,6 +70,7 @@ export const MorePosts = async ({ skip, limit }: { skip: string; limit: number }
 
 export const AllPosts = async () => {
   const { data: posts } = await sanityFetch({ query: getLastTwentyPostsQuery });
+  console.log('posts', posts);
 
   if (!posts || posts.length === 0) {
     return <OnBoarding />;
