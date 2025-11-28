@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaHome, FaLightbulb } from 'react-icons/fa';
+import { FaHome } from 'react-icons/fa';
 
 export const SiteHeader = () => {
   return (
