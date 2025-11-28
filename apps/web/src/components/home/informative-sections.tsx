@@ -117,6 +117,89 @@ const FuturisticMintCard = memo(({ mint }: { mint: MintDetails }) => {
 });
 FuturisticMintCard.displayName = 'FuturisticMintCard';
 
+const MINTS: MintDetails[] = [
+  {
+    name: 'PAMP Suisse',
+    country: 'Switzerland',
+    founded: '1977',
+    purity: '99.99%',
+    specialties: ['Refining', 'Design Innovation', 'Certification'],
+    notableProducts: [
+      'Lady Fortuna Series',
+      'Fortuna Gold Bars',
+      'CertiPAMP Bars',
+      'InGold Series',
+    ],
+    description:
+      "One of the world's leading precious metals refiners, PAMP Suisse combines Swiss precision with artistic excellence. Known for their iconic Lady Fortuna design and innovative CertiPAMP technology, they set industry standards for quality and authenticity.",
+    gradient: 'from-cyan-500/20 via-blue-500/20 to-cyan-500/20',
+  },
+  {
+    name: 'Royal Canadian Mint',
+    country: 'Canada',
+    founded: '1908',
+    purity: '99.99%',
+    specialties: ['Government Backing', 'Maple Leaf Series', 'Security Features'],
+    notableProducts: [
+      'Gold Maple Leaf',
+      'Silver Maple Leaf',
+      'Platinum Maple Leaf',
+      'Palladium Maple Leaf',
+    ],
+    description:
+      "As a Crown corporation of Canada, the Royal Canadian Mint produces some of the world's most recognized bullion coins. Their Maple Leaf series features advanced security features and is backed by the Canadian government, ensuring exceptional quality and liquidity.",
+    gradient: 'from-blue-500/20 via-indigo-500/20 to-blue-500/20',
+  },
+  {
+    name: 'US Mint',
+    country: 'United States',
+    founded: '1792',
+    purity: '99.99%',
+    specialties: ['Legal Tender', 'Eagle Series', 'Buffalo Series'],
+    notableProducts: [
+      'American Gold Eagle',
+      'American Silver Eagle',
+      'American Buffalo',
+      'Platinum Eagle',
+    ],
+    description:
+      'The official mint of the United States, established by Congress in 1792. Produces legal tender bullion coins including the iconic American Eagle and American Buffalo series. These coins are recognized worldwide and carry the full faith and credit of the U.S. government.',
+    gradient: 'from-purple-500/20 via-violet-500/20 to-purple-500/20',
+  },
+  {
+    name: 'Perth Mint',
+    country: 'Australia',
+    founded: '1899',
+    purity: '99.99%',
+    specialties: ['Kangaroo Series', 'Lunar Series', 'Government Backing'],
+    notableProducts: ['Australian Kangaroo', 'Australian Koala', 'Lunar Series', 'Perth Mint Bars'],
+    description:
+      "Australia's oldest operating mint and a government enterprise of Western Australia. Known for innovative designs and the popular Kangaroo and Lunar series. Perth Mint products are backed by the Western Australian government and recognized globally for quality.",
+    gradient: 'from-emerald-500/20 via-teal-500/20 to-emerald-500/20',
+  },
+  {
+    name: 'Valcambi',
+    country: 'Switzerland',
+    founded: '1961',
+    purity: '99.99%',
+    specialties: ['Combibars', 'Innovation', 'Swiss Quality'],
+    notableProducts: ['Combibar Technology', 'Valcambi Gold Bars', 'Silver Bars', 'Platinum Bars'],
+    description:
+      'A premium Swiss refiner known for revolutionary products like the Combibar—a bar that can be broken into smaller units while maintaining individual assay certification. Valcambi combines Swiss precision with innovative design, making them a leader in flexible precious metals products.',
+    gradient: 'from-amber-500/20 via-orange-500/20 to-amber-500/20',
+  },
+  {
+    name: 'Other Reputable Mints',
+    country: 'Global',
+    purity: '99.9%+',
+    specialties: ['Diversity', 'Global Recognition', 'Quality Standards'],
+    notableProducts: ['Credit Suisse Bars', 'Johnson Matthey', 'Heraeus', 'Argor-Heraeus'],
+    description:
+      'We also track products from other trusted mints and refiners including Credit Suisse, Johnson Matthey, Heraeus, Argor-Heraeus, and more. Each maintains rigorous quality standards and global recognition, ensuring your investment meets the highest industry benchmarks.',
+    gradient: 'from-slate-500/20 via-gray-500/20 to-slate-500/20',
+  },
+];
+
 const FeatureCard = memo(({ title, description }: { title: string; description: string }) => {
   return (
     <Card className="group relative h-full overflow-hidden border border-border/50 bg-card transition-all duration-500 hover:border-primary/20 hover:shadow-lg">
@@ -217,113 +300,9 @@ export function InformativeSections() {
             </p>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 -mx-1">
-              <FuturisticMintCard
-                mint={{
-                  name: 'PAMP Suisse',
-                  country: 'Switzerland',
-                  founded: '1977',
-                  purity: '99.99%',
-                  specialties: ['Refining', 'Design Innovation', 'Certification'],
-                  notableProducts: [
-                    'Lady Fortuna Series',
-                    'Fortuna Gold Bars',
-                    'CertiPAMP Bars',
-                    'InGold Series',
-                  ],
-                  description:
-                    "One of the world's leading precious metals refiners, PAMP Suisse combines Swiss precision with artistic excellence. Known for their iconic Lady Fortuna design and innovative CertiPAMP technology, they set industry standards for quality and authenticity.",
-                  gradient: 'from-cyan-500/20 via-blue-500/20 to-cyan-500/20',
-                }}
-              />
-              <FuturisticMintCard
-                mint={{
-                  name: 'Royal Canadian Mint',
-                  country: 'Canada',
-                  founded: '1908',
-                  purity: '99.99%',
-                  specialties: ['Government Backing', 'Maple Leaf Series', 'Security Features'],
-                  notableProducts: [
-                    'Gold Maple Leaf',
-                    'Silver Maple Leaf',
-                    'Platinum Maple Leaf',
-                    'Palladium Maple Leaf',
-                  ],
-                  description:
-                    "As a Crown corporation of Canada, the Royal Canadian Mint produces some of the world's most recognized bullion coins. Their Maple Leaf series features advanced security features and is backed by the Canadian government, ensuring exceptional quality and liquidity.",
-                  gradient: 'from-blue-500/20 via-indigo-500/20 to-blue-500/20',
-                }}
-              />
-              <FuturisticMintCard
-                mint={{
-                  name: 'US Mint',
-                  country: 'United States',
-                  founded: '1792',
-                  purity: '99.99%',
-                  specialties: ['Legal Tender', 'Eagle Series', 'Buffalo Series'],
-                  notableProducts: [
-                    'American Gold Eagle',
-                    'American Silver Eagle',
-                    'American Buffalo',
-                    'Platinum Eagle',
-                  ],
-                  description:
-                    'The official mint of the United States, established by Congress in 1792. Produces legal tender bullion coins including the iconic American Eagle and American Buffalo series. These coins are recognized worldwide and carry the full faith and credit of the U.S. government.',
-                  gradient: 'from-purple-500/20 via-violet-500/20 to-purple-500/20',
-                }}
-              />
-              <FuturisticMintCard
-                mint={{
-                  name: 'Perth Mint',
-                  country: 'Australia',
-                  founded: '1899',
-                  purity: '99.99%',
-                  specialties: ['Kangaroo Series', 'Lunar Series', 'Government Backing'],
-                  notableProducts: [
-                    'Australian Kangaroo',
-                    'Australian Koala',
-                    'Lunar Series',
-                    'Perth Mint Bars',
-                  ],
-                  description:
-                    "Australia's oldest operating mint and a government enterprise of Western Australia. Known for innovative designs and the popular Kangaroo and Lunar series. Perth Mint products are backed by the Western Australian government and recognized globally for quality.",
-                  gradient: 'from-emerald-500/20 via-teal-500/20 to-emerald-500/20',
-                }}
-              />
-              <FuturisticMintCard
-                mint={{
-                  name: 'Valcambi',
-                  country: 'Switzerland',
-                  founded: '1961',
-                  purity: '99.99%',
-                  specialties: ['Combibars', 'Innovation', 'Swiss Quality'],
-                  notableProducts: [
-                    'Combibar Technology',
-                    'Valcambi Gold Bars',
-                    'Silver Bars',
-                    'Platinum Bars',
-                  ],
-                  description:
-                    'A premium Swiss refiner known for revolutionary products like the Combibar—a bar that can be broken into smaller units while maintaining individual assay certification. Valcambi combines Swiss precision with innovative design, making them a leader in flexible precious metals products.',
-                  gradient: 'from-amber-500/20 via-orange-500/20 to-amber-500/20',
-                }}
-              />
-              <FuturisticMintCard
-                mint={{
-                  name: 'Other Reputable Mints',
-                  country: 'Global',
-                  purity: '99.9%+',
-                  specialties: ['Diversity', 'Global Recognition', 'Quality Standards'],
-                  notableProducts: [
-                    'Credit Suisse Bars',
-                    'Johnson Matthey',
-                    'Heraeus',
-                    'Argor-Heraeus',
-                  ],
-                  description:
-                    'We also track products from other trusted mints and refiners including Credit Suisse, Johnson Matthey, Heraeus, Argor-Heraeus, and more. Each maintains rigorous quality standards and global recognition, ensuring your investment meets the highest industry benchmarks.',
-                  gradient: 'from-slate-500/20 via-gray-500/20 to-slate-500/20',
-                }}
-              />
+              {MINTS.map((mint) => (
+                <FuturisticMintCard key={mint.name} mint={mint} />
+              ))}
             </div>
 
             {/* Additional info section */}
