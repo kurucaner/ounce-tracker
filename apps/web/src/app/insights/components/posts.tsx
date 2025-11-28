@@ -7,7 +7,7 @@ import { getLastTwentyPostsQuery, morePostsQuery } from '../sanity/lib/queries';
 import Avatar from './avatar-f';
 import DateComponent from './date';
 import OnBoarding from './onboarding-f';
-import { PublishedOn } from './published-on';
+import { PublishedAt } from './published-at';
 
 const Post = ({ post }: { post: AllPostsQueryResult[number] }) => {
   const { _id, title, slug, excerpt, date, author } = post;
@@ -84,7 +84,7 @@ export const AllPosts = async () => {
           <li key={_id} className="py-12">
             <article>
               <div className="space-y-2 xl:grid xl:grid-cols-4 xl:items-baseline xl:space-y-0">
-                <PublishedOn date={date} />
+                <PublishedAt date={date} />
                 <div className="space-y-5 xl:col-span-3">
                   <div className="space-y-6">
                     <div>

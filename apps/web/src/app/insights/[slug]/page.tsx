@@ -14,6 +14,7 @@ import { sanityFetch } from '../sanity/lib/live';
 import { postPagesSlugs, postQuery } from '../sanity/lib/queries';
 import { resolveOpenGraphImage, urlForImage } from '../sanity/lib/utils';
 import { ShareButtons } from '../components/share-buttons';
+import { PublishedAt } from '../components/published-at';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -81,20 +82,10 @@ export default async function PostPage(props: Props) {
         <div className="xl:divide-y xl:divide-gray-200 xl:dark:divide-gray-700">
           <header className="pt-6 xl:pb-6">
             <div className="space-y-1 text-center">
-              <dl className="space-y-10">
-                <div>
-                  <dt className="sr-only">Published on</dt>
-                  <dd className="text-base leading-6 font-medium text-gray-500 dark:text-gray-400">
-                    <time dateTime={post.date}>
-                      {new Date(post.date).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </time>
-                  </dd>
-                </div>
-              </dl>
+              {/* <dl className="space-y-10">
+
+              </dl> */}
+              <PublishedAt date={post.date} />
               <div>
                 <PageTitle>{post.title}</PageTitle>
               </div>
