@@ -3,7 +3,7 @@
 
 [install]
 # Enable workspaces
-auto = true
+auto = "force"
 # Install peer dependencies
 peer = true
 
@@ -16,8 +16,3 @@ dir = ".bun-cache"
 preload = []
 coverage = true
 coverageDir = "./coverage"
-
-[run]
-# Automatically install dependencies when running a script
-autoInstall = true
-
