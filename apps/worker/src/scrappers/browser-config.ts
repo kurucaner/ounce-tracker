@@ -19,6 +19,7 @@ export const BROWSER_CONFIG = {
   /**
    * Browser launch arguments
    * Added more arguments to make the browser look more like a real user
+   * Memory optimization flags added to reduce RAM usage
    */
   launchArgs: [
     '--no-sandbox',
@@ -27,8 +28,17 @@ export const BROWSER_CONFIG = {
     '--disable-dev-shm-usage',
     '--disable-web-security',
     '--disable-features=IsolateOrigins,site-per-process',
-    '--window-size=1920,1080',
-    '--start-maximized',
+    '--window-size=1280,720', // Reduced from 1920x1080 to save memory
+    '--disable-gpu', // Disable GPU to save memory
+    '--disable-software-rasterizer', // Reduce memory usage
+    '--disable-extensions', // Disable extensions
+    '--disable-background-networking', // Reduce background processes
+    '--disable-background-timer-throttling',
+    '--disable-renderer-backgrounding',
+    '--disable-backgrounding-occluded-windows',
+    '--disable-ipc-flooding-protection',
+    '--memory-pressure-off', // Disable memory pressure handling overhead
+    '--max_old_space_size=512', // Limit V8 heap size
   ],
 
   /**
@@ -68,6 +78,7 @@ export async function launchBrowser(): Promise<Browser> {
 /**
  * Create a new page and set up HTTP headers with timeout protection
  * Also sets viewport and other properties to look more like a real browser
+ * Blocks unnecessary resources to reduce memory usage
  */
 export async function createPageWithHeaders(browser: Browser): Promise<Page> {
   // Wrap newPage() with timeout since it doesn't have a built-in timeout option
@@ -80,8 +91,21 @@ export async function createPageWithHeaders(browser: Browser): Promise<Page> {
 
   const page = await Promise.race([pagePromise, timeoutPromise]);
 
-  // Set realistic viewport size
-  await page.setViewportSize({ width: 1920, height: 1080 });
+  // Block unnecessary resources to save memory
+  // Keep stylesheets as some sites need CSS for JS to work, but block images, fonts, media
+  await page.route('**/*', (route) => {
+    const resourceType = route.request().resourceType();
+    // Block images, fonts, media, websocket, and other non-essential resources
+    // Keep stylesheets as some sites require CSS for proper rendering/JS execution
+    if (['image', 'font', 'media', 'websocket', 'manifest', 'texttrack'].includes(resourceType)) {
+      route.abort();
+    } else {
+      route.continue();
+    }
+  });
+
+  // Set smaller viewport size to reduce memory (1280x720 instead of 1920x1080)
+  await page.setViewportSize({ width: 1280, height: 720 });
 
   // Set extra HTTP headers
   await page.setExtraHTTPHeaders(BROWSER_CONFIG.httpHeaders);

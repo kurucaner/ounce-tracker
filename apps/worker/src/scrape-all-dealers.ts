@@ -190,6 +190,17 @@ async function scrapeAll(
         .catch(() => {
           // Ignore errors - page might already be on about:blank
         });
+      // Clear any remaining requests/responses from memory
+      await defaultPage
+        .evaluate(() => {
+          // Clear any cached data
+          if ('performance' in globalThis && 'clearResourceTimings' in performance) {
+            performance.clearResourceTimings();
+          }
+        })
+        .catch(() => {
+          // Ignore errors
+        });
     } catch {
       // Ignore errors during cleanup
     }
@@ -247,9 +258,23 @@ async function cleanupBrowserContext(defaultPage: import('playwright').Page): Pr
     const context = defaultPage.context();
     // Clear all cookies to free memory
     await context.clearCookies();
+    // Clear cache storage
+    await context.clearPermissions();
     // Navigate to blank page to clear page state and navigation history
     await defaultPage
       .goto('about:blank', { waitUntil: 'domcontentloaded', timeout: 5000 })
+      .catch(() => {
+        // Ignore errors
+      });
+    // Clear page cache
+    await defaultPage
+      .evaluate(() => {
+        if ('caches' in globalThis) {
+          caches.keys().then((keys) => {
+            keys.forEach((key) => caches.delete(key));
+          });
+        }
+      })
       .catch(() => {
         // Ignore errors
       });
@@ -263,16 +288,18 @@ async function cleanupBrowserContext(defaultPage: import('playwright').Page): Pr
 
 /**
  * Main loop - runs continuously
- * Launches browser once at startup and reuses it forever
+ * Launches browser once at startup and reuses it
+ * Optionally restarts browser periodically to prevent memory leaks
  */
 export async function scrapeAllDealers(): Promise<void> {
-  console.info('🚀 Launching browser (will stay open for entire worker lifecycle)...\n');
-  const browser = await launchBrowser();
-  const defaultPage = await createPageWithHeaders(browser);
+  console.info('🚀 Launching browser...\n');
+  let browser = await launchBrowser();
+  let defaultPage = await createPageWithHeaders(browser);
   console.info('✅ Browser ready, starting scrape loop...\n');
 
   let cycleCount = 0;
-  const CLEANUP_INTERVAL = 10; // Clean up browser context every 10 cycles
+  const CLEANUP_INTERVAL = 5; // Clean up browser context every 5 cycles (more frequent)
+  const BROWSER_RESTART_INTERVAL = 50; // Restart browser every 50 cycles to prevent leaks
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
@@ -296,6 +323,27 @@ export async function scrapeAllDealers(): Promise<void> {
         console.info(
           `💾 Memory after cleanup: ${memoryAfterCleanup.heapUsed}MB / ${memoryAfterCleanup.heapTotal}MB`
         );
+      }
+
+      // Periodic browser restart to prevent memory leaks from accumulating
+      if (cycleCount % BROWSER_RESTART_INTERVAL === 0) {
+        console.info('🔄 Restarting browser to prevent memory leaks...');
+        try {
+          await defaultPage.close();
+          await browser.close();
+          // Small delay before restart
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          browser = await launchBrowser();
+          defaultPage = await createPageWithHeaders(browser);
+          console.info('✅ Browser restarted successfully');
+          const memoryAfterRestart = getMemoryUsage();
+          console.info(
+            `💾 Memory after restart: ${memoryAfterRestart.heapUsed}MB / ${memoryAfterRestart.heapTotal}MB`
+          );
+        } catch (error) {
+          console.error('❌ Error restarting browser:', error);
+          // Try to continue with existing browser
+        }
       }
 
       // Force garbage collection if available (requires --expose-gc flag)
