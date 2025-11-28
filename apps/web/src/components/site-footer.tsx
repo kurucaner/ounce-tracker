@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import { FaXTwitter } from 'react-icons/fa6';
+import { ThemeToggler } from '@/components/theme-toggler';
 
 export const SiteFooter = () => {
   const currentYear = new Date().getFullYear();
@@ -75,9 +78,15 @@ export const SiteFooter = () => {
             <p className="text-center text-sm text-muted-foreground md:text-left">
               © {currentYear} OunceTracker. All rights reserved.
             </p>
-            <p className="text-center text-xs text-muted-foreground md:text-right">
-              Real-time price comparison updated every minute.
-            </p>
+            <div className="flex flex-col items-center gap-4 sm:flex-row">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Theme:</span>
+                <ThemeToggler />
+              </div>
+              <p className="text-center text-xs text-muted-foreground sm:text-right">
+                Real-time price comparison updated every minute.
+              </p>
+            </div>
           </div>
         </div>
       </div>
