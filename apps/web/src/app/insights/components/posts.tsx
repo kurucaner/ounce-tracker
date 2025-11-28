@@ -1,13 +1,13 @@
 import Link from 'next/link';
 
 import Tag from '@/components/tag-f';
-import { parseLocalDate } from '@/lib/helpers';
 import type { AllPostsQueryResult } from '../sanity.types';
 import { sanityFetch } from '../sanity/lib/live';
 import { getLastTwentyPostsQuery, morePostsQuery } from '../sanity/lib/queries';
 import Avatar from './avatar-f';
 import DateComponent from './date';
 import OnBoarding from './onboarding-f';
+import { PublishedOn } from './published-on';
 
 const Post = ({ post }: { post: AllPostsQueryResult[number] }) => {
   const { _id, title, slug, excerpt, date, author } = post;
@@ -84,12 +84,7 @@ export const AllPosts = async () => {
           <li key={_id} className="py-12">
             <article>
               <div className="space-y-2 xl:grid xl:grid-cols-4 xl:items-baseline xl:space-y-0">
-                <dl>
-                  <dt className="sr-only">Published on</dt>
-                  <dd className="text-base leading-6 font-medium text-gray-500 dark:text-gray-400">
-                    <time dateTime={date}>{parseLocalDate(date)}</time>
-                  </dd>
-                </dl>
+                <PublishedOn date={date} />
                 <div className="space-y-5 xl:col-span-3">
                   <div className="space-y-6">
                     <div>

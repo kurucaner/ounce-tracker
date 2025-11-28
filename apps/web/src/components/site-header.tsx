@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { FaLightbulb } from 'react-icons/fa';
 
 export const SiteHeader = () => {
   return (
@@ -13,8 +14,9 @@ export const SiteHeader = () => {
         <nav className="flex flex-1 items-center justify-end space-x-6 text-sm font-medium">
           <Link
             href="/insights"
-            className="transition-colors hover:text-foreground/80 text-foreground/60"
+            className="flex items-center gap-2 transition-colors text-foreground/90 hover:text-foreground"
           >
+            <FaLightbulb className="h-4 w-4" />
             Insights
           </Link>
         </nav>
