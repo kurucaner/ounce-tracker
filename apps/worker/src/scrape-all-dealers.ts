@@ -181,6 +181,18 @@ async function scrapeAll(
 
     // Small delay between dealers
     await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // Clear default page state between dealers to prevent memory accumulation
+    try {
+      // Navigate to blank page to clear navigation history and page state
+      await defaultPage
+        .goto('about:blank', { waitUntil: 'domcontentloaded', timeout: 5000 })
+        .catch(() => {
+          // Ignore errors - page might already be on about:blank
+        });
+    } catch {
+      // Ignore errors during cleanup
+    }
   }
 
   // Display summary
@@ -209,6 +221,44 @@ async function scrapeAll(
 
   console.info(`\n📈 Total: ${successful.length} successful, ${failed.length} failed`);
   console.info('='.repeat(60) + '\n');
+
+  // Clear arrays to prevent memory growth
+  successful.length = 0;
+  failed.length = 0;
+}
+
+/**
+ * Get memory usage in MB
+ */
+function getMemoryUsage(): { heapUsed: number; heapTotal: number; external: number } {
+  const usage = process.memoryUsage();
+  return {
+    heapUsed: Math.round((usage.heapUsed / 1024 / 1024) * 100) / 100,
+    heapTotal: Math.round((usage.heapTotal / 1024 / 1024) * 100) / 100,
+    external: Math.round((usage.external / 1024 / 1024) * 100) / 100,
+  };
+}
+
+/**
+ * Clean up browser context to free memory
+ */
+async function cleanupBrowserContext(defaultPage: import('playwright').Page): Promise<void> {
+  try {
+    const context = defaultPage.context();
+    // Clear all cookies to free memory
+    await context.clearCookies();
+    // Navigate to blank page to clear page state and navigation history
+    await defaultPage
+      .goto('about:blank', { waitUntil: 'domcontentloaded', timeout: 5000 })
+      .catch(() => {
+        // Ignore errors
+      });
+  } catch (error) {
+    console.warn(
+      '⚠️ Browser cleanup warning:',
+      error instanceof Error ? error.message : String(error)
+    );
+  }
 }
 
 /**
@@ -221,10 +271,41 @@ export async function scrapeAllDealers(): Promise<void> {
   const defaultPage = await createPageWithHeaders(browser);
   console.info('✅ Browser ready, starting scrape loop...\n');
 
+  let cycleCount = 0;
+  const CLEANUP_INTERVAL = 10; // Clean up browser context every 10 cycles
+
   // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
+      const memoryBefore = getMemoryUsage();
+      console.info(
+        `💾 Memory before cycle: ${memoryBefore.heapUsed}MB / ${memoryBefore.heapTotal}MB`
+      );
+
       await scrapeAll(browser, defaultPage);
+
+      cycleCount++;
+      const memoryAfter = getMemoryUsage();
+      console.info(`💾 Memory after cycle: ${memoryAfter.heapUsed}MB / ${memoryAfter.heapTotal}MB`);
+
+      // Periodic cleanup every N cycles to prevent memory accumulation
+      if (cycleCount % CLEANUP_INTERVAL === 0) {
+        console.info('🧹 Performing periodic browser cleanup...');
+        await cleanupBrowserContext(defaultPage);
+        const memoryAfterCleanup = getMemoryUsage();
+        console.info(
+          `💾 Memory after cleanup: ${memoryAfterCleanup.heapUsed}MB / ${memoryAfterCleanup.heapTotal}MB`
+        );
+      }
+
+      // Force garbage collection if available (requires --expose-gc flag)
+      if (globalThis.gc) {
+        globalThis.gc();
+        const memoryAfterGC = getMemoryUsage();
+        console.info(
+          `💾 Memory after GC: ${memoryAfterGC.heapUsed}MB / ${memoryAfterGC.heapTotal}MB`
+        );
+      }
     } catch (error) {
       console.error('❌ Scrape cycle error:', error);
     }
