@@ -252,13 +252,14 @@ function getMemoryUsage(): { heapUsed: number; heapTotal: number; external: numb
 
 /**
  * Clean up browser context to free memory
+ * Note: We don't clear HTTP cache here to allow browser caching and reduce network traffic
  */
 async function cleanupBrowserContext(defaultPage: import('playwright').Page): Promise<void> {
   try {
     const context = defaultPage.context();
-    // Clear all cookies to free memory
+    // Clear all cookies to free memory (but keep HTTP cache for network efficiency)
     await context.clearCookies();
-    // Clear cache storage
+    // Clear permissions
     await context.clearPermissions();
     // Navigate to blank page to clear page state and navigation history
     await defaultPage
@@ -266,18 +267,8 @@ async function cleanupBrowserContext(defaultPage: import('playwright').Page): Pr
       .catch(() => {
         // Ignore errors
       });
-    // Clear page cache
-    await defaultPage
-      .evaluate(() => {
-        if ('caches' in globalThis) {
-          caches.keys().then((keys) => {
-            keys.forEach((key) => caches.delete(key));
-          });
-        }
-      })
-      .catch(() => {
-        // Ignore errors
-      });
+    // Note: We intentionally don't clear HTTP cache here to reduce network traffic
+    // The browser's HTTP cache helps reduce ingress significantly
   } catch (error) {
     console.warn(
       '⚠️ Browser cleanup warning:',
@@ -299,7 +290,8 @@ export async function scrapeAllDealers(): Promise<void> {
 
   let cycleCount = 0;
   const CLEANUP_INTERVAL = 5; // Clean up browser context every 5 cycles (more frequent)
-  const BROWSER_RESTART_INTERVAL = 50; // Restart browser every 50 cycles to prevent leaks
+  const BROWSER_RESTART_INTERVAL = 100; // Restart browser every 100 cycles (~50 minutes) to prevent leaks
+  // Increased from 50 to 100 to reduce network traffic spikes from browser restarts
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
