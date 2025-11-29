@@ -28,17 +28,8 @@ export const BROWSER_CONFIG = {
     '--disable-dev-shm-usage',
     '--disable-web-security',
     '--disable-features=IsolateOrigins,site-per-process',
-    '--window-size=1280,720', // Reduced from 1920x1080 to save memory
-    '--disable-gpu', // Disable GPU to save memory
-    '--disable-software-rasterizer', // Reduce memory usage
-    '--disable-extensions', // Disable extensions
-    '--disable-background-networking', // Reduce background processes
-    '--disable-background-timer-throttling',
-    '--disable-renderer-backgrounding',
-    '--disable-backgrounding-occluded-windows',
-    '--disable-ipc-flooding-protection',
-    '--memory-pressure-off', // Disable memory pressure handling overhead
-    '--max_old_space_size=512', // Limit V8 heap size
+    '--window-size=1280,720',
+    '--start-maximized',
   ],
 
   /**
