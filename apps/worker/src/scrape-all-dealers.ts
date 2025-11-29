@@ -16,7 +16,12 @@ import { scrapeBGASC } from './scrappers/scrape-bgasc';
 import { scrapePimbex } from './scrappers/scrape-pimbex';
 import { scrapeGoldDealerCom } from './scrappers/scrape-golddealercom';
 import { scrapeHollywoodGoldExchange } from './scrappers/scrape-hollywood-gold-exchange';
-import { launchBrowser, createPageWithHeaders } from './scrappers/browser-config';
+import {
+  launchBrowser,
+  createPageWithHeaders,
+  cleanupPageRoutes,
+  blockedResourceTypes,
+} from './scrappers/browser-config';
 
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
   auth: { persistSession: false },
@@ -166,13 +171,11 @@ async function scrapeAll(
         });
       } finally {
         // Close the page if we created a new one (for Cloudflare sites)
-        // Route handlers are automatically cleaned up when page is closed
+        // Properly clean up route handlers before closing to prevent memory leaks
         if (isCloudflareProtected && pageToUse !== defaultPage) {
           try {
-            // Unroute before closing to ensure clean teardown
-            await pageToUse.unroute('**/*').catch(() => {
-              // Ignore if route doesn't exist
-            });
+            // Remove all route handlers before closing to prevent memory leaks
+            await cleanupPageRoutes(pageToUse);
             await pageToUse.close();
           } catch (error) {
             // Log error but don't fail - page might already be closed
@@ -191,8 +194,20 @@ async function scrapeAll(
     // Small delay between dealers
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    // Removed about:blank navigation - it was causing unnecessary network activity
-    // Page state will be cleared during periodic cleanup instead
+    // Clear navigation history after each dealer to prevent accumulation
+    // This prevents memory growth from navigation history entries
+    try {
+      await defaultPage.goto('about:blank', {
+        waitUntil: 'domcontentloaded',
+        timeout: 5000,
+      });
+    } catch (error) {
+      // Ignore errors - page might be busy, will retry next cycle
+      console.warn(
+        `⚠️ Could not clear navigation history after ${dealer.name}:`,
+        error instanceof Error ? error.message : String(error)
+      );
+    }
   }
 
   // Display summary
@@ -241,18 +256,33 @@ function getMemoryUsage(): { heapUsed: number; heapTotal: number; external: numb
 
 /**
  * Clean up browser context to free memory
+ * Also cleans up route handlers from the default page
  */
 async function cleanupBrowserContext(defaultPage: import('playwright').Page): Promise<void> {
   try {
     const context = defaultPage.context();
     // Clear all cookies to free memory
     await context.clearCookies();
+
+    // Clean up route handlers from default page to prevent accumulation
+    // Note: We'll re-add the route handler after cleanup if needed
+    await cleanupPageRoutes(defaultPage);
+
     // Navigate to blank page to clear page state and navigation history
     await defaultPage
       .goto('about:blank', { waitUntil: 'domcontentloaded', timeout: 5000 })
       .catch(() => {
         // Ignore errors
       });
+
+    await defaultPage.route('**/*', (route) => {
+      const resourceType = route.request().resourceType();
+      if (blockedResourceTypes.has(resourceType)) {
+        route.abort();
+      } else {
+        route.continue();
+      }
+    });
   } catch (error) {
     console.warn(
       '⚠️ Browser cleanup warning:',
@@ -272,7 +302,7 @@ export async function scrapeAllDealers(): Promise<void> {
   console.info('✅ Browser ready, starting scrape loop...\n');
 
   let cycleCount = 0;
-  const CLEANUP_INTERVAL = 10; // Clean up browser context every 10 cycles
+  const CLEANUP_INTERVAL = 3; // Clean up browser context every 3 cycles (reduced from 10 to prevent accumulation)
 
   // eslint-disable-next-line no-constant-condition
   while (true) {

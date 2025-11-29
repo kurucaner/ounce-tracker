@@ -5,7 +5,6 @@ import { draftMode } from 'next/headers';
 import { handleError } from './client-utils';
 import DraftModeToast from './components/draft-mode-toast';
 import { VisualEditingWrapper } from './components/visual-editing-wrapper';
-import * as demo from './sanity/lib/demo';
 import { sanityFetch, SanityLive } from './sanity/lib/live';
 import { settingsQuery } from './sanity/lib/queries';
 import { resolveOpenGraphImage } from './sanity/lib/utils';
@@ -16,8 +15,9 @@ export async function generateMetadata(): Promise<Metadata> {
     query: settingsQuery,
     stega: false,
   });
-  const title = settings?.title || demo.title;
-  const description = settings?.description || demo.description;
+  const title = 'OunceTracker - Investment, Educational,Financial Insights and News';
+  const description =
+    'OunceTracker is a platform that provides investment, educational, financial insights and news. We are a team of experts who are passionate about helping people make better decisions with their money.';
 
   const ogImage = resolveOpenGraphImage(settings?.ogImage);
 
@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${title}`,
       default: title,
     },
-    description: toPlainText(description),
+    description,
     openGraph: {
       images: ogImage ? [ogImage] : [],
     },

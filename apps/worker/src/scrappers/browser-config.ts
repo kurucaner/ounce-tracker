@@ -67,6 +67,18 @@ export async function launchBrowser(): Promise<Browser> {
   });
 }
 
+// Block unnecessary resources to save memory and reduce CPU usage
+// Keep stylesheets as some sites need CSS for JS to work, but block images, fonts, media
+// Using Set for O(1) lookup instead of array includes() for better performance
+export const blockedResourceTypes = new Set([
+  'image',
+  'font',
+  'media',
+  'websocket',
+  'manifest',
+  'texttrack',
+]);
+
 /**
  * Create a new page and set up HTTP headers with timeout protection
  * Also sets viewport and other properties to look more like a real browser
@@ -82,18 +94,6 @@ export async function createPageWithHeaders(browser: Browser): Promise<Page> {
   });
 
   const page = await Promise.race([pagePromise, timeoutPromise]);
-
-  // Block unnecessary resources to save memory and reduce CPU usage
-  // Keep stylesheets as some sites need CSS for JS to work, but block images, fonts, media
-  // Using Set for O(1) lookup instead of array includes() for better performance
-  const blockedResourceTypes = new Set([
-    'image',
-    'font',
-    'media',
-    'websocket',
-    'manifest',
-    'texttrack',
-  ]);
 
   await page.route('**/*', (route) => {
     const resourceType = route.request().resourceType();
@@ -146,4 +146,24 @@ export async function createPageWithHeaders(browser: Browser): Promise<Page> {
   });
 
   return page;
+}
+
+/**
+ * Properly clean up route handlers from a page before closing
+ * This prevents memory leaks from accumulated route handlers
+ */
+export async function cleanupPageRoutes(page: Page): Promise<void> {
+  try {
+    // Unroute all routes to ensure clean teardown
+    // This removes all route handlers and prevents memory leaks
+    await page.unroute('**/*').catch(() => {
+      // Ignore if no routes exist - this is fine
+    });
+  } catch (error) {
+    // Log but don't throw - page might be closing
+    console.warn(
+      '⚠️ Error cleaning up route handlers:',
+      error instanceof Error ? error.message : String(error)
+    );
+  }
 }
