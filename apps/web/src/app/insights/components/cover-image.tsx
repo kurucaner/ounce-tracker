@@ -1,8 +1,8 @@
 import { getImageDimensions } from '@sanity/asset-utils';
-import { stegaClean } from '@sanity/client/stega';
 import { Image } from 'next-sanity/image';
 import type { SanityImage } from '../sanity.types';
 import { urlForImage } from '../sanity/lib/utils';
+import { stegaClean } from 'next-sanity';
 
 interface CoverImageProps {
   image: SanityImage;
