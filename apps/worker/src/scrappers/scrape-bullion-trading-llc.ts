@@ -77,15 +77,15 @@ export async function scrapeBullionTradingLLC(
 
   console.info(`🔍 Scraping Bullion Trading LLC - ${productConfig.name}...`);
 
-  await randomDelay(3000, 5000);
+  await randomDelay(1000, 2000);
 
   await page.goto(url, {
     waitUntil: 'domcontentloaded',
-    timeout: 60000,
+    timeout: 10000,
     referer: '',
   });
 
-  await randomDelay(2000, 4000);
+  await randomDelay(1000, 2000);
 
   try {
     await page.waitForSelector('.woocommerce-Price-amount.amount', { timeout: 20000 });

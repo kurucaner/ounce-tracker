@@ -166,11 +166,20 @@ async function scrapeAll(
         });
       } finally {
         // Close the page if we created a new one (for Cloudflare sites)
+        // Route handlers are automatically cleaned up when page is closed
         if (isCloudflareProtected && pageToUse !== defaultPage) {
           try {
+            // Unroute before closing to ensure clean teardown
+            await pageToUse.unroute('**/*').catch(() => {
+              // Ignore if route doesn't exist
+            });
             await pageToUse.close();
-          } catch {
-            // Ignore errors when closing
+          } catch (error) {
+            // Log error but don't fail - page might already be closed
+            console.warn(
+              `⚠️ Error closing page for ${dealer.name}:`,
+              error instanceof Error ? error.message : String(error)
+            );
           }
         }
       }
@@ -182,17 +191,8 @@ async function scrapeAll(
     // Small delay between dealers
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    // Clear default page state between dealers to prevent memory accumulation
-    try {
-      // Navigate to blank page to clear navigation history and page state
-      await defaultPage
-        .goto('about:blank', { waitUntil: 'domcontentloaded', timeout: 5000 })
-        .catch(() => {
-          // Ignore errors - page might already be on about:blank
-        });
-    } catch {
-      // Ignore errors during cleanup
-    }
+    // Removed about:blank navigation - it was causing unnecessary network activity
+    // Page state will be cleared during periodic cleanup instead
   }
 
   // Display summary
@@ -272,7 +272,7 @@ export async function scrapeAllDealers(): Promise<void> {
   console.info('✅ Browser ready, starting scrape loop...\n');
 
   let cycleCount = 0;
-  const CLEANUP_INTERVAL = 3; // Clean up browser context every 3 cycles (reduced from 10 to prevent memory accumulation)
+  const CLEANUP_INTERVAL = 10; // Clean up browser context every 10 cycles
 
   // eslint-disable-next-line no-constant-condition
   while (true) {

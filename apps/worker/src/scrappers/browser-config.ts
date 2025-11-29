@@ -83,13 +83,22 @@ export async function createPageWithHeaders(browser: Browser): Promise<Page> {
 
   const page = await Promise.race([pagePromise, timeoutPromise]);
 
-  // Block unnecessary resources to save memory
+  // Block unnecessary resources to save memory and reduce CPU usage
   // Keep stylesheets as some sites need CSS for JS to work, but block images, fonts, media
+  // Using Set for O(1) lookup instead of array includes() for better performance
+  const blockedResourceTypes = new Set([
+    'image',
+    'font',
+    'media',
+    'websocket',
+    'manifest',
+    'texttrack',
+  ]);
+
   await page.route('**/*', (route) => {
     const resourceType = route.request().resourceType();
-    // Block images, fonts, media, websocket, and other non-essential resources
-    // Keep stylesheets as some sites require CSS for proper rendering/JS execution
-    if (['image', 'font', 'media', 'websocket', 'manifest', 'texttrack'].includes(resourceType)) {
+    // Efficient check using Set instead of array includes
+    if (blockedResourceTypes.has(resourceType)) {
       route.abort();
     } else {
       route.continue();
