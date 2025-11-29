@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { toPlainText } from 'next-sanity';
 import { draftMode } from 'next/headers';
 
 import { handleError } from './client-utils';
