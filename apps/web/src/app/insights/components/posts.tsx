@@ -6,7 +6,7 @@ import { sanityFetch } from '../sanity/lib/live';
 import { getLastTwentyPostsQuery, morePostsQuery } from '../sanity/lib/queries';
 import Avatar from './avatar-f';
 import DateComponent from './date';
-import OnBoarding from './onboarding-f';
+import { OnBoarding } from './onboarding-f';
 import { PublishedAt } from './published-at';
 
 const Post = ({ post }: { post: AllPostsQueryResult[number] }) => {
