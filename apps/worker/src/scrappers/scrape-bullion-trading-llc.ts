@@ -80,7 +80,7 @@ export async function scrapeBullionTradingLLC(
   await randomDelay(3000, 5000);
 
   await page.goto(url, {
-    waitUntil: 'networkidle',
+    waitUntil: 'domcontentloaded',
     timeout: 60000,
     referer: '',
   });

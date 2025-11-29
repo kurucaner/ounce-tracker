@@ -272,7 +272,7 @@ export async function scrapeAllDealers(): Promise<void> {
   console.info('✅ Browser ready, starting scrape loop...\n');
 
   let cycleCount = 0;
-  const CLEANUP_INTERVAL = 10; // Clean up browser context every 10 cycles
+  const CLEANUP_INTERVAL = 3; // Clean up browser context every 3 cycles (reduced from 10 to prevent memory accumulation)
 
   // eslint-disable-next-line no-constant-condition
   while (true) {

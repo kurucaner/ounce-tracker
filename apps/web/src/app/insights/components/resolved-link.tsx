@@ -9,7 +9,7 @@ interface ResolvedLinkProps {
   className?: string;
 }
 
-export default function ResolvedLink({ link, children, className }: ResolvedLinkProps) {
+export default function ResolvedLink({ link, children, className }: Readonly<ResolvedLinkProps>) {
   // resolveLink() is used to determine the type of link and return the appropriate URL.
   const resolvedLink = linkResolver(link);
 
