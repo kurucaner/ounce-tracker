@@ -16,44 +16,52 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const sitemap: MetadataRoute.Sitemap = [];
   const domain: string = headersList.get('host') as string;
   sitemap.push({
-    url: domain as string,
+    url: domain,
     lastModified: new Date(),
     priority: 1,
     changeFrequency: 'monthly',
   });
 
   if (allPostsAndPages != null && allPostsAndPages.data.length != 0) {
-    let priority: number;
-    let changeFrequency:
-      | 'monthly'
-      | 'always'
-      | 'hourly'
-      | 'daily'
-      | 'weekly'
-      | 'yearly'
-      | 'never'
-      | undefined;
-    let url: string;
-
     for (const p of allPostsAndPages.data) {
+      let priority: number;
+      let changeFrequency:
+        | 'monthly'
+        | 'always'
+        | 'hourly'
+        | 'daily'
+        | 'weekly'
+        | 'yearly'
+        | 'never';
+      let url: string;
+
       switch (p._type) {
         case 'page':
           priority = 0.8;
           changeFrequency = 'monthly';
           url = `${domain}/${p.slug}`;
+          sitemap.push({
+            lastModified: p._updatedAt || new Date(),
+            priority,
+            changeFrequency,
+            url,
+          });
           break;
         case 'post':
           priority = 0.5;
           changeFrequency = 'never';
           url = `${domain}/insights/${p.slug}`;
+          sitemap.push({
+            lastModified: p._updatedAt || new Date(),
+            priority,
+            changeFrequency,
+            url,
+          });
+          break;
+        default:
+          // Skip unknown types
           break;
       }
-      sitemap.push({
-        lastModified: p._updatedAt || new Date(),
-        priority,
-        changeFrequency,
-        url,
-      });
     }
   }
 
