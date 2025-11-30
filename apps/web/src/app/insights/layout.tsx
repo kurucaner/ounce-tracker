@@ -64,6 +64,8 @@ interface InsightsLayoutProps {
 
 export default async function InsightsLayout({ children }: Readonly<InsightsLayoutProps>) {
   const { isEnabled: isDraftMode } = await draftMode();
+  // Only enable SanityLive in draft mode or development to avoid production performance impact
+  const shouldEnableLive = isDraftMode || process.env.NODE_ENV === 'development';
 
   return (
     <div className="flex flex-col max-w-5xl mx-auto py-8 px-2">
@@ -76,8 +78,8 @@ export default async function InsightsLayout({ children }: Readonly<InsightsLayo
           <VisualEditingWrapper />
         </>
       )}
-      {/* The <SanityLive> component is responsible for making all sanityFetch calls in your application live, so should always be rendered. */}
-      <SanityLive onError={handleError} />
+      {/* The <SanityLive> component is responsible for making all sanityFetch calls in your application live, so should only be rendered in draft mode or development. */}
+      {shouldEnableLive && <SanityLive onError={handleError} />}
       {children}
     </div>
   );
