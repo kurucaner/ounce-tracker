@@ -32,7 +32,7 @@ export const SiteHeader = () => {
           className="flex items-center space-x-2 transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
         >
           {/* <Coins className="h-6 w-6" /> */}
-          <Image src="/logo.png" alt="OunceTracker" width={24} height={24} />
+          <Image src="/logo.png" alt="Ounce Tracker Header Logo" width={24} height={24} />
           <span className="font-bold">OunceTracker</span>
         </Link>
         <nav className="flex flex-1 items-center justify-end gap-2">

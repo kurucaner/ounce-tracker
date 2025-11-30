@@ -160,7 +160,7 @@ export default async function PostPage(props: Props) {
             <div className="mb-12 -mx-4 sm:mx-0 xl:mx-0">
               <div className="relative aspect-video w-full overflow-hidden rounded-lg">
                 <div className="absolute inset-0">
-                  <CoverImage image={post.coverImage} priority />
+                  <CoverImage image={post.coverImage} priority={true} />
                 </div>
               </div>
             </div>

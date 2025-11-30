@@ -46,16 +46,43 @@ function generateSlug(children: React.ReactNode): string {
   );
 }
 
+// Helper function to extract text content from React nodes for aria-labels
+function extractTextContent(children: React.ReactNode): string {
+  if (typeof children === 'string') {
+    return children;
+  }
+  if (Array.isArray(children)) {
+    return children
+      .map((child) => {
+        if (typeof child === 'string') {
+          return child;
+        }
+        if (typeof child === 'object' && child !== null && 'props' in child) {
+          return extractTextContent(child.props?.children);
+        }
+        return '';
+      })
+      .join('')
+      .trim();
+  }
+  if (typeof children === 'object' && children !== null && 'props' in children) {
+    return extractTextContent(children.props?.children);
+  }
+  return '';
+}
+
 const renderH1 = ({ children, value }: { children?: React.ReactNode; value: unknown }) => {
   const slug = (value as { _key?: string })?._key || generateSlug(children);
+  const headingText = extractTextContent(children) || 'Heading';
   return (
     <h1 id={slug} className="group relative font-bold mb-6 scroll-mt-20">
       {children}
       <a
         href={`#${slug}`}
+        aria-label={`Link to section: ${headingText}`}
         className="absolute top-0 bottom-0 left-0 -ml-6 flex items-center opacity-0 transition-opacity group-hover:opacity-100"
       >
-        <Link2 className="h-4 w-4" />
+        <Link2 className="h-4 w-4" aria-hidden="true" />
       </a>
     </h1>
   );
@@ -63,14 +90,16 @@ const renderH1 = ({ children, value }: { children?: React.ReactNode; value: unkn
 
 const renderH2 = ({ children, value }: { children?: React.ReactNode; value: unknown }) => {
   const slug = (value as { _key?: string })?._key || generateSlug(children);
+  const headingText = extractTextContent(children) || 'Heading';
   return (
     <h2 id={slug} className="group relative font-bold mb-2 scroll-mt-20">
       {children}
       <a
         href={`#${slug}`}
+        aria-label={`Link to section: ${headingText}`}
         className="absolute top-0 bottom-0 left-0 -ml-6 flex items-center opacity-0 transition-opacity group-hover:opacity-100"
       >
-        <Link2 className="h-4 w-4" />
+        <Link2 className="h-4 w-4" aria-hidden="true" />
       </a>
     </h2>
   );
@@ -78,14 +107,16 @@ const renderH2 = ({ children, value }: { children?: React.ReactNode; value: unkn
 
 const renderH3 = ({ children, value }: { children?: React.ReactNode; value: unknown }) => {
   const slug = (value as { _key?: string })?._key || generateSlug(children);
+  const headingText = extractTextContent(children) || 'Heading';
   return (
     <h3 id={slug} className="group relative font-bold mb-2 scroll-mt-20">
       {children}
       <a
         href={`#${slug}`}
+        aria-label={`Link to section: ${headingText}`}
         className="absolute top-0 bottom-0 left-0 -ml-6 flex items-center opacity-0 transition-opacity group-hover:opacity-100"
       >
-        <Link2 className="h-4 w-4" />
+        <Link2 className="h-4 w-4" aria-hidden="true" />
       </a>
     </h3>
   );
@@ -149,7 +180,22 @@ interface RenderLinkProps {
   value?: Link;
 }
 const renderLink = ({ children, value: link }: RenderLinkProps) => {
-  return <ResolvedLink link={link}>{children}</ResolvedLink>;
+  // Ensure link has accessible text content
+  const linkText = extractTextContent(children);
+
+  // If no text content, add aria-label from link data or use fallback
+  const ariaLabel = linkText || link?.href || 'Link';
+
+  // If link has text content, render normally; otherwise add accessible fallback
+  if (linkText) {
+    return <ResolvedLink link={link}>{children}</ResolvedLink>;
+  }
+
+  return (
+    <ResolvedLink link={link}>
+      <span aria-label={ariaLabel}>{ariaLabel}</span>
+    </ResolvedLink>
+  );
 };
 
 const components: PortableTextComponents = {

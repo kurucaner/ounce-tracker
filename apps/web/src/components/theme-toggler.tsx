@@ -18,11 +18,43 @@ export const ThemeToggler = memo(() => {
     return <div className="h-10 w-32 rounded-md border border-input bg-background" />;
   }
 
+  // Get display text for current theme
+  const getThemeLabel = (currentTheme: string | undefined) => {
+    switch (currentTheme) {
+      case 'light':
+        return 'Light';
+      case 'dark':
+        return 'Dark';
+      case 'system':
+        return 'System';
+      default:
+        return 'Theme';
+    }
+  };
+
+  // Get icon for current theme
+  const getThemeIcon = (currentTheme: string | undefined) => {
+    switch (currentTheme) {
+      case 'light':
+        return <FaSun className="h-4 w-4" />;
+      case 'dark':
+        return <FaMoon className="h-4 w-4" />;
+      case 'system':
+        return <FaDesktop className="h-4 w-4" />;
+      default:
+        return <FaDesktop className="h-4 w-4" />;
+    }
+  };
+
   return (
     <Select value={theme} onValueChange={setTheme}>
-      <SelectTrigger className="w-32">
+      <SelectTrigger
+        className="w-32"
+        aria-label={`Theme selector, currently ${getThemeLabel(theme)}`}
+      >
         <div className="flex items-center gap-2">
-          <SelectValue />
+          {getThemeIcon(theme)}
+          <SelectValue placeholder="Theme" />
         </div>
       </SelectTrigger>
       <SelectContent>

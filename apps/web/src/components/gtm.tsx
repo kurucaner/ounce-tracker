@@ -13,15 +13,12 @@ export function GoogleTagManager() {
   return (
     <>
       {/* Google Analytics gtag.js */}
-      <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-        strategy="afterInteractive"
-      />
+      <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="lazyOnload" />
 
       {/* Google Tag Manager */}
       <Script
         id="gtm-script"
-        strategy="afterInteractive"
+        strategy="lazyOnload"
         dangerouslySetInnerHTML={{
           __html: `
             function checkPrivacyAndLoadGTM() {

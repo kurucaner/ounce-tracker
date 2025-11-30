@@ -1,5 +1,5 @@
 import { getImageDimensions } from '@sanity/asset-utils';
-import { Image } from 'next-sanity/image';
+import Image from 'next/image';
 import type { SanityImage } from '../sanity.types';
 import { urlForImage } from '../sanity/lib/utils';
 import { stegaClean } from 'next-sanity';
@@ -19,6 +19,8 @@ export default function CoverImage(props: Readonly<CoverImageProps>) {
       alt={stegaClean(source?.alt) || ''}
       src={urlForImage(source)?.url() as string}
       priority={priority}
+      fetchPriority={priority ? 'high' : 'auto'}
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
     />
   ) : null;
 
