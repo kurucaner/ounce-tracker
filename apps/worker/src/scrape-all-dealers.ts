@@ -22,6 +22,7 @@ import {
   cleanupPageRoutes,
   blockedResourceTypes,
 } from './scrappers/browser-config';
+import { Browser, Page } from 'playwright';
 
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
   auth: { persistSession: false },
@@ -112,10 +113,10 @@ type ScrapeResult = {
  * Get or create page for Cloudflare-protected sites
  */
 async function getPageForScraping(
-  browser: import('playwright').Browser,
-  defaultPage: import('playwright').Page,
+  browser: Browser,
+  defaultPage: Page,
   isCloudflareProtected: boolean
-): Promise<{ page: import('playwright').Page; shouldClose: boolean }> {
+): Promise<{ page: Page; shouldClose: boolean }> {
   if (!isCloudflareProtected) {
     return { page: defaultPage, shouldClose: false };
   }
@@ -134,8 +135,8 @@ async function getPageForScraping(
  * Clean up page if it was created for Cloudflare protection
  */
 async function cleanupPageIfNeeded(
-  page: import('playwright').Page,
-  defaultPage: import('playwright').Page,
+  page: Page,
+  defaultPage: Page,
   shouldClose: boolean,
   dealerName: string
 ): Promise<void> {
@@ -161,7 +162,7 @@ async function scrapeProduct(
   scraper: ScraperFunction,
   product: ProductConfig,
   dealer: { name: string; slug: string; url: string },
-  page: import('playwright').Page,
+  page: Page,
   results: ScrapeResult
 ): Promise<void> {
   try {
@@ -189,8 +190,8 @@ async function scrapeProduct(
  * Scrape all products for a dealer
  */
 async function scrapeDealerProducts(
-  browser: import('playwright').Browser,
-  defaultPage: import('playwright').Page,
+  browser: Browser,
+  defaultPage: Page,
   dealer: DealerConfig,
   scraper: ScraperFunction,
   results: ScrapeResult
@@ -218,10 +219,7 @@ async function scrapeDealerProducts(
 /**
  * Clear navigation history after scraping a dealer
  */
-async function clearNavigationHistory(
-  defaultPage: import('playwright').Page,
-  dealerName: string
-): Promise<void> {
+async function clearNavigationHistory(defaultPage: Page, dealerName: string): Promise<void> {
   try {
     await defaultPage.goto('about:blank', {
       waitUntil: 'domcontentloaded',
@@ -274,10 +272,7 @@ function displaySummary(results: ScrapeResult): void {
  * For Cloudflare-protected sites, creates a new page for each product to avoid navigation history tracking
  * Tracks and displays summary of successful and failed scrapes
  */
-async function scrapeAll(
-  browser: import('playwright').Browser,
-  defaultPage: import('playwright').Page
-): Promise<void> {
+async function scrapeAll(browser: Browser, defaultPage: Page): Promise<void> {
   console.info('\n🚀 Starting scrape cycle...\n');
 
   const results: ScrapeResult = {
@@ -285,22 +280,26 @@ async function scrapeAll(
     failed: [],
   };
 
-  for (let i = 0; i < 10; i++) {
-    const scraper = SCRAPER_MAP[DEALERS[i]!.slug];
+  for (const dealer of DEALERS) {
+    console.info(`\n🏢 Scraping ${dealer.name}...`);
+
+    const scraper = SCRAPER_MAP[dealer.slug];
     if (!scraper) {
-      console.error(`❌ No scraper for ${DEALERS[i]!.slug}`);
-      for (const product of DEALERS[i]!.products) {
+      console.error(`❌ No scraper for ${dealer.slug}`);
+      for (const product of dealer.products) {
         results.failed.push({
-          dealer: DEALERS[i]!.name,
+          dealer: dealer.name,
           product: product.name,
           error: 'No scraper found',
         });
       }
       continue;
     }
-    await scrapeDealerProducts(browser, defaultPage, DEALERS[i]!, scraper, results);
+
+    await scrapeDealerProducts(browser, defaultPage, dealer, scraper, results);
+
     await new Promise((resolve) => setTimeout(resolve, 2000));
-    await clearNavigationHistory(defaultPage, DEALERS[i]!.name);
+    await clearNavigationHistory(defaultPage, dealer.name);
   }
 
   displaySummary(results);
@@ -325,7 +324,7 @@ function getMemoryUsage(): { heapUsed: number; heapTotal: number; external: numb
  * Clean up browser context to free memory
  * Also cleans up route handlers from the default page
  */
-async function cleanupBrowserContext(defaultPage: import('playwright').Page): Promise<void> {
+async function cleanupBrowserContext(defaultPage: Page): Promise<void> {
   try {
     const context = defaultPage.context();
     // Clear all cookies to free memory
