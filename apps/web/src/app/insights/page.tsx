@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { AllPosts } from './components/posts';
 import { sanityFetch } from './sanity/lib/live';
 import { getLastTwentyPostsQuery } from './sanity/lib/queries';
@@ -8,6 +9,47 @@ const MAX_DISPLAY = 20;
 // Allow on-demand revalidation via revalidatePath in the n8n route
 // Pages are cached for performance but can be revalidated when new posts are created
 export const revalidate = 3600; // Revalidate every hour, or on-demand via revalidatePath
+
+export async function generateMetadata(): Promise<Metadata> {
+  const title = 'Investment Insights | OunceTracker';
+  const description =
+    'Learn about the latest trends in the investment world. Educational content, financial insights, and news about precious metals and bullion investing.';
+  const url = process.env.NEXT_PUBLIC_SITE_URL || 'https://ouncetracker.com';
+
+  return {
+    title,
+    description,
+    metadataBase: new URL(url),
+    alternates: {
+      canonical: '/insights',
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'en_US',
+      url: `${url}/insights`,
+      siteName: 'OunceTracker',
+      title,
+      description,
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+      creator: '@ouncetracker',
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+  };
+}
 
 export default async function Page() {
   const { data: posts } = await sanityFetch({ query: getLastTwentyPostsQuery });

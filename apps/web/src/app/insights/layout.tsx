@@ -20,14 +20,40 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const ogImage = resolveOpenGraphImage(settings?.ogImage);
 
+  const url = process.env.NEXT_PUBLIC_SITE_URL || 'https://ouncetracker.com';
+
   return {
     title: {
       template: `%s | ${title}`,
       default: title,
     },
     description,
+    metadataBase: new URL(url),
     openGraph: {
+      type: 'website',
+      locale: 'en_US',
+      url: `${url}/insights`,
+      siteName: 'OunceTracker',
+      title,
+      description,
       images: ogImage ? [ogImage] : [],
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+      creator: '@ouncetracker',
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
   };
 }

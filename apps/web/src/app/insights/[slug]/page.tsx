@@ -16,6 +16,7 @@ import { resolveOpenGraphImage, urlForImage } from '../sanity/lib/utils';
 import { ShareButtons } from '../components/share-buttons';
 import { PublishedAt } from '../components/published-at';
 import { ContributeWithGoogleButton } from '@/components/contribute-with-google-button';
+import { ArticleStructuredData } from '@/components/insights/article-structured-data';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -54,6 +55,9 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
   const previousImages = (await parent).openGraph?.images || [];
   const ogImage = resolveOpenGraphImage(post?.coverImage);
 
+  const url = process.env.NEXT_PUBLIC_SITE_URL;
+  const postUrl = `${url}/insights/${params.slug}`;
+
   return {
     authors:
       post?.author?.firstName && post?.author?.lastName
@@ -61,8 +65,36 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
         : [],
     title: post?.title,
     description: post?.excerpt,
+    metadataBase: new URL(url),
+    alternates: {
+      canonical: `/insights/${params.slug}`,
+    },
     openGraph: {
+      type: 'article',
+      locale: 'en_US',
+      url: postUrl,
+      siteName: 'OunceTracker',
+      title: post?.title,
+      description: post?.excerpt,
       images: ogImage ? [ogImage, ...previousImages] : previousImages,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post?.title,
+      description: post?.excerpt,
+      creator: '@ouncetracker',
+      images: ogImage ? [ogImage.url] : [],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
   } satisfies Metadata;
 }
@@ -80,8 +112,36 @@ export default async function PostPage(props: Props) {
   const prev = allPosts[postIndex + 1];
   const next = allPosts[postIndex - 1];
 
+  const url = process.env.NEXT_PUBLIC_SITE_URL || 'https://ouncetracker.com';
+  const postUrl = `${url}/insights/${post.slug}`;
+  const ogImage = resolveOpenGraphImage(post?.coverImage);
+
   return (
     <LayoutWrapper>
+      <ArticleStructuredData
+        title={post.title}
+        description={post.excerpt}
+        url={postUrl}
+        datePublished={post.date}
+        dateModified={post._updatedAt || post.date}
+        author={
+          post.author?.firstName && post.author?.lastName
+            ? {
+                firstName: post.author.firstName,
+                lastName: post.author.lastName,
+              }
+            : undefined
+        }
+        image={
+          ogImage
+            ? {
+                url: ogImage.url,
+                width: ogImage.width,
+                height: ogImage.height,
+              }
+            : undefined
+        }
+      />
       <ScrollTopAndComment />
       <article>
         <div className="xl:divide-y xl:divide-gray-200 xl:dark:divide-gray-700">
