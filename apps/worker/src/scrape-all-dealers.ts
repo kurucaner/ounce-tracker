@@ -29,17 +29,17 @@ const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SE
 });
 
 const SCRAPER_MAP: Record<string, ScraperFunction> = {
-  // 'new-york-gold-co': scrapeNYGoldCo,
-  // 'bullion-exchanges': scrapeBullionExchanges,
-  // 'nyc-bullion': scrapeNYCBullion,
-  // 'bullion-trading-llc': scrapeBullionTradingLLC,
+  'new-york-gold-co': scrapeNYGoldCo,
+  'bullion-exchanges': scrapeBullionExchanges,
+  'nyc-bullion': scrapeNYCBullion,
+  'bullion-trading-llc': scrapeBullionTradingLLC,
   'jm-bullion': scrapeJMBullion,
-  // apmex: scrapeAMPEX,
-  // 'sd-bullion': scrapeSDBullion,
-  // bgasc: scrapeBGASC,
-  // pimbex: scrapePimbex,
-  // golddealercom: scrapeGoldDealerCom,
-  // 'hollywood-gold-exchange': scrapeHollywoodGoldExchange,
+  apmex: scrapeAMPEX,
+  'sd-bullion': scrapeSDBullion,
+  bgasc: scrapeBGASC,
+  pimbex: scrapePimbex,
+  golddealercom: scrapeGoldDealerCom,
+  'hollywood-gold-exchange': scrapeHollywoodGoldExchange,
 };
 
 /**
