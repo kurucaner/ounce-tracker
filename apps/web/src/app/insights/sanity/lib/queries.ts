@@ -115,3 +115,15 @@ export const postsByTagQuery = defineQuery(`
     ${postFields}
   }
 `);
+
+// Get paginated posts (for all-posts page)
+export const paginatedPostsQuery = defineQuery(`
+  *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc) [$start...$end] {
+    ${postFields}
+  }
+`);
+
+// Get total count of posts (for pagination)
+export const postsCountQuery = defineQuery(`
+  count(*[_type == "post" && defined(slug.current)])
+`);
