@@ -30,6 +30,16 @@ export async function scrapeAMPEX(
       },
     });
     if (!response.ok) {
+      // Log detailed error information for debugging
+      const responseText = await response.text().catch(() => 'Could not read response body');
+      const responseHeaders: Record<string, string> = {};
+      response.headers.forEach((value, key) => {
+        responseHeaders[key] = value;
+      });
+      console.error(`❌ AMPEX fetch failed - Status: ${response.status} ${response.statusText}`);
+      console.error(`❌ URL: ${url}`);
+      console.error(`❌ Response headers:`, JSON.stringify(responseHeaders, null, 2));
+      console.error(`❌ Response body (first 500 chars):`, responseText.substring(0, 500));
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
