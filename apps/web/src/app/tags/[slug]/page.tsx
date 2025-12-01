@@ -57,9 +57,40 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
 
+  const url = process.env.NEXT_PUBLIC_SITE_URL || 'https://ouncetracker.com';
+
   return {
     title: `Posts tagged with "${tagName}" | OunceTracker`,
-    description: `Browse all posts tagged with "${tagName}" on OunceTracker`,
+    description: `Browse all posts tagged with "${tagName}" on OunceTracker. Discover insights, analysis, and educational content about ${tagName.toLowerCase()} and precious metals investing.`,
+    metadataBase: new URL(url),
+    alternates: {
+      canonical: `/tags/${tagSlug}`,
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'en_US',
+      url: `${url}/tags/${tagSlug}`,
+      siteName: 'OunceTracker',
+      title: `Posts tagged with "${tagName}" | OunceTracker`,
+      description: `Browse all posts tagged with "${tagName}" on OunceTracker`,
+    },
+    twitter: {
+      card: 'summary',
+      title: `Posts tagged with "${tagName}" | OunceTracker`,
+      description: `Browse all posts tagged with "${tagName}" on OunceTracker`,
+      creator: '@ouncetracker',
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
   } satisfies Metadata;
 }
 
