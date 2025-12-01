@@ -1,89 +1,85 @@
-import type { Page } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
-// Browser is now managed by scrape-all-dealers.ts
+import * as cheerio from 'cheerio';
 
 /**
- * Extracts the price for the 1-9 quantity, ACH/Wire payment method,
- * from the structured <ul> list table.
- *
- * @param page The Playwright Page object.
- * @returns The extracted price as a number (e.g., 4181.20) or null if not found.
+ * Scraper: Pimbex
+ * Uses cheerio to parse static HTML
+ * Extracts price for 1-9 quantity, ACH/Wire payment method from structured UL tier list
  */
-async function extractPriceFromPage(page: Page): Promise<number | null> {
-  const priceValue = await page.evaluate(() => {
-    try {
-      // Helper function to clean and parse the price string
-      const cleanAndParsePrice = (priceString: string): number | null => {
-        const cleanedPrice = priceString.replaceAll(/[^0-9.]/g, '');
-        const price = Number.parseFloat(cleanedPrice);
-        return !Number.isNaN(price) && price > 0 ? price : null;
-      };
-
-      // 1. Find the specific tier list item for "1 - 9" quantity.
-      // We look inside the main container with the ID 'pricingTable' for a tier list.
-      const pricingTable = document.getElementById('pricingTable');
-
-      if (!pricingTable) {
-        console.warn('⚠️ Could not find the main pricingTable container.');
-        return null;
-      }
-
-      // Look for the tier list item where the first <li> contains "1 - 9"
-      const tierSelector = '.pricing-tier';
-      const targetTier = Array.from(pricingTable.querySelectorAll(tierSelector)).find(
-        (ul) => ul.querySelector('li')?.textContent?.trim() === '1 - 9'
-      );
-
-      if (targetTier) {
-        // 2. The price for "ACH/Wire" is the second <li> in the tier row.
-        // (1st li is Quantity, 2nd li is ACH/Wire, 3rd li is Card/PayPal)
-        const achWirePriceElement = targetTier.querySelector('li:nth-child(2)');
-
-        if (achWirePriceElement && achWirePriceElement.textContent) {
-          const rawPriceText = achWirePriceElement.textContent.trim();
-          console.info(`📍 Found price via structured UL tier (1-9 ACH/Wire): ${rawPriceText}`);
-
-          // Return the cleaned and parsed NUMBER
-          return cleanAndParsePrice(rawPriceText);
-        }
-      }
-
-      console.warn('⚠️ Could not find the price for the 1-9 ACH/Wire tier.');
-
-      return null;
-    } catch (e) {
-      console.error('❌ Error during DOM evaluation:', e);
-      return null;
-    }
-  });
-
-  return priceValue;
-}
-
 export async function scrapePimbex(
   productConfig: ProductConfig,
   baseUrl: string,
-  page: Page
+  _page: import('playwright').Page // Not used - this scraper uses fetch instead of browser
 ): Promise<ScraperResult> {
   const url = baseUrl + productConfig.productUrl;
 
-  console.info(`🔍 Scraping Pimbex - ${productConfig.name}...`);
+  try {
+    console.info(`🔍 Scraping Pimbex - ${productConfig.name}...`);
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
 
-  // Navigate to the product URL (browser is already launched and page is ready)
-  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
+    const html = await response.text();
+    const $ = cheerio.load(html);
 
-  // Wait for the pricing table to appear (loaded dynamically via JavaScript)
-  await page.waitForSelector('#pricingTable', { timeout: 10000 });
+    // Helper function to clean and parse the price string
+    const cleanAndParsePrice = (priceString: string): number | null => {
+      const cleanedPrice = priceString.replaceAll(/[^0-9.]/g, '');
+      const price = Number.parseFloat(cleanedPrice);
+      return !Number.isNaN(price) && price > 0 ? price : null;
+    };
 
-  const priceNumber = await extractPriceFromPage(page);
+    // 1. Find the specific tier list item for "1 - 9" quantity.
+    // We look inside the main container with the ID 'pricingTable' for a tier list.
+    const pricingTable = $('#pricingTable');
 
-  if (priceNumber === null) {
-    throw new Error('Price not found using JavaScript data extraction.');
+    if (pricingTable.length === 0) {
+      throw new Error('Could not find the main pricingTable container.');
+    }
+
+    // Look for the tier list item where the first <li> contains "1 - 9"
+    let targetTier: ReturnType<typeof $> | null = null;
+    pricingTable.find('.pricing-tier').each((_, element) => {
+      const firstLi = $(element).find('li').first();
+      const firstLiText = firstLi.text().trim();
+      if (firstLiText === '1 - 9') {
+        targetTier = $(element);
+        return false; // Break the loop
+      }
+      return undefined;
+    });
+
+    if (!targetTier) {
+      throw new Error('Could not find the price for the 1-9 ACH/Wire tier.');
+    }
+
+    // 2. The price for "ACH/Wire" is the second <li> in the tier row.
+    // (1st li is Quantity, 2nd li is ACH/Wire, 3rd li is Card/PayPal)
+    const achWirePriceElement = (targetTier as ReturnType<typeof $>).find('li:nth-child(2)');
+
+    if (achWirePriceElement.length === 0) {
+      throw new Error('Could not find ACH/Wire price element in tier.');
+    }
+
+    const rawPriceText = achWirePriceElement.text().trim();
+    if (!rawPriceText) {
+      throw new Error('ACH/Wire price element is empty.');
+    }
+
+    console.info(`📍 Found price via structured UL tier (1-9 ACH/Wire): ${rawPriceText}`);
+
+    const price = cleanAndParsePrice(rawPriceText);
+    if (price === null) {
+      throw new Error('Could not parse price from ACH/Wire tier.');
+    }
+
+    const inStock = true; // Pimbex doesn't show out-of-stock, assume in stock
+
+    console.info(`✅ Pimbex - ${productConfig.name}: $${price.toFixed(2)}`);
+    return { price, url, productName: productConfig.name, inStock };
+  } catch (error) {
+    console.error(`❌ Failed to scrape Pimbex - ${productConfig.name}:`, error);
+    throw error;
   }
-
-  const price = priceNumber;
-  const inStock = true; // Pimbex doesn't show out-of-stock, assume in stock
-
-  console.info(`✅ Pimbex - ${productConfig.name}: $${price.toFixed(2)}`);
-  return { price, url, productName: productConfig.name, inStock };
 }

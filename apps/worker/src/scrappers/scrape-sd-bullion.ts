@@ -1,3 +1,4 @@
+import { Page } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
 import * as cheerio from 'cheerio';
 
@@ -9,7 +10,7 @@ import * as cheerio from 'cheerio';
 export async function scrapeSDBullion(
   productConfig: ProductConfig,
   baseUrl: string,
-  _page: import('playwright').Page // Not used - this scraper uses fetch instead of browser
+  _page: Page // Not used - this scraper uses fetch instead of browser
 ): Promise<ScraperResult> {
   const url = baseUrl + productConfig.productUrl;
 
