@@ -13,7 +13,6 @@ export async function scrapeJMBullion(
 ): Promise<ScraperResult> {
   const url = baseUrl + productConfig.productUrl;
 
-  console.log('url', url);
   try {
     console.info(`🔍 Scraping JM Bullion - ${productConfig.name}...`);
     const response = await fetch(url);
