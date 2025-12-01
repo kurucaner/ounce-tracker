@@ -34,7 +34,7 @@ const SCRAPER_MAP: Record<string, ScraperFunction> = {
   'nyc-bullion': scrapeNYCBullion,
   'bullion-trading-llc': scrapeBullionTradingLLC,
   'jm-bullion': scrapeJMBullion,
-  apmex: scrapeAMPEX,
+  // apmex: scrapeAMPEX,
   'sd-bullion': scrapeSDBullion,
   bgasc: scrapeBGASC,
   pimbex: scrapePimbex,
