@@ -56,13 +56,23 @@ export default async function Page() {
   return (
     <>
       <div className="divide-y divide-gray-200 dark:divide-gray-700">
-        <div className="space-y-2 pt-6 pb-8 md:space-y-5">
+        <div className="space-y-4 pt-6 pb-8 md:space-y-6">
           <h1 className="text-3xl leading-9 font-extrabold tracking-tight text-gray-900 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14 dark:text-gray-100">
             Investment Insights
           </h1>
-          <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">
-            Learn about the latest trends in the investment world.
-          </p>
+          <div className="prose prose-lg max-w-none text-gray-600 dark:text-gray-400">
+            <p className="text-lg leading-7">
+              Stay informed with expert analysis, market trends, and educational content about
+              precious metals and bullion investing. Our team of financial experts provides in-depth
+              insights to help you make informed investment decisions.
+            </p>
+            <p className="text-base leading-6">
+              Whether you're a seasoned investor or just starting your journey into precious metals,
+              our comprehensive guides cover everything from understanding gold and silver prices to
+              navigating the bullion market. Discover strategies, market analysis, and practical
+              advice to enhance your investment portfolio.
+            </p>
+          </div>
         </div>
         <AllPosts />
       </div>

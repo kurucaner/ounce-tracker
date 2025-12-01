@@ -27,7 +27,7 @@ export const BROWSER_CONFIG = {
     '--disable-blink-features=AutomationControlled',
     '--disable-dev-shm-usage',
     '--disable-features=IsolateOrigins,site-per-process',
-    '--disable-gpu', // No GPU needed in headless
+    '--disable-gpu',
     '--disable-software-rasterizer',
     '--disable-background-networking',
     '--disable-background-timer-throttling',
