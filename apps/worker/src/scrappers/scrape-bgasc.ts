@@ -24,6 +24,10 @@ export async function scrapeBGASC(
     const html = await response.text();
     const $ = cheerio.load(html);
 
+    // Check for out-of-stock element
+    const outOfStockElement = $('.out-of-stock-info').first();
+    const isOutOfStock = outOfStockElement.length > 0;
+
     // Helper function to clean and parse the price string
     const cleanAndParsePrice = (priceString: string): number | null => {
       // Removes non-digit characters except the decimal point (e.g., removes '$', ',', spaces)
@@ -37,6 +41,7 @@ export async function scrapeBGASC(
     };
 
     let price: number | null = null;
+    let inStock = true;
 
     // 1. Target the element: Inside .payment-inner, find a span whose ID starts with 'price_'.
     const primarySelector = '.payment-inner span[id^="price_"]';
@@ -71,11 +76,15 @@ export async function scrapeBGASC(
       }
     }
 
-    if (price === null) {
-      throw new Error('Price not found using ID selector or data-price attribute fallback.');
+    if (isOutOfStock) {
+      console.info('⚠️ Product is out of stock');
+      inStock = false;
+      price = 0;
+    } else {
+      if (price === null) {
+        throw new Error('Price not found using ID selector or data-price attribute fallback.');
+      }
     }
-
-    const inStock = true; // BGASC doesn't show out-of-stock, assume in stock
 
     console.info(`✅ BGASC - ${productConfig.name}: $${price.toFixed(2)}`);
     return { price, url, productName: productConfig.name, inStock };
