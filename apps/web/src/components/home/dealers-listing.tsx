@@ -253,7 +253,7 @@ export function DealersListing() {
                             <div className="flex min-w-0 flex-1 items-center gap-2">
                               {renderRankIcon()}
                               <Link
-                                href={listing.dealerWebsiteUrl}
+                                href={listing.productUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="truncate font-medium text-sm text-blue-900 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
@@ -283,14 +283,14 @@ export function DealersListing() {
                             </Badge>
                             <div className="flex items-center gap-3 text-xs text-muted-foreground">
                               {isDevelopment && <span>{formatTime(listing.updatedAt)}</span>}
-                              <a
+                              <Link
                                 href={listing.productUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1 hover:text-foreground"
                               >
                                 <ExternalLink className="h-3.5 w-3.5" />
-                              </a>
+                              </Link>
                             </div>
                           </div>
                         </div>
@@ -357,7 +357,7 @@ export function DealersListing() {
                               <div className="flex items-center justify-center gap-2">
                                 {renderRankIcon()}
                                 <Link
-                                  href={listing.dealerWebsiteUrl}
+                                  href={listing.productUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="font-medium text-sm text-blue-900 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
@@ -392,14 +392,14 @@ export function DealersListing() {
                               </div>
                             </TableCell>
                             <TableCell className="text-center">
-                              <a
+                              <Link
                                 href={listing.productUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
                               >
                                 <ExternalLink className="h-4 w-4" />
-                              </a>
+                              </Link>
                             </TableCell>
                             {isDevelopment && (
                               <TableCell className="text-center text-sm text-muted-foreground">

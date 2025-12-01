@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { FaHome } from 'react-icons/fa';
+import { FaHome, FaShoppingBag } from 'react-icons/fa';
 
 export const SiteHeader = () => {
   const pathname = usePathname();
@@ -50,6 +50,16 @@ export const SiteHeader = () => {
               <span className="absolute -bottom-px left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full bg-primary" />
             )}
           </Link>
+          <a
+            href="https://shop.ouncetracker.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.98]"
+            aria-label="Visit our store"
+          >
+            <FaShoppingBag className="h-4 w-4 shrink-0" />
+            <span>Shop</span>
+          </a>
         </nav>
       </div>
     </header>
