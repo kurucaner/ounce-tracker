@@ -16,6 +16,33 @@ export async function scrapeAMPEX(
 
   try {
     console.info(`🔍 Scraping AMPEX - ${productConfig.name}...`);
+
+    // First, visit the homepage to establish a session and get cookies
+    // This helps bypass Cloudflare challenge on subsequent requests
+    const homeResponse = await fetch(baseUrl, {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        Accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        Connection: 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+        'Sec-CH-UA': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+        'Sec-CH-UA-Mobile': '?0',
+        'Sec-CH-UA-Platform': '"Windows"',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-User': '?1',
+      },
+    });
+
+    // Extract cookies from the homepage response
+    const cookies = homeResponse.headers.get('set-cookie') || '';
+
+    // Now fetch the product page with cookies and proper headers
     const response = await fetch(url, {
       headers: {
         'User-Agent':
@@ -24,9 +51,17 @@ export async function scrapeAMPEX(
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.9',
         'Accept-Encoding': 'gzip, deflate, br',
-        Referer: baseUrl, // The base URL of the site
+        Referer: baseUrl,
         Connection: 'keep-alive',
         'Upgrade-Insecure-Requests': '1',
+        Cookie: cookies,
+        'Sec-CH-UA': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+        'Sec-CH-UA-Mobile': '?0',
+        'Sec-CH-UA-Platform': '"Windows"',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'same-origin',
+        'Sec-Fetch-User': '?1',
       },
     });
     if (!response.ok) {
