@@ -34,7 +34,7 @@ const SCRAPER_MAP: Record<string, ScraperFunction> = {
   'nyc-bullion': scrapeNYCBullion,
   'bullion-trading-llc': scrapeBullionTradingLLC,
   'jm-bullion': scrapeJMBullion,
-  // apmex: scrapeAMPEX,
+  apmex: scrapeAMPEX,
   'sd-bullion': scrapeSDBullion,
   bgasc: scrapeBGASC,
   pimbex: scrapePimbex,
@@ -102,7 +102,7 @@ async function updatePrice(
   console.info(`💾 Updated ${dealerSlug} - ${productName}: $${price.toFixed(2)}`);
 }
 
-const CLOUDFLARE_PROTECTED_DEALERS = new Set(['bullion-trading-llc']);
+const CLOUDFLARE_PROTECTED_DEALERS = new Set(['bullion-trading-llc', 'apmex']);
 
 type ScrapeResult = {
   successful: Array<{ dealer: string; product: string; price: number }>;
