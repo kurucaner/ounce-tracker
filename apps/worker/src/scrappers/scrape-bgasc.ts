@@ -12,7 +12,6 @@ export async function scrapeBGASC(
   _page: import('playwright').Page // Not used - this scraper uses fetch instead of browser
 ): Promise<ScraperResult> {
   const url = baseUrl + productConfig.productUrl;
-  console.log('url', url);
 
   try {
     console.info(`🔍 Scraping BGASC - ${productConfig.name}...`);

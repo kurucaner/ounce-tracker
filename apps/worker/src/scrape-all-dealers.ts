@@ -33,10 +33,10 @@ const SCRAPER_MAP: Record<string, ScraperFunction> = {
   // 'bullion-exchanges': scrapeBullionExchanges,
   // 'nyc-bullion': scrapeNYCBullion,
   // 'bullion-trading-llc': scrapeBullionTradingLLC,
-  // 'jm-bullion': scrapeJMBullion,
+  'jm-bullion': scrapeJMBullion,
   // apmex: scrapeAMPEX,
   // 'sd-bullion': scrapeSDBullion,
-  bgasc: scrapeBGASC,
+  // bgasc: scrapeBGASC,
   // pimbex: scrapePimbex,
   // golddealercom: scrapeGoldDealerCom,
   // 'hollywood-gold-exchange': scrapeHollywoodGoldExchange,
@@ -408,6 +408,4 @@ export async function scrapeAllDealers(): Promise<void> {
     // Wait 30 seconds before next cycle
     await new Promise((resolve) => setTimeout(resolve, 30000));
   }
-
-  // Browser stays open - never closed (worker runs forever)
 }
