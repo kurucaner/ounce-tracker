@@ -39,8 +39,20 @@ export async function scrapeAMPEX(
       },
     });
 
-    // Extract cookies from the homepage response
-    const cookies = homeResponse.headers.get('set-cookie') || '';
+    // Extract and parse cookies from the homepage response
+    const setCookieHeaders = homeResponse.headers.getSetCookie?.() || [];
+    const cookies = setCookieHeaders
+      .map((cookie) => {
+        // Extract cookie name=value from Set-Cookie header
+        const regex = /^([^=]+)=([^;]+)/;
+        const match = regex.exec(cookie);
+        return match ? `${match[1]}=${match[2]}` : '';
+      })
+      .filter(Boolean)
+      .join('; ');
+
+    // Small delay to let Cloudflare process the initial request
+    await new Promise((resolve) => setTimeout(resolve, 5000));
 
     // Now fetch the product page with cookies and proper headers
     const response = await fetch(url, {
