@@ -1,100 +1,86 @@
-import type { Page } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
+import * as cheerio from 'cheerio';
 
 /**
- * Extracts the primary price by locating the <span id="price_..."> element
- * inside the payment-inner container.
- *
- * @param page The Playwright Page object.
- * @returns The extracted price as a number (e.g., 4198.90) or null if not found.
+ * Scraper: BGASC
+ * Uses cheerio to parse static HTML
+ * Prioritizes span with ID starting with 'price_', falls back to data-price attribute
  */
-async function extractPriceFromPage(page: Page): Promise<number | null> {
-  const priceValue = await page.evaluate(() => {
-    try {
-      // Helper function to clean and parse the price string
-      const cleanAndParsePrice = (priceString: string): number | null => {
-        // Removes non-digit characters except the decimal point (e.g., removes '$', ',', spaces)
-        const cleanedPrice = priceString.replaceAll(/[^0-9.]/g, '');
-        const price = Number.parseFloat(cleanedPrice);
-
-        if (Number.isNaN(price) || price <= 0) {
-          return null;
-        }
-        return price;
-      };
-
-      // 1. Target the element based on your specific request:
-      // Inside .payment-inner, find a span whose ID starts with 'price_'.
-      const primarySelector = '.payment-inner span[id^="price_"]';
-      const priceElement = document.querySelector(primarySelector);
-
-      if (priceElement && priceElement.textContent) {
-        const rawPriceText = priceElement.textContent.trim();
-        console.info(`📍 Found price via ID selector: ${primarySelector} - ${rawPriceText}`);
-
-        // Return the cleaned and parsed NUMBER
-        return cleanAndParsePrice(rawPriceText);
-      }
-
-      console.warn('⚠️ Could not find price using the requested ID selector.');
-
-      // 2. Fallback: Use the most robust data attribute from the table (1+ Qty, Check/Wire price)
-      const fallbackSelector = '#producttable tbody tr:first-child td:first-child + td[data-price]';
-      const fallbackPriceCell = document.querySelector(fallbackSelector);
-
-      if (fallbackPriceCell) {
-        const priceContent = fallbackPriceCell.getAttribute('data-price');
-
-        if (priceContent) {
-          const price = Number.parseFloat(priceContent);
-          if (!Number.isNaN(price) && price > 0) {
-            console.info(`📍 Found fallback price via data attribute ('data-price'): ${price}`);
-            return price;
-          }
-        }
-      }
-
-      console.warn('⚠️ Could not extract price using the ID or the robust table fallback.');
-      return null;
-    } catch (e) {
-      console.error('❌ Error during DOM evaluation:', e);
-      return null;
-    }
-  });
-
-  return priceValue;
-}
-
 export async function scrapeBGASC(
   productConfig: ProductConfig,
   baseUrl: string,
-  page: Page
+  _page: import('playwright').Page // Not used - this scraper uses fetch instead of browser
 ): Promise<ScraperResult> {
   const url = baseUrl + productConfig.productUrl;
+  console.log('url', url);
 
-  console.info(`🔍 Scraping BGASC - ${productConfig.name}...`);
-
-  // Navigate to the product URL (browser is already launched and page is ready)
-  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
-
-  // Wait for the price element to appear (loaded dynamically via JavaScript)
-  // Try primary selector first, fallback to table
   try {
-    await page.waitForSelector('.payment-inner span[id^="price_"]', { timeout: 10000 });
-  } catch {
-    // Fallback: wait for the product table
-    await page.waitForSelector('#producttable', { timeout: 10000 });
+    console.info(`🔍 Scraping BGASC - ${productConfig.name}...`);
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const html = await response.text();
+    const $ = cheerio.load(html);
+
+    // Helper function to clean and parse the price string
+    const cleanAndParsePrice = (priceString: string): number | null => {
+      // Removes non-digit characters except the decimal point (e.g., removes '$', ',', spaces)
+      const cleanedPrice = priceString.replaceAll(/[^0-9.]/g, '');
+      const price = Number.parseFloat(cleanedPrice);
+
+      if (Number.isNaN(price) || price <= 0) {
+        return null;
+      }
+      return price;
+    };
+
+    let price: number | null = null;
+
+    // 1. Target the element: Inside .payment-inner, find a span whose ID starts with 'price_'.
+    const primarySelector = '.payment-inner span[id^="price_"]';
+    const priceElement = $(primarySelector).first();
+
+    if (priceElement.length > 0) {
+      const rawPriceText = priceElement.text().trim();
+      if (rawPriceText) {
+        console.info(`📍 Found price via ID selector: ${primarySelector} - ${rawPriceText}`);
+        price = cleanAndParsePrice(rawPriceText);
+      }
+    }
+
+    // 2. Fallback: Use the most robust data attribute from the table (1+ Qty, Check/Wire price)
+    if (price === null) {
+      console.warn('⚠️ Could not find price using the requested ID selector.');
+      const fallbackSelector = '#producttable tbody tr:first-child td:first-child + td[data-price]';
+      const fallbackPriceCell = $(fallbackSelector).first();
+
+      if (fallbackPriceCell.length > 0) {
+        const priceContent = fallbackPriceCell.attr('data-price');
+
+        if (priceContent) {
+          const parsedPrice = Number.parseFloat(priceContent);
+          if (!Number.isNaN(parsedPrice) && parsedPrice > 0) {
+            console.info(
+              `📍 Found fallback price via data attribute ('data-price'): ${parsedPrice}`
+            );
+            price = parsedPrice;
+          }
+        }
+      }
+    }
+
+    if (price === null) {
+      throw new Error('Price not found using ID selector or data-price attribute fallback.');
+    }
+
+    const inStock = true; // BGASC doesn't show out-of-stock, assume in stock
+
+    console.info(`✅ BGASC - ${productConfig.name}: $${price.toFixed(2)}`);
+    return { price, url, productName: productConfig.name, inStock };
+  } catch (error) {
+    console.error(`❌ Failed to scrape BGASC - ${productConfig.name}:`, error);
+    throw error;
   }
-
-  const priceNumber = await extractPriceFromPage(page);
-
-  if (priceNumber === null) {
-    throw new Error('Price not found using JavaScript data extraction.');
-  }
-
-  const price = priceNumber;
-  const inStock = true; // BGASC doesn't show out-of-stock, assume in stock
-
-  console.info(`✅ BGASC - ${productConfig.name}: $${price.toFixed(2)}`);
-  return { price, url, productName: productConfig.name, inStock };
 }
