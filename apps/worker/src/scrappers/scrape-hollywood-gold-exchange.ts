@@ -1,42 +1,68 @@
-import type { Page } from 'playwright';
 import type { ScraperResult, ProductConfig } from '../types';
-// Browser is now managed by scrape-all-dealers.ts
+import * as cheerio from 'cheerio';
 
 /**
- * Extracts the primary product price by prioritizing the structured GTM data attribute,
- * and falls back to the main WooCommerce price element.
- *
- * @param page The Playwright Page object.
- * @returns The extracted price as a number (e.g., 4326.70) or null if not found.
+ * Scraper: Hollywood Gold Exchange
+ * Uses cheerio to parse static HTML
+ * Prioritizes GTM hidden data, falls back to WooCommerce price structure
  */
-async function extractPriceFromPage(page: Page): Promise<number | null> {
-  const priceValue = await page.evaluate(() => {
-    try {
-      // Helper function to clean and parse the price string
-      const cleanAndParsePrice = (priceString: string): number | null => {
-        // Removes non-digit characters except the decimal point (e.g., removes '$', ',', spaces)
-        const cleanedPrice = priceString.replaceAll(/[^0-9.]/g, '');
-        const price = Number.parseFloat(cleanedPrice);
-        return !Number.isNaN(price) && price > 0 ? price : null;
-      };
+export async function scrapeHollywoodGoldExchange(
+  productConfig: ProductConfig,
+  baseUrl: string,
+  _page: import('playwright').Page // Not used - this scraper uses fetch instead of browser
+): Promise<ScraperResult> {
+  const url = baseUrl + productConfig.productUrl;
 
+  try {
+    console.info(`🔍 Scraping Hollywood Gold Exchange - ${productConfig.name}...`);
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const html = await response.text();
+    const $ = cheerio.load(html);
+
+    // Helper function to clean and parse the price string
+    const cleanAndParsePrice = (priceString: string): number | null => {
+      // Removes non-digit characters except the decimal point (e.g., removes '$', ',', spaces)
+      const cleanedPrice = priceString.replaceAll(/[^0-9.]/g, '');
+      const price = Number.parseFloat(cleanedPrice);
+      return !Number.isNaN(price) && price > 0 ? price : null;
+    };
+
+    // Check for out-of-stock element
+    // Multiple selectors to catch different variations of out-of-stock indicators
+
+    const outOfStockP = $('p.stock.out-of-stock').first();
+
+    const isOutOfStock = outOfStockP.length > 0;
+
+    let price: number | null = null;
+    let inStock = true;
+
+    if (isOutOfStock) {
+      console.info('⚠️ Product is out of stock');
+      inStock = false;
+      price = 0;
+    } else {
       // 1. **PRIORITY: GTM Hidden Data**
       // Find the hidden input containing the GTM JSON data and extract the price property.
-      const gtmInput = document.querySelector('input[name="gtm4wp_product_data"][type="hidden"]');
+      const gtmInput = $('input[name="gtm4wp_product_data"][type="hidden"]').first();
 
-      if (gtmInput) {
-        const jsonString = gtmInput.getAttribute('value');
+      if (gtmInput.length > 0) {
+        const jsonString = gtmInput.attr('value');
         if (jsonString) {
           try {
             // Unescape and parse the JSON string to get the price number
-            const unescapedString = jsonString.replace(/&quot;/g, '"');
+            const unescapedString = jsonString.replaceAll('&quot;', '"');
             const gtmData = JSON.parse(unescapedString);
 
             if (gtmData && gtmData.price) {
-              const price = Number.parseFloat(gtmData.price);
-              if (!Number.isNaN(price) && price > 0) {
-                console.info(`📍 Found price via robust GTM data attribute: ${price}`);
-                return price;
+              const parsedPrice = Number.parseFloat(gtmData.price);
+              if (!Number.isNaN(parsedPrice) && parsedPrice > 0) {
+                console.info(`📍 Found price via robust GTM data attribute: ${parsedPrice}`);
+                price = parsedPrice;
               }
             }
           } catch {
@@ -46,83 +72,28 @@ async function extractPriceFromPage(page: Page): Promise<number | null> {
       }
 
       // 2. **FALLBACK: Specific WooCommerce Price Structure**
-      // Target the main price using the specific WooCommerce structure,
-      // which is usually the immediate sibling of the product title or inside <p class="price">.
-      const priceSelector = 'p.price span.woocommerce-Price-amount.amount';
-      const priceElement = document.querySelector(priceSelector);
+      if (price === null) {
+        const priceSelector = 'p.price span.woocommerce-Price-amount.amount';
+        const priceElement = $(priceSelector).first();
 
-      if (priceElement && priceElement.textContent) {
-        const rawPriceText = priceElement.textContent.trim();
-        console.warn(`⚠️ Found price via WooCommerce structure fallback: ${rawPriceText}`);
-
-        // Return the cleaned and parsed NUMBER
-        return cleanAndParsePrice(rawPriceText);
+        if (priceElement.length > 0) {
+          const rawPriceText = priceElement.text().trim();
+          if (rawPriceText) {
+            console.warn(`⚠️ Found price via WooCommerce structure fallback: ${rawPriceText}`);
+            price = cleanAndParsePrice(rawPriceText);
+          }
+        }
       }
 
-      console.warn('⚠️ Could not extract price using GTM data or WooCommerce fallback.');
-      return null;
-    } catch (e) {
-      console.error('❌ Error during DOM evaluation:', e);
-      return null;
-    }
-  });
-
-  return priceValue;
-}
-
-export async function scrapeHollywoodGoldExchange(
-  productConfig: ProductConfig,
-  baseUrl: string,
-  page: Page
-): Promise<ScraperResult> {
-  const url = baseUrl + productConfig.productUrl;
-
-  console.info(`🔍 Scraping Hollywood Gold Exchange - ${productConfig.name}...`);
-
-  // Navigate to the product URL (browser is already launched and page is ready)
-  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
-
-  // Check for out-of-stock element
-  // Multiple selectors to catch different variations of out-of-stock indicators
-  let outOfStockElement = false;
-  try {
-    // Check for span with "out-of-stock" class and "Sold out" text
-    const soldOutSpanVisible = await page
-      .locator('span.out-of-stock.product-label')
-      .waitFor({ state: 'visible', timeout: 1000 })
-      .then(() => {
-        return page.locator('span.out-of-stock.product-label').isVisible();
-      })
-      .catch(() => false);
-
-    // Check for p with "stock out-of-stock" classes
-    const outOfStockPVisible = await page
-      .locator('p.stock.out-of-stock')
-      .waitFor({ state: 'visible', timeout: 1000 })
-      .then(() => {
-        return page.locator('p.stock.out-of-stock').isVisible();
-      })
-      .catch(() => false);
-
-    outOfStockElement = soldOutSpanVisible || outOfStockPVisible;
-  } catch {
-    console.info('✅ Could not find visible out-of-stock element.');
-  }
-
-  let price = 0;
-
-  if (outOfStockElement) {
-    console.info('⚠️ Product is out of stock');
-  } else {
-    const priceNumber = await extractPriceFromPage(page);
-
-    if (priceNumber === null) {
-      throw new Error('Price not found using JavaScript data extraction.');
+      if (price === null) {
+        throw new Error('Price not found using GTM data or WooCommerce fallback.');
+      }
     }
 
-    price = priceNumber;
+    console.info(`✅ Hollywood Gold Exchange - ${productConfig.name}: $${price.toFixed(2)}`);
+    return { price, url, productName: productConfig.name, inStock };
+  } catch (error) {
+    console.error(`❌ Failed to scrape Hollywood Gold Exchange - ${productConfig.name}:`, error);
+    throw error;
   }
-
-  console.info(`✅ Hollywood Gold Exchange - ${productConfig.name}: $${price.toFixed(2)}`);
-  return { price, url, productName: productConfig.name, inStock: !outOfStockElement };
 }

@@ -32,14 +32,14 @@ const SCRAPER_MAP: Record<string, ScraperFunction> = {
   // 'new-york-gold-co': scrapeNYGoldCo,
   // 'bullion-exchanges': scrapeBullionExchanges,
   // 'nyc-bullion': scrapeNYCBullion,
-  'bullion-trading-llc': scrapeBullionTradingLLC,
+  // 'bullion-trading-llc': scrapeBullionTradingLLC,
   // 'jm-bullion': scrapeJMBullion,
   // apmex: scrapeAMPEX,
   // 'sd-bullion': scrapeSDBullion,
   // bgasc: scrapeBGASC,
   // pimbex: scrapePimbex,
   // golddealercom: scrapeGoldDealerCom,
-  // 'hollywood-gold-exchange': scrapeHollywoodGoldExchange,
+  'hollywood-gold-exchange': scrapeHollywoodGoldExchange,
 };
 
 /**
