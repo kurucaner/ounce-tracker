@@ -106,6 +106,19 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
+const HeroSection = () => {
+  return (
+    <div className="mx-auto px-4 pt-8 sm:px-6 sm:pt-12 bg-muted/40">
+      <h1 className="text-center !text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+        Compare Precious Metal Prices
+      </h1>
+      <p className="mx-auto mt-4 max-w-2xl text-center text-base text-muted-foreground sm:text-lg">
+        Find the best prices on gold bars, silver coins, and more from trusted bullion dealers
+      </p>
+    </div>
+  );
+};
+
 export default async function HomePage() {
   // Fetch products for structured data
   let products: Array<{
@@ -145,6 +158,7 @@ export default async function HomePage() {
   return (
     <>
       <HomeStructuredData products={products} />
+      <HeroSection />
       <Suspense>
         <DealersListing />
       </Suspense>
