@@ -1,7 +1,7 @@
 'use client';
 
 import { memo } from 'react';
-import { Coins, Building2, TrendingUp, Shield, Sparkles, ShoppingBag } from 'lucide-react';
+import { Coins, Building2, TrendingUp, Shield, Sparkles } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -476,31 +476,6 @@ const AboutOunceTracker = () => {
               affiliations with any dealers. Our mission is to provide transparent, unbiased price
               comparisons to help you make informed purchasing decisions.
             </p>
-          </CardContent>
-        </Card>
-        <Card className="group relative overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-primary/5 to-primary/10 transition-all duration-500 hover:border-primary/40 hover:shadow-lg">
-          <CardContent className="p-8">
-            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20">
-                <ShoppingBag className="h-7 w-7 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h3 className="mb-2 text-xl font-semibold">Visit Our Store</h3>
-                <p className="mb-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
-                  Ready to purchase? Visit our Shopify store to browse and buy premium precious
-                  metals from trusted dealers.
-                </p>
-                <a
-                  href="https://shop.ouncetracker.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.98]"
-                >
-                  <ShoppingBag className="h-4 w-4" />
-                  Open Store
-                </a>
-              </div>
-            </div>
           </CardContent>
         </Card>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

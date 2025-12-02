@@ -7,6 +7,7 @@ import { GoogleTagManager } from '@/components/gtm';
 import { Toaster } from 'sonner';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
+import { FloatingStoreCta } from '@/components/floating-store-cta';
 import { ThemeProvider } from 'next-themes';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -54,6 +55,7 @@ export default function RootLayout({
             <SiteHeader />
             {children}
             <SiteFooter />
+            <FloatingStoreCta />
           </ThemeProvider>
         </QueryProvider>
       </body>
