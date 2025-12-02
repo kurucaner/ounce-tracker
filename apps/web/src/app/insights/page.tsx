@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { AllPosts } from './components/posts';
 import { sanityFetch } from './sanity/lib/live';
 import { getLastTwentyPostsQuery } from './sanity/lib/queries';
@@ -49,8 +50,26 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function Page() {
+// Separate component for posts link to avoid blocking
+async function PostsLink() {
   const { data: posts } = await sanityFetch({ query: getLastTwentyPostsQuery });
+  if (!posts || posts.length === 0) {
+    return null;
+  }
+  return (
+    <div className="flex justify-end text-base leading-6 font-medium">
+      <Link
+        href="/insights/all-posts"
+        className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
+        aria-label="All posts"
+      >
+        All Posts &rarr;
+      </Link>
+    </div>
+  );
+}
+
+export default function Page() {
   return (
     <>
       <div className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -58,13 +77,13 @@ export default async function Page() {
           <h1 className="text-3xl leading-9 font-extrabold tracking-tight text-gray-900 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14 dark:text-gray-100">
             Investment Insights
           </h1>
-          <div className="prose prose-lg max-w-none text-gray-600 dark:text-gray-400">
+          <div className="text-gray-600 dark:text-gray-400">
             <p className="text-lg leading-7">
               Stay informed with expert analysis, market trends, and educational content about
               precious metals and bullion investing. Our team of financial experts provides in-depth
               insights to help you make informed investment decisions.
             </p>
-            <p className="text-base leading-6">
+            <p className="text-base leading-6 mt-4">
               Whether you're a seasoned investor or just starting your journey into precious metals,
               our comprehensive guides cover everything from understanding gold and silver prices to
               navigating the bullion market. Discover strategies, market analysis, and practical
@@ -72,19 +91,13 @@ export default async function Page() {
             </p>
           </div>
         </div>
-        <AllPosts />
+        <Suspense fallback={<div className="py-12">Loading posts...</div>}>
+          <AllPosts />
+        </Suspense>
       </div>
-      {posts && posts.length > 0 && (
-        <div className="flex justify-end text-base leading-6 font-medium">
-          <Link
-            href="/insights/all-posts"
-            className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
-            aria-label="All posts"
-          >
-            All Posts &rarr;
-          </Link>
-        </div>
-      )}
+      <Suspense fallback={null}>
+        <PostsLink />
+      </Suspense>
     </>
   );
 }
