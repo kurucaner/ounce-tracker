@@ -10,7 +10,12 @@ import { SiteFooter } from '@/components/site-footer';
 import { FloatingStoreCta } from '@/components/floating-store-cta';
 import { ThemeProvider } from 'next-themes';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  fallback: ['system-ui', 'arial'],
+});
 
 export const metadata: Metadata = {
   title: 'OunceTracker - Bullion Price Comparison',

@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@shared'],
   output: 'standalone',
+  htmlLimitedBots: /.*/,
   images: {
     remotePatterns: [
       {

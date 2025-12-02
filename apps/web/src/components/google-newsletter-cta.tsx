@@ -4,7 +4,7 @@ import Script from 'next/script';
 
 export const GoogleNewsletterCta = () => {
   return (
-    <div>
+    <>
       {/* Load SwG script with lazy strategy to avoid blocking initial page load */}
       <Script
         async
@@ -28,6 +28,6 @@ export const GoogleNewsletterCta = () => {
         `,
         }}
       />
-    </div>
+    </>
   );
 };

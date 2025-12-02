@@ -13,7 +13,12 @@ export function GoogleTagManager() {
   return (
     <>
       {/* Google Analytics gtag.js */}
-      <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="lazyOnload" />
+      {GA_ID && (
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+          strategy="lazyOnload"
+        />
+      )}
 
       {/* Google Tag Manager */}
       <Script
@@ -45,7 +50,7 @@ export function GoogleTagManager() {
         }}
       />
 
-      {/* Global gtag function */}
+      {/* Global gtag function - Minimal initialization to avoid blocking */}
       <Script
         id="gtag-base"
         strategy="afterInteractive"
@@ -55,30 +60,37 @@ export function GoogleTagManager() {
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             
-            
-            const gpcCookie = document.cookie.split('; ').find(row => row.startsWith('gpc-signal='));
-            const dntCookie = document.cookie.split('; ').find(row => row.startsWith('dnt-signal='));
-            const gpcEnabled = gpcCookie?.split('=')[1] === '1' || navigator.globalPrivacyControl === true;
-            const dntEnabled = dntCookie?.split('=')[1] === '1' || navigator.doNotTrack === '1';
-            
-            if (!gpcEnabled && !dntEnabled) {
-              gtag('config', '${GA_ID}', {
-                page_path: window.location.pathname,
-                anonymize_ip: gpcEnabled || dntEnabled,
-                allow_ad_personalization_signals: !gpcEnabled,
-                allow_google_signals: !gpcEnabled,
-              });
+            // Defer config to next tick to avoid blocking
+            setTimeout(function() {
+              const gpcCookie = document.cookie.split('; ').find(row => row.startsWith('gpc-signal='));
+              const dntCookie = document.cookie.split('; ').find(row => row.startsWith('dnt-signal='));
+              const gpcEnabled = gpcCookie?.split('=')[1] === '1' || navigator.globalPrivacyControl === true;
+              const dntEnabled = dntCookie?.split('=')[1] === '1' || navigator.doNotTrack === '1';
               
-              
-              if ('${GTM_ID}') {
-                gtag('config', '${GTM_ID}', {
+              if (!gpcEnabled && !dntEnabled) {
+                ${
+                  GA_ID
+                    ? `gtag('config', '${GA_ID}', {
                   page_path: window.location.pathname,
                   anonymize_ip: gpcEnabled || dntEnabled,
                   allow_ad_personalization_signals: !gpcEnabled,
                   allow_google_signals: !gpcEnabled,
-                });
+                });`
+                    : ''
+                }
+                
+                ${
+                  GTM_ID
+                    ? `gtag('config', '${GTM_ID}', {
+                  page_path: window.location.pathname,
+                  anonymize_ip: gpcEnabled || dntEnabled,
+                  allow_ad_personalization_signals: !gpcEnabled,
+                  allow_google_signals: !gpcEnabled,
+                });`
+                    : ''
+                }
               }
-            }
+            }, 0);
           `,
         }}
       />
