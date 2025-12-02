@@ -77,57 +77,6 @@ const getPriceGradientColor = (position: number): string => {
   return `rgb(${r}, ${g}, ${b})`;
 };
 
-const q = [
-  {
-    id: '429967bb-cb2a-4e2a-9451-2fde53f49ea1',
-    name: '1 oz Gold Bar PAMP Suisse Lady Fortuna',
-    mint: 'PAMP',
-    metal: 'gold',
-    form: 'bar',
-    weight_oz: 1,
-  },
-  {
-    id: 'c89fba4e-ccc2-437e-a2d6-7520614fb78f',
-    name: '1 oz Gold Bar Credit Suisse',
-    mint: 'CreditSuisse',
-    metal: 'gold',
-    form: 'bar',
-    weight_oz: 1,
-  },
-  {
-    id: '899e16de-f42b-44b4-bae3-14980c813794',
-    name: '1 oz Gold Bar Perth Mint',
-    mint: 'PerthMint',
-    metal: 'gold',
-    form: 'bar',
-    weight_oz: 1,
-  },
-  {
-    id: '7f4625fd-8f7e-46ad-a67b-2f81c26cfd60',
-    name: '1 oz Gold Bar Rand Refinery',
-    mint: 'RandRefinery',
-    metal: 'gold',
-    form: 'bar',
-    weight_oz: 1,
-  },
-  {
-    id: 'cca228e0-76da-40a2-b2a8-70e3cbaf810b',
-    name: '1 oz Gold Bar Royal Canadian Mint',
-    mint: 'RoyalCanadianMint',
-    metal: 'gold',
-    form: 'bar',
-    weight_oz: 1,
-  },
-  {
-    id: '886f28c6-054e-442f-b939-87734f00294b',
-    name: '1 oz Gold Bar Valcambi Suisse',
-    mint: 'Valcambi',
-    metal: 'gold',
-    form: 'bar',
-    weight_oz: 1,
-  },
-];
-
 export function DealersListing() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -139,7 +88,6 @@ export function DealersListing() {
   const { data: products = [], isLoading: productsLoading } = useQuery({
     queryKey: queryKeys.products,
     queryFn: queryFns.products,
-    initialData: q,
     ...queryOptions.products,
   });
   console.log('products', products);
@@ -209,7 +157,7 @@ export function DealersListing() {
                   <SelectValue placeholder="Select a product..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {q.map((product) => (
+                  {products.map((product) => (
                     <SelectItem key={product.id} value={product.id}>
                       {product.name}
                     </SelectItem>
