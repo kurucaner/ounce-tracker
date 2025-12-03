@@ -166,7 +166,7 @@ export async function scrapeBullionExchanges(
         return page.locator('.stock-owQx.outOfStock-vsbi').isVisible();
       });
   } catch {
-    console.log('✅ Could not find visible out-of-stock element.');
+    console.info('✅ Could not find visible out-of-stock element.');
   }
 
   // Wait for the specific element that contains the pricing table to appear,

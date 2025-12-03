@@ -90,7 +90,6 @@ export function DealersListing() {
     queryFn: queryFns.products,
     ...queryOptions.products,
   });
-  console.log('products', products);
 
   // Fetch listings
   const { data: listings = [], isLoading: listingsLoading } = useQuery({

@@ -23,6 +23,10 @@ import {
   blockedResourceTypes,
 } from './scrappers/browser-config';
 import { Browser, Page } from 'playwright';
+import { MemoryProfiler } from './memory-profiler';
+
+// Enable detailed memory profiling if ENABLE_MEMORY_PROFILING is set
+const ENABLE_PROFILING = true;
 
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
   auth: { persistSession: false },
@@ -309,15 +313,36 @@ async function scrapeAll(browser: Browser, defaultPage: Page): Promise<void> {
 }
 
 /**
- * Get memory usage in MB
+ * Clear all browser storage to free memory
  */
-function getMemoryUsage(): { heapUsed: number; heapTotal: number; external: number } {
-  const usage = process.memoryUsage();
-  return {
-    heapUsed: Math.round((usage.heapUsed / 1024 / 1024) * 100) / 100,
-    heapTotal: Math.round((usage.heapTotal / 1024 / 1024) * 100) / 100,
-    external: Math.round((usage.external / 1024 / 1024) * 100) / 100,
-  };
+async function clearBrowserStorage(context: ReturnType<Page['context']>): Promise<void> {
+  try {
+    // Clear cookies
+    await context.clearCookies();
+
+    // Clear all storage (localStorage, sessionStorage, IndexedDB) for all origins
+    const pages = context.pages();
+    for (const page of pages) {
+      try {
+        // Clear localStorage and sessionStorage
+        await page
+          .evaluate(() => {
+            localStorage.clear();
+            sessionStorage.clear();
+          })
+          .catch(() => {
+            // Ignore errors (page might be closed or on about:blank)
+          });
+      } catch {
+        // Ignore errors
+      }
+    }
+  } catch (error) {
+    console.warn(
+      '⚠️ Error clearing browser storage:',
+      error instanceof Error ? error.message : String(error)
+    );
+  }
 }
 
 /**
@@ -327,8 +352,9 @@ function getMemoryUsage(): { heapUsed: number; heapTotal: number; external: numb
 async function cleanupBrowserContext(defaultPage: Page): Promise<void> {
   try {
     const context = defaultPage.context();
-    // Clear all cookies to free memory
-    await context.clearCookies();
+
+    // Clear all browser storage (cookies, localStorage, sessionStorage)
+    await clearBrowserStorage(context);
 
     // Clean up route handlers from default page to prevent accumulation
     // Note: We'll re-add the route handler after cleanup if needed
@@ -358,49 +384,105 @@ async function cleanupBrowserContext(defaultPage: Page): Promise<void> {
 }
 
 /**
+ * Recreate default page to fully reset its state
+ * This is more aggressive than cleanup and prevents long-term memory accumulation
+ */
+async function recreateDefaultPage(browser: Browser, currentPage: Page): Promise<Page> {
+  try {
+    // Clean up old page completely
+    await cleanupPageRoutes(currentPage);
+    await currentPage.close();
+  } catch (error) {
+    console.warn(
+      '⚠️ Error closing old default page:',
+      error instanceof Error ? error.message : String(error)
+    );
+  }
+
+  // Create fresh page
+  const newPage = await createPageWithHeaders(browser);
+  console.info('🔄 Recreated default page (fresh state)');
+  return newPage;
+}
+
+/**
  * Main loop - runs continuously
  * Launches browser once at startup and reuses it forever
+ * Periodically recreates the default page to prevent memory accumulation
  */
 export async function scrapeAllDealers(): Promise<void> {
   console.info('🚀 Launching browser (will stay open for entire worker lifecycle)...\n');
   const browser = await launchBrowser();
-  const defaultPage = await createPageWithHeaders(browser);
+  let defaultPage = await createPageWithHeaders(browser);
   console.info('✅ Browser ready, starting scrape loop...\n');
 
+  // Initialize memory profiler if enabled
+  const profiler = ENABLE_PROFILING ? new MemoryProfiler() : null;
+  if (profiler) {
+    console.info('📊 Memory profiling ENABLED - detailed diagnostics will be logged\n');
+    await profiler.takeSnapshot(browser, 'Initial state');
+  }
+
   let cycleCount = 0;
-  const CLEANUP_INTERVAL = 3; // Clean up browser context every 3 cycles (reduced from 10 to prevent accumulation)
+  const CLEANUP_INTERVAL = 3; // Clean up browser context every 3 cycles
+  const RECREATE_PAGE_INTERVAL = 10; // Recreate default page every 10 cycles to fully reset state
+  const PROFILING_ANALYSIS_INTERVAL = 20; // Show detailed analysis every 20 cycles
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
-      const memoryBefore = getMemoryUsage();
-      console.info(
-        `💾 Memory before cycle: ${memoryBefore.heapUsed}MB / ${memoryBefore.heapTotal}MB`
-      );
+      // Take snapshot before scrape
+      if (profiler) {
+        profiler.incrementCycle();
+        await profiler.takeSnapshot(browser, 'Before scrape');
+      }
 
       await scrapeAll(browser, defaultPage);
 
       cycleCount++;
-      const memoryAfter = getMemoryUsage();
-      console.info(`💾 Memory after cycle: ${memoryAfter.heapUsed}MB / ${memoryAfter.heapTotal}MB`);
+
+      // Take snapshot after scrape
+      if (profiler) {
+        await profiler.takeSnapshot(browser, 'After scrape');
+      }
 
       // Periodic cleanup every N cycles to prevent memory accumulation
       if (cycleCount % CLEANUP_INTERVAL === 0) {
-        console.info('🧹 Performing periodic browser cleanup...');
+        if (profiler) {
+          await profiler.takeSnapshot(browser, 'Before cleanup');
+        }
         await cleanupBrowserContext(defaultPage);
-        const memoryAfterCleanup = getMemoryUsage();
-        console.info(
-          `💾 Memory after cleanup: ${memoryAfterCleanup.heapUsed}MB / ${memoryAfterCleanup.heapTotal}MB`
-        );
+        if (profiler) {
+          await profiler.takeSnapshot(browser, 'After cleanup');
+        }
+      }
+
+      // Recreate default page periodically to fully reset its state
+      // This is more aggressive than cleanup and prevents long-term accumulation
+      if (cycleCount % RECREATE_PAGE_INTERVAL === 0) {
+        console.info('🔄 Recreating default page to reset state...');
+        if (profiler) {
+          await profiler.takeSnapshot(browser, 'Before page recreate');
+        }
+        defaultPage = await recreateDefaultPage(browser, defaultPage);
+        if (profiler) {
+          await profiler.takeSnapshot(browser, 'After page recreate');
+        }
+      }
+
+      // Show detailed analysis periodically
+      if (profiler && cycleCount % PROFILING_ANALYSIS_INTERVAL === 0) {
+        console.info(await profiler.getAnalysis());
+        // Clear old snapshots to prevent profiler itself from leaking
+        profiler.clearOldSnapshots(100);
       }
 
       // Force garbage collection if available (requires --expose-gc flag)
       if (globalThis.gc) {
         globalThis.gc();
-        const memoryAfterGC = getMemoryUsage();
-        console.info(
-          `💾 Memory after GC: ${memoryAfterGC.heapUsed}MB / ${memoryAfterGC.heapTotal}MB`
-        );
+        if (profiler) {
+          await profiler.takeSnapshot(browser, 'After GC');
+        }
       }
     } catch (error) {
       console.error('❌ Scrape cycle error:', error);

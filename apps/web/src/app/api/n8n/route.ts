@@ -6,10 +6,6 @@ const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET!;
 const token = process.env.SANITY_API_TOKEN!;
 
-console.log('projectId', projectId);
-console.log('dataset', dataset);
-console.log('token', token);
-
 if (!projectId || !dataset || !token) {
   throw new Error('Missing Sanity environment variables');
 }

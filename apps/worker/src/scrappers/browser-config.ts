@@ -164,12 +164,20 @@ export async function createPageWithHeaders(browser: Browser): Promise<Page> {
 /**
  * Properly clean up route handlers from a page before closing
  * This prevents memory leaks from accumulated route handlers
+ *
+ * Note: Playwright's unroute() removes ALL route handlers matching the pattern,
+ * so calling it multiple times is safe and ensures all handlers are removed.
  */
 export async function cleanupPageRoutes(page: Page): Promise<void> {
   try {
     // Unroute all routes to ensure clean teardown
     // This removes all route handlers and prevents memory leaks
+    // Call multiple times to ensure all patterns are cleared
     await page.unroute('**/*').catch(() => {
+      // Ignore if no routes exist - this is fine
+    });
+    // Also try unroute without pattern to clear any remaining handlers
+    await page.unroute(/.*/).catch(() => {
       // Ignore if no routes exist - this is fine
     });
   } catch (error) {

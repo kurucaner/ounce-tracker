@@ -103,7 +103,6 @@ export default async function PostPage(props: Props) {
   const params = await props.params;
   const { data: post } = await sanityFetch({ query: postQuery, params });
   const { data: allPosts } = await sanityFetch({ query: postPagesSlugs, stega: false });
-
   if (!post?._id) {
     return notFound();
   }

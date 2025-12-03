@@ -75,7 +75,6 @@ export const AllPosts = async () => {
     query: getLastTwentyPostsQuery,
     stega: false,
   });
-  console.log('posts', posts);
 
   if (!posts || posts.length === 0) {
     return <OnBoarding />;

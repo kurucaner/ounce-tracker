@@ -2,6 +2,6 @@
   "targetDir": ["./apps/admin", "./apps/api", "./apps/worker", "./apps/web", "./packages/shared"],
   "ignoredDirs": ["node_modules", "dist", "build"],
   "extensions": [".js", ".jsx", ".ts", ".tsx"],
-  "methods": ["log", "debug"],
+  "methods": ["log"],
   "prettier": true
 }

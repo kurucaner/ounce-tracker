@@ -8,11 +8,9 @@ export const initDatadogRum = () => {
       return;
     }
 
-    // console.log('init!');
-
     datadogRum.init({
-      applicationId: process.env.NEXT_PUBLIC_DATADOG_APPLICATION_ID!,
-      clientToken: process.env.NEXT_PUBLIC_DATADOG_CLIENT_TOKEN!,
+      applicationId: process.env.NEXT_PUBLIC_DATADOG_APPLICATION_ID,
+      clientToken: process.env.NEXT_PUBLIC_DATADOG_CLIENT_TOKEN,
       site: 'us5.datadoghq.com',
       service: 'ounce-tracker',
       env: process.env.NODE_ENV,
