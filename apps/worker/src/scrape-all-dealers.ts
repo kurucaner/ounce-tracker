@@ -349,15 +349,51 @@ function clearIndexedDB(): Promise<void> {
           .filter((db) => db.name)
           .map((db) => deleteDatabase(db?.name ?? ''));
 
-        Promise.all(deletePromises).then(() => undefined);
+        Promise.all(deletePromises).then(() => resolve());
       })
       .catch(() => resolve());
   });
 }
 
 /**
+ * Unregister a single service worker
+ * Extracted to reduce nesting depth
+ */
+async function unregisterWorker(registration: ServiceWorkerRegistration): Promise<void> {
+  return await registration
+    .unregister()
+    .then(() => undefined)
+    .catch(() => {
+      // Ignore errors
+    });
+}
+
+/**
+ * Unregister all service workers
+ * FIX #2: Service workers can cache data and keep references alive
+ */
+async function unregisterServiceWorkers(): Promise<void> {
+  if (!('serviceWorker' in navigator)) {
+    return;
+  }
+
+  return await navigator.serviceWorker
+    .getRegistrations()
+    .then((registrations) => {
+      const unregisterPromises = registrations.map((registration) =>
+        unregisterWorker(registration)
+      );
+      return Promise.all(unregisterPromises).then(() => undefined);
+    })
+    .catch(() => {
+      // Ignore errors
+    });
+}
+
+/**
  * Clear all browser storage to free memory
  * FIX #1: Added IndexedDB clearing to prevent database accumulation
+ * FIX #2: Added service worker unregistration to prevent cache accumulation
  */
 async function clearBrowserStorage(context: ReturnType<Page['context']>): Promise<void> {
   try {
@@ -381,6 +417,11 @@ async function clearBrowserStorage(context: ReturnType<Page['context']>): Promis
 
         // Clear IndexedDB separately to avoid deep nesting
         await page.evaluate(clearIndexedDB).catch(() => {
+          // Ignore errors
+        });
+
+        // FIX #2: Unregister service workers
+        await page.evaluate(unregisterServiceWorkers).catch(() => {
           // Ignore errors
         });
       } catch {
