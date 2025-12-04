@@ -313,7 +313,51 @@ async function scrapeAll(browser: Browser, defaultPage: Page): Promise<void> {
 }
 
 /**
+ * Delete a single IndexedDB database
+ * Extracted to reduce nesting depth
+ */
+function deleteDatabase(dbName: string): Promise<void> {
+  return new Promise<void>((resolve) => {
+    const deleteReq = indexedDB.deleteDatabase(dbName);
+    deleteReq.onsuccess = () => resolve();
+    deleteReq.onerror = () => resolve();
+    deleteReq.onblocked = () => resolve();
+  });
+}
+
+/**
+ * Clear IndexedDB databases in browser context
+ * Extracted to reduce function nesting
+ */
+function clearIndexedDB(): Promise<void> {
+  return new Promise<void>((resolve) => {
+    if (!('indexedDB' in globalThis.window)) {
+      resolve();
+      return;
+    }
+
+    if (!indexedDB.databases) {
+      // Fallback for older browsers
+      resolve();
+      return;
+    }
+
+    indexedDB
+      .databases()
+      .then((databases) => {
+        const deletePromises = databases
+          .filter((db) => db.name)
+          .map((db) => deleteDatabase(db?.name ?? ''));
+
+        Promise.all(deletePromises).then(() => undefined);
+      })
+      .catch(() => resolve());
+  });
+}
+
+/**
  * Clear all browser storage to free memory
+ * FIX #1: Added IndexedDB clearing to prevent database accumulation
  */
 async function clearBrowserStorage(context: ReturnType<Page['context']>): Promise<void> {
   try {
@@ -324,15 +368,21 @@ async function clearBrowserStorage(context: ReturnType<Page['context']>): Promis
     const pages = context.pages();
     for (const page of pages) {
       try {
-        // Clear localStorage and sessionStorage
+        // Clear localStorage, sessionStorage, and IndexedDB
         await page
           .evaluate(() => {
+            // Clear localStorage and sessionStorage
             localStorage.clear();
             sessionStorage.clear();
           })
           .catch(() => {
             // Ignore errors (page might be closed or on about:blank)
           });
+
+        // Clear IndexedDB separately to avoid deep nesting
+        await page.evaluate(clearIndexedDB).catch(() => {
+          // Ignore errors
+        });
       } catch {
         // Ignore errors
       }
