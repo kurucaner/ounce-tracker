@@ -11,7 +11,7 @@ const postFields = /* groq */ `
   coverImage,
   "date": coalesce(date, _updatedAt),
   _updatedAt,
-  "author": author->{firstName, lastName, picture},
+  "author": author->{_id, firstName, lastName, picture},
   tags,
 `;
 
@@ -126,4 +126,28 @@ export const paginatedPostsQuery = defineQuery(`
 // Get total count of posts (for pagination)
 export const postsCountQuery = defineQuery(`
   count(*[_type == "post" && defined(slug.current)])
+`);
+
+// Get person by ID
+export const personQuery = defineQuery(`
+  *[_type == "person" && _id == $id][0] {
+    _id,
+    firstName,
+    lastName,
+    picture
+  }
+`);
+
+// Get all posts by a specific author
+export const postsByAuthorQuery = defineQuery(`
+  *[_type == "post" && defined(slug.current) && author._ref == $authorId] | order(date desc, _updatedAt desc) {
+    ${postFields}
+  }
+`);
+
+// Get all person IDs (for static generation)
+export const allPersonIdsQuery = defineQuery(`
+  *[_type == "person"] {
+    "_id": _id
+  }
 `);

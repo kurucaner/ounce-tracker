@@ -1,4 +1,5 @@
 import { Image } from 'next-sanity/image';
+import Link from 'next/link';
 
 import type { SanityImage } from '../sanity.types';
 import { urlForImage } from '../sanity/lib/utils';
@@ -6,6 +7,7 @@ import DateComponent from './date';
 
 type Props = {
   person: {
+    _id?: string;
     firstName: string | null;
     lastName: string | null;
     picture?: SanityImage;
@@ -15,7 +17,22 @@ type Props = {
 };
 
 export default function Avatar({ person, date, small = false }: Readonly<Props>) {
-  const { firstName, lastName, picture } = person;
+  const { _id, firstName, lastName, picture } = person;
+  const nameContent = firstName && lastName ? (
+    _id ? (
+      <Link
+        href={`/authors/${_id}`}
+        className="hover:text-primary transition-colors"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {firstName} {lastName}
+      </Link>
+    ) : (
+      <span>
+        {firstName} {lastName}
+      </span>
+    )
+  ) : null;
 
   return (
     <div className="flex items-center font-mono">
@@ -39,14 +56,14 @@ export default function Avatar({ person, date, small = false }: Readonly<Props>)
         <div className="mr-1">By </div>
       )}
       <div className="flex flex-col">
-        {firstName && lastName && (
-          <div className={`font-bold ${small ? 'text-sm' : ''}`}>
-            {firstName} {lastName}
+        {nameContent && (
+          <div className={`font-bold ${small ? 'text-sm' : ''}`}>{nameContent}</div>
+        )}
+        {date && (
+          <div className={`text-gray-500 ${small ? 'text-xs' : 'text-sm'}`}>
+            <DateComponent dateString={date} />
           </div>
         )}
-        <div className={`text-gray-500 ${small ? 'text-xs' : 'text-sm'}`}>
-          <DateComponent dateString={date} />
-        </div>
       </div>
     </div>
   );

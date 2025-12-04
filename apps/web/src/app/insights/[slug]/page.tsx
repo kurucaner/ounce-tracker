@@ -169,29 +169,36 @@ export default async function PostPage(props: Props) {
               <dt className="sr-only">Authors</dt>
               <dd>
                 <ul className="flex flex-wrap justify-center gap-4 sm:space-x-12 xl:block xl:space-y-8 xl:space-x-0">
-                  <li className="flex items-center space-x-2">
-                    {post.author?.picture?.asset?._ref && (
-                      <Image
-                        src={
-                          urlForImage(post.author.picture)
-                            ?.width(76)
-                            .height(76)
-                            .fit('crop')
-                            .url() as string
-                        }
-                        alt={post.author.picture?.alt || 'author'}
-                        className="h-10 w-10 rounded-full"
-                        width={38}
-                        height={38}
-                      />
-                    )}
-                    <dl className="text-sm leading-5 font-medium whitespace-nowrap">
-                      <dt className="sr-only">Name</dt>
-                      <dd className="text-gray-900 dark:text-gray-100">
-                        {post.author?.firstName} {post.author?.lastName}
-                      </dd>
-                    </dl>
-                  </li>
+                  {post.author?._id && (
+                    <li className="flex items-center space-x-2">
+                      {post.author?.picture?.asset?._ref && (
+                        <Image
+                          src={
+                            urlForImage(post.author.picture)
+                              ?.width(76)
+                              .height(76)
+                              .fit('crop')
+                              .url() as string
+                          }
+                          alt={post.author.picture?.alt || 'author'}
+                          className="h-10 w-10 rounded-full"
+                          width={38}
+                          height={38}
+                        />
+                      )}
+                      <dl className="text-sm leading-5 font-medium whitespace-nowrap">
+                        <dt className="sr-only">Name</dt>
+                        <dd className="text-gray-900 dark:text-gray-100">
+                          <Link
+                            href={`/authors/${post.author._id}`}
+                            className="hover:text-primary transition-colors"
+                          >
+                            {post.author?.firstName} {post.author?.lastName}
+                          </Link>
+                        </dd>
+                      </dl>
+                    </li>
+                  )}
                 </ul>
               </dd>
             </dl>
