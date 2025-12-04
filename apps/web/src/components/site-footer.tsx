@@ -49,6 +49,18 @@ export const SiteFooter = () => {
               >
                 Insights
               </Link>
+              <Link
+                href="/about"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                About
+              </Link>
+              <Link
+                href="/contact"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Contact
+              </Link>
               <a
                 href="https://shop.ouncetracker.com"
                 target="_blank"
