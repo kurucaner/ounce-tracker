@@ -50,18 +50,6 @@ export const SiteHeader = () => {
               <span className="absolute -bottom-px left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full bg-primary" />
             )}
           </Link>
-          <Link href="/about" className={navLinkClass('/about')}>
-            <span>About</span>
-            {isActive('/about') && (
-              <span className="absolute -bottom-px left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full bg-primary" />
-            )}
-          </Link>
-          <Link href="/contact" className={navLinkClass('/contact')}>
-            <span>Contact</span>
-            {isActive('/contact') && (
-              <span className="absolute -bottom-px left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full bg-primary" />
-            )}
-          </Link>
         </nav>
       </div>
     </header>

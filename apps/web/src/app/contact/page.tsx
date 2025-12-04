@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { FaXTwitter, FaEnvelope } from 'react-icons/fa6';
+import { ContactForm } from '@/components/contact-form';
 
 export const metadata: Metadata = {
   title: 'Contact Us - OunceTracker',
@@ -25,11 +26,20 @@ export default function ContactPage() {
 
           <div className="prose prose-slate dark:prose-invert max-w-none space-y-8">
             <section>
-              <h2 className="text-2xl font-semibold mb-4">Get in Touch</h2>
+              <h2 className="text-2xl font-semibold mb-4">Send Us a Message</h2>
               <p className="text-base leading-relaxed text-muted-foreground mb-6">
-                Whether you have a question about our service, noticed an issue with price data, or
-                have suggestions for improvement, we&apos;re here to help. Choose the method that
-                works best for you.
+                Fill out the form below and we&apos;ll get back to you as soon as possible.
+              </p>
+
+              <div className="bg-muted/50 rounded-lg p-6 border border-border mb-8">
+                <ContactForm />
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold mb-4">Other Ways to Reach Us</h2>
+              <p className="text-base leading-relaxed text-muted-foreground mb-6">
+                Prefer a different method? You can also reach us through these channels.
               </p>
 
               <div className="grid gap-6 md:grid-cols-2 mt-8">
