@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { FaXTwitter } from 'react-icons/fa6';
+import { FaXTwitter, FaCartShopping } from 'react-icons/fa6';
 import { ThemeToggler } from '@/components/theme-toggler';
 
 export const SiteFooter = () => {
@@ -65,9 +65,10 @@ export const SiteFooter = () => {
                 href="https://shop.ouncetracker.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground transition-colors hover:text-foreground"
+                className="text-muted-foreground transition-colors hover:text-foreground inline-flex items-center gap-1.5"
               >
-                Shop
+                <FaCartShopping className="h-3.5 w-3.5" />
+                <span>Shop</span>
               </a>
             </nav>
           </div>

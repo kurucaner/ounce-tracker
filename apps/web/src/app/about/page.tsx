@@ -121,7 +121,7 @@ export default function AboutPage() {
                 <li>Easy comparison tools to find the best prices</li>
               </ul>
               <p className="text-base leading-relaxed text-muted-foreground">
-                All transactions are completed directly with the dealers—we simply help you find
+                All transactions are completed directly with the dealers! We simply help you find
                 them.
               </p>
             </section>
