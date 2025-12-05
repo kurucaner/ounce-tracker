@@ -145,6 +145,18 @@ export const postsByAuthorQuery = defineQuery(`
   }
 `);
 
+// Get paginated posts by author
+export const paginatedPostsByAuthorQuery = defineQuery(`
+  *[_type == "post" && defined(slug.current) && author._ref == $authorId] | order(date desc, _updatedAt desc) [$start...$end] {
+    ${postFields}
+  }
+`);
+
+// Get total count of posts by author
+export const postsByAuthorCountQuery = defineQuery(`
+  count(*[_type == "post" && defined(slug.current) && author._ref == $authorId])
+`);
+
 // Get all person IDs (for static generation)
 export const allPersonIdsQuery = defineQuery(`
   *[_type == "person"] {

@@ -5,36 +5,21 @@ import Link from 'next/link';
 import LayoutWrapper from '@/components/LayoutWrapper';
 import { PostListItem } from '@/components/post-list-item';
 import { Pagination } from '@/components/pagination';
-import { sanityFetch } from '../../insights/sanity/lib/live';
+import { sanityFetch } from '../../../insights/sanity/lib/live';
 import {
   personQuery,
   paginatedPostsByAuthorQuery,
   postsByAuthorCountQuery,
-} from '../../insights/sanity/lib/queries';
-import { urlForImage } from '../../insights/sanity/lib/utils';
+} from '../../../insights/sanity/lib/queries';
+import { urlForImage } from '../../../insights/sanity/lib/utils';
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; page: string }>;
 };
 
 const POSTS_PER_PAGE = 5;
 
 export const revalidate = 3600; // Revalidate every hour
-
-/**
- * Generate static params for all authors
- */
-export async function generateStaticParams() {
-  const { data } = await sanityFetch({
-    query: `*[_type == "person"] { "_id": _id }`,
-    perspective: 'published',
-    stega: false,
-  });
-
-  return data.map((person: { _id: string }) => ({
-    id: person._id,
-  }));
-}
 
 /**
  * Generate metadata for the author page
@@ -43,7 +28,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params;
   const { data: person } = await sanityFetch({
     query: personQuery,
-    params,
+    params: { id: params.id },
     stega: false,
   });
 
@@ -95,7 +80,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
 export default async function AuthorPage(props: Props) {
   const params = await props.params;
-  const currentPage = 1;
+  const page = Number.parseInt(params.page, 10);
+  const currentPage = page > 0 ? page : 1;
 
   const { data: person } = await sanityFetch({
     query: personQuery,
@@ -114,6 +100,11 @@ export default async function AuthorPage(props: Props) {
   });
 
   const totalPages = Math.ceil((totalCount || 0) / POSTS_PER_PAGE);
+
+  // Validate page number
+  if (currentPage > totalPages && totalPages > 0) {
+    return notFound();
+  }
 
   // Get paginated posts
   const start = (currentPage - 1) * POSTS_PER_PAGE;
@@ -194,3 +185,4 @@ export default async function AuthorPage(props: Props) {
     </LayoutWrapper>
   );
 }
+

@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { slug } from 'github-slugger';
-import { parseLocalDate } from '@/lib/helpers';
-import Tag from '@/components/tag-f';
+import { PostListItem } from '@/components/post-list-item';
+import { Pagination } from '@/components/pagination';
 import { sanityFetch } from '@/app/insights/sanity/lib/live';
 import {
   allPostsQuery,
@@ -12,58 +12,6 @@ import {
 import type { AllPostsQueryResult } from '@/app/insights/sanity.types';
 
 const POSTS_PER_PAGE = 5;
-
-interface PaginationProps {
-  totalPages: number;
-  currentPage: number;
-}
-
-function Pagination({ totalPages, currentPage }: Readonly<PaginationProps>) {
-  const prevPage = currentPage - 1 > 0;
-  const nextPage = currentPage + 1 <= totalPages;
-
-  return (
-    <div className="space-y-2 pt-6 pb-8 md:space-y-5">
-      <nav className="flex justify-between">
-        {!prevPage && (
-          <button className="cursor-auto disabled:opacity-50" disabled={!prevPage}>
-            Previous
-          </button>
-        )}
-        {prevPage && (
-          <Link
-            href={
-              currentPage - 1 === 1
-                ? '/insights/all-posts'
-                : `/insights/all-posts/${currentPage - 1}`
-            }
-            rel="prev"
-            className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
-          >
-            Previous
-          </Link>
-        )}
-        <span className="text-gray-500 dark:text-gray-400">
-          {currentPage} of {totalPages}
-        </span>
-        {!nextPage && (
-          <button className="cursor-auto disabled:opacity-50" disabled={!nextPage}>
-            Next
-          </button>
-        )}
-        {nextPage && (
-          <Link
-            href={`/insights/all-posts/${currentPage + 1}`}
-            rel="next"
-            className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
-          >
-            Next
-          </Link>
-        )}
-      </nav>
-    </div>
-  );
-}
 
 // Calculate tag counts from posts
 function calculateTagCounts(posts: AllPostsQueryResult): Record<string, number> {
@@ -82,7 +30,10 @@ interface ListLayoutWithTagsProps {
   posts: AllPostsQueryResult;
   title: string;
   initialDisplayPosts?: AllPostsQueryResult;
-  pagination?: PaginationProps;
+  pagination?: {
+    totalPages: number;
+    currentPage: number;
+  };
 }
 
 function ListLayoutWithTags({
@@ -132,47 +83,17 @@ function ListLayoutWithTags({
             </div>
           ) : (
             <ul>
-              {displayPosts.map((post) => {
-                const { _id, slug: postSlug, date, title: postTitle, excerpt, tags } = post;
-                return (
-                  <li key={_id} className="py-5">
-                    <article className="flex flex-col space-y-2 xl:space-y-0">
-                      <dl>
-                        <dt className="sr-only">Published on</dt>
-                        <dd className="text-base leading-6 font-medium text-gray-500 dark:text-gray-400">
-                          <time dateTime={date} suppressHydrationWarning>
-                            {parseLocalDate(date)}
-                          </time>
-                        </dd>
-                      </dl>
-                      <div className="space-y-3">
-                        <div>
-                          <h2 className="text-2xl leading-8 font-bold tracking-tight">
-                            <Link
-                              href={`/insights/${postSlug}`}
-                              className="text-gray-900 dark:text-gray-100"
-                            >
-                              {postTitle}
-                            </Link>
-                          </h2>
-                          <div className="flex flex-wrap">
-                            {tags?.map((tag) => {
-                              return <Tag key={tag} text={tag} />;
-                            })}
-                          </div>
-                        </div>
-                        <div className="prose max-w-none text-gray-500 dark:text-gray-400">
-                          {excerpt}
-                        </div>
-                      </div>
-                    </article>
-                  </li>
-                );
-              })}
+              {displayPosts.map((post) => (
+                <PostListItem key={post._id} post={post} />
+              ))}
             </ul>
           )}
           {pagination && pagination.totalPages > 1 && (
-            <Pagination currentPage={pagination.currentPage} totalPages={pagination.totalPages} />
+            <Pagination
+              currentPage={pagination.currentPage}
+              totalPages={pagination.totalPages}
+              basePath="/insights/all-posts"
+            />
           )}
         </div>
       </div>
