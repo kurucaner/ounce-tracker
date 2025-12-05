@@ -8,7 +8,7 @@ import { Button, Input, Label, Textarea } from '@shared';
 import { toast } from 'sonner';
 
 const contactFormSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  email: z.email('Please enter a valid email address'),
   subject: z.string().min(3, 'Subject must be at least 3 characters'),
   message: z.string().min(10, 'Message must be at least 10 characters'),
 });
@@ -24,7 +24,7 @@ export const ContactForm = () => {
     formState: { errors },
     reset,
   } = useForm<ContactFormData>({
-    resolver: zodResolver(contactFormSchema),
+    resolver: zodResolver(contactFormSchema as any),
   });
 
   const onSubmit = async (data: ContactFormData) => {
@@ -45,7 +45,7 @@ export const ContactForm = () => {
         throw new Error(result.error || 'Failed to send message');
       }
 
-      toast.success('Message sent successfully! We\'ll get back to you soon.');
+      toast.success("Message sent successfully! We'll get back to you soon.");
       reset();
     } catch (error) {
       toast.error(
@@ -69,9 +69,7 @@ export const ContactForm = () => {
           {...register('email')}
           className={errors.email ? 'border-destructive' : ''}
         />
-        {errors.email && (
-          <p className="text-sm text-destructive">{errors.email.message}</p>
-        )}
+        {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
       </div>
 
       <div className="space-y-2">
@@ -85,9 +83,7 @@ export const ContactForm = () => {
           {...register('subject')}
           className={errors.subject ? 'border-destructive' : ''}
         />
-        {errors.subject && (
-          <p className="text-sm text-destructive">{errors.subject.message}</p>
-        )}
+        {errors.subject && <p className="text-sm text-destructive">{errors.subject.message}</p>}
       </div>
 
       <div className="space-y-2">
@@ -101,9 +97,7 @@ export const ContactForm = () => {
           {...register('message')}
           className={errors.message ? 'border-destructive' : ''}
         />
-        {errors.message && (
-          <p className="text-sm text-destructive">{errors.message.message}</p>
-        )}
+        {errors.message && <p className="text-sm text-destructive">{errors.message.message}</p>}
       </div>
 
       <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
@@ -114,4 +108,3 @@ export const ContactForm = () => {
 };
 
 ContactForm.displayName = 'ContactForm';
-

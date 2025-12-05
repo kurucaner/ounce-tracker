@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import Tag from '@/components/tag-f';
 import type { AllPostsQueryResult } from '@/app/insights/sanity.types';
-import { parseLocalDate } from '@/lib/helpers';
 import { PublishedAt } from '@/app/insights/components/published-at';
 
 interface PostListItemProps {
@@ -20,10 +19,7 @@ export function PostListItem({ post }: Readonly<PostListItemProps>) {
             <div className="space-y-6">
               <div>
                 <h2 className="text-2xl leading-8 font-bold tracking-tight">
-                  <Link
-                    href={`/insights/${slug}`}
-                    className="text-gray-900 dark:text-gray-100"
-                  >
+                  <Link href={`/insights/${slug}`} className="text-gray-900 dark:text-gray-100">
                     {title}
                   </Link>
                 </h2>
@@ -33,9 +29,7 @@ export function PostListItem({ post }: Readonly<PostListItemProps>) {
                   })}
                 </div>
               </div>
-              <div className="prose max-w-none text-gray-500 dark:text-gray-400">
-                {excerpt}
-              </div>
+              <div className="prose max-w-none text-gray-500 dark:text-gray-400">{excerpt}</div>
             </div>
             <div className="text-base leading-6 font-medium">
               <Link
@@ -52,4 +46,3 @@ export function PostListItem({ post }: Readonly<PostListItemProps>) {
     </li>
   );
 }
-
