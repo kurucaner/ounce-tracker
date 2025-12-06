@@ -21,6 +21,7 @@ import {
   createPageWithHeaders,
   cleanupPageRoutes,
   blockedResourceTypes,
+  recreateBrowserContext,
 } from './scrappers/browser-config';
 import { Browser, Page } from 'playwright';
 import { MemoryProfiler } from './memory-profiler';
@@ -503,7 +504,7 @@ async function recreateDefaultPage(browser: Browser, currentPage: Page): Promise
  */
 export async function scrapeAllDealers(): Promise<void> {
   console.info('🚀 Launching browser (will stay open for entire worker lifecycle)...\n');
-  const browser = await launchBrowser();
+  let browser = await launchBrowser();
   let defaultPage = await createPageWithHeaders(browser);
   console.info('✅ Browser ready, starting scrape loop...\n');
 
@@ -517,6 +518,8 @@ export async function scrapeAllDealers(): Promise<void> {
   let cycleCount = 0;
   const CLEANUP_INTERVAL = 3; // Clean up browser context every 3 cycles
   const RECREATE_PAGE_INTERVAL = 10; // Recreate default page every 10 cycles to fully reset state
+  const RECREATE_CONTEXT_INTERVAL = 30; // Recreate browser context every 30 cycles to fully reset browser state
+  const RESTART_BROWSER_INTERVAL = 100; // Restart browser completely every 100 cycles to prevent native memory leaks
   const PROFILING_ANALYSIS_INTERVAL = 20; // Show detailed analysis every 20 cycles
 
   // eslint-disable-next-line no-constant-condition
@@ -550,7 +553,10 @@ export async function scrapeAllDealers(): Promise<void> {
 
       // Recreate default page periodically to fully reset its state
       // This is more aggressive than cleanup and prevents long-term accumulation
-      if (cycleCount % RECREATE_PAGE_INTERVAL === 0) {
+      if (
+        cycleCount % RECREATE_PAGE_INTERVAL === 0 &&
+        cycleCount % RECREATE_CONTEXT_INTERVAL !== 0
+      ) {
         console.info('🔄 Recreating default page to reset state...');
         if (profiler) {
           await profiler.takeSnapshot(browser, 'Before page recreate');
@@ -558,6 +564,45 @@ export async function scrapeAllDealers(): Promise<void> {
         defaultPage = await recreateDefaultPage(browser, defaultPage);
         if (profiler) {
           await profiler.takeSnapshot(browser, 'After page recreate');
+        }
+      }
+
+      // Recreate browser context periodically to fully reset browser state
+      // This is the most aggressive cleanup and prevents long-term browser process memory accumulation
+      if (
+        cycleCount % RECREATE_CONTEXT_INTERVAL === 0 &&
+        cycleCount % RESTART_BROWSER_INTERVAL !== 0
+      ) {
+        console.info('🔄 Recreating browser context to reset browser state...');
+        if (profiler) {
+          await profiler.takeSnapshot(browser, 'Before context recreate');
+        }
+        defaultPage = await recreateBrowserContext(browser);
+        if (profiler) {
+          await profiler.takeSnapshot(browser, 'After context recreate');
+        }
+      }
+
+      // Restart browser completely periodically to prevent native memory leaks
+      // This is the most aggressive option and fully resets the browser process
+      if (cycleCount % RESTART_BROWSER_INTERVAL === 0) {
+        console.info('🔄 Restarting browser completely to reset native memory...');
+        if (profiler) {
+          await profiler.takeSnapshot(browser, 'Before browser restart');
+        }
+        try {
+          await browser.close();
+        } catch (error) {
+          console.warn(
+            '⚠️ Error closing browser:',
+            error instanceof Error ? error.message : String(error)
+          );
+        }
+        browser = await launchBrowser();
+        defaultPage = await createPageWithHeaders(browser);
+        console.info('✅ Browser restarted successfully');
+        if (profiler) {
+          await profiler.takeSnapshot(browser, 'After browser restart');
         }
       }
 

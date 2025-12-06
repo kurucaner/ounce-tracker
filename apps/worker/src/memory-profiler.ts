@@ -221,7 +221,7 @@ export class MemoryProfiler {
     const recent = this.snapshots.slice(-5);
     recent.forEach((snap) => {
       analysis.push(
-        `   Cycle ${snap.cycle}: Heap=${snap.nodejs.heapUsed}MB, RSS=${snap.nodejs.rss}MB, Pages=${snap.browser?.pageCount || 0}`
+        `   Cycle ${snap.cycle}: Heap=${snap.nodejs.heapUsed}MB, RSS=${snap.nodejs.rss}MB, External=${snap.nodejs.external}MB, Pages=${snap.browser?.pageCount || 0}`
       );
     });
 
