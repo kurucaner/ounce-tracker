@@ -102,7 +102,7 @@ export const POST = async (request: NextRequest) => {
       // Revalidate the specific post page
       revalidatePath(`/insights/${body.slug}`);
       // Revalidate all insights pages using a tag (if you use tags elsewhere)
-      revalidateTag('insights');
+      revalidateTag('insights', 'default');
       // Revalidate sitemap
       revalidatePath('/sitemap.xml');
     } catch (revalidateError) {

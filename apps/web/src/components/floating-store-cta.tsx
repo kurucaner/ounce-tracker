@@ -1,10 +1,7 @@
-'use client';
-
 import { ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
-import { memo } from 'react';
 
-export const FloatingStoreCta = memo(() => {
+export const FloatingStoreCta = () => {
   return (
     <Link
       href="https://shop.ouncetracker.com"
@@ -18,5 +15,5 @@ export const FloatingStoreCta = memo(() => {
       <ShoppingBag className="h-5 w-5 text-primary-foreground transition-transform duration-200 group-hover:scale-110" />
     </Link>
   );
-});
+};
 FloatingStoreCta.displayName = 'FloatingStoreCta';

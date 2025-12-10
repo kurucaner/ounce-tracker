@@ -66,7 +66,9 @@ function extractTextContent(children: React.ReactNode): string {
       .trim();
   }
   if (typeof children === 'object' && children !== null && 'props' in children) {
-    return extractTextContent(children.props?.children);
+    return extractTextContent(
+      (children as { props?: { children?: React.ReactNode } }).props?.children
+    );
   }
   return '';
 }
