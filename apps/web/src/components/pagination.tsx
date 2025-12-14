@@ -6,11 +6,7 @@ interface PaginationProps {
   basePath: string;
 }
 
-export function Pagination({
-  totalPages,
-  currentPage,
-  basePath,
-}: Readonly<PaginationProps>) {
+export function Pagination({ totalPages, currentPage, basePath }: Readonly<PaginationProps>) {
   const prevPage = currentPage - 1 > 0;
   const nextPage = currentPage + 1 <= totalPages;
 
@@ -59,5 +55,3 @@ export function Pagination({
     </div>
   );
 }
-
-
