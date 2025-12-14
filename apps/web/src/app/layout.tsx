@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   description: 'Compare precious metal prices across multiple dealers',
 };
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.ouncetracker.com';
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,9 +30,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-      <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-      <link rel="manifest" href="/site.webmanifest" />
+      <link rel="icon" type="image/x-icon" href={`${BASE_URL}/favicon.ico`} />
+      <link rel="apple-touch-icon" sizes="180x180" href={`${BASE_URL}/apple-touch-icon.png`} />
+      <link rel="manifest" href={`${BASE_URL}/site.webmanifest`} />
       <body className={inter.className}>
         <Toaster />
         <GoogleTagManager />

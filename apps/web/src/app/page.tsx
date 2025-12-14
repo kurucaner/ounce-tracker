@@ -160,7 +160,7 @@ export default async function HomePage() {
   return (
     <>
       <HomeStructuredData products={products} />
-      <AdSpace />
+      {/* <AdSpace /> */}
       <Suspense>
         <DealersListing />
       </Suspense>
