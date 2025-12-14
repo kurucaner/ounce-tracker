@@ -106,15 +106,17 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-const HeroSection = () => {
+const AdSpace = () => {
   return (
     <div className="mx-auto px-4 pt-8 sm:px-6 sm:pt-12 bg-muted/40">
-      <h1 className="text-center !text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-        Compare Precious Metal Prices
-      </h1>
-      <p className="mx-auto mt-4 max-w-2xl text-center text-base text-muted-foreground sm:text-lg">
-        Find the best prices on gold bars, silver coins, and more from trusted bullion dealers
-      </p>
+      <div className="mx-auto max-w-6xl">
+        {/* Custom Ad Space */}
+        <div className="flex min-h-[120px] items-center justify-center rounded-lg border border-dashed bg-background/50 p-6 sm:min-h-[200px]">
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">Ad Space</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -158,7 +160,7 @@ export default async function HomePage() {
   return (
     <>
       <HomeStructuredData products={products} />
-      <HeroSection />
+      <AdSpace />
       <Suspense>
         <DealersListing />
       </Suspense>
