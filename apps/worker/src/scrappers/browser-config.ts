@@ -188,38 +188,3 @@ export async function cleanupPageRoutes(page: Page): Promise<void> {
     );
   }
 }
-
-/**
- * Recreate browser context to fully reset browser state
- * This closes all pages and contexts, then creates a fresh context and page
- */
-export async function recreateBrowserContext(browser: Browser): Promise<Page> {
-  try {
-    const contexts = browser.contexts();
-    for (const context of contexts) {
-      const pages = context.pages();
-      for (const page of pages) {
-        try {
-          await cleanupPageRoutes(page);
-          await page.close();
-        } catch {
-          // Ignore errors
-        }
-      }
-      try {
-        await context.close();
-      } catch {
-        // Ignore errors
-      }
-    }
-  } catch (error) {
-    console.warn(
-      '⚠️ Error closing old browser context:',
-      error instanceof Error ? error.message : String(error)
-    );
-  }
-
-  const newPage = await createPageWithHeaders(browser);
-  console.info('🔄 Recreated browser context (fresh state)');
-  return newPage;
-}

@@ -518,6 +518,7 @@ export async function scrapeAllDealers(): Promise<void> {
   const CLEANUP_INTERVAL = 3; // Clean up browser context every 3 cycles
   const RECREATE_PAGE_INTERVAL = 10; // Recreate default page every 10 cycles to fully reset state
   const PROFILING_ANALYSIS_INTERVAL = 20; // Show detailed analysis every 20 cycles
+  const SNAPSHOT_CLEANUP_INTERVAL = 5; // Clear old snapshots every 5 cycles to prevent accumulation
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
@@ -561,11 +562,14 @@ export async function scrapeAllDealers(): Promise<void> {
         }
       }
 
+      // Clear old snapshots more aggressively to prevent accumulation
+      if (profiler && cycleCount % SNAPSHOT_CLEANUP_INTERVAL === 0) {
+        profiler.clearOldSnapshots(50);
+      }
+
       // Show detailed analysis periodically
       if (profiler && cycleCount % PROFILING_ANALYSIS_INTERVAL === 0) {
         console.info(await profiler.getAnalysis());
-        // Clear old snapshots to prevent profiler itself from leaking
-        profiler.clearOldSnapshots(100);
       }
 
       // Force garbage collection if available (requires --expose-gc flag)
