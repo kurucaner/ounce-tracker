@@ -44,6 +44,18 @@ const formatTime = (dateString: string): string => {
   return `${diffDays}d ago`;
 };
 
+const formatExactTime = (timestamp: number): string => {
+  const date = new Date(timestamp);
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  }).format(date);
+};
+
 /**
  * Interpolate color from gold (lowest price) to dark green (highest price)
  * @param position 0 (lowest price) to 1 (highest price)
@@ -92,11 +104,16 @@ export function DealersListing() {
   });
 
   // Fetch listings
-  const { data: listings = [], isLoading: listingsLoading } = useQuery({
+  const {
+    data: listings = [],
+    isLoading: listingsLoading,
+    dataUpdatedAt,
+  } = useQuery({
     queryKey: selectedProductId ? queryKeys.listings(selectedProductId) : ['listings'],
     queryFn: () => queryFns.listings(selectedProductId),
     enabled: !!selectedProductId,
     ...queryOptions.listings,
+    refetchInterval: 10000,
   });
 
   // Set initial product from URL or first product
@@ -208,9 +225,16 @@ export function DealersListing() {
               <div>
                 <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <h2 className="text-base font-semibold sm:text-lg">Price Comparison</h2>
-                  <Badge variant="secondary" className="w-fit text-xs sm:text-sm">
-                    {listings.length} {listings.length === 1 ? 'listing' : 'listings'}
-                  </Badge>
+                  <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-2">
+                    <Badge variant="secondary" className="w-fit text-xs sm:text-sm">
+                      {listings.length} {listings.length === 1 ? 'listing' : 'listings'}
+                    </Badge>
+                    {dataUpdatedAt > 0 && (
+                      <span className="text-xs text-muted-foreground">
+                        Fetched: {formatExactTime(dataUpdatedAt)}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Mobile Card Layout */}
