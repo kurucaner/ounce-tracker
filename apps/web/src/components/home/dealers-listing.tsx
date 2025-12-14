@@ -186,7 +186,7 @@ export function DealersListing() {
 
         <section
           className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8"
-          aria-label="Price Comparison"
+          aria-label="Dealer Listings"
         >
           {(() => {
             if (productsLoading) {
@@ -223,15 +223,14 @@ export function DealersListing() {
 
             return (
               <div>
-                <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <h2 className="text-base font-semibold sm:text-lg">Price Comparison</h2>
+                <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
                   <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-2">
                     <Badge variant="secondary" className="w-fit text-xs sm:text-sm">
                       {listings.length} {listings.length === 1 ? 'listing' : 'listings'}
                     </Badge>
                     {dataUpdatedAt > 0 && (
                       <span className="text-xs text-muted-foreground">
-                        Fetched: {formatExactTime(dataUpdatedAt)}
+                        Last updated: {formatExactTime(dataUpdatedAt)}
                       </span>
                     )}
                   </div>
