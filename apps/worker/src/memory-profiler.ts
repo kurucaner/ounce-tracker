@@ -35,6 +35,7 @@ export type MemoryTrend = {
   externalDelta: number;
   rssDelta: number;
   pageCountDelta: number;
+  contextCountDelta: number;
   trend: 'increasing' | 'stable' | 'decreasing';
 };
 
@@ -141,6 +142,8 @@ export class MemoryProfiler {
     const rssDelta = last.nodejs.rss - first.nodejs.rss;
 
     const pageCountDelta = (last.browser?.pageCount || 0) - (first.browser?.pageCount || 0);
+    const contextCountDelta =
+      (last.browser?.contextCount || 0) - (first.browser?.contextCount || 0);
 
     // Determine trend
     let trend: 'increasing' | 'stable' | 'decreasing' = 'stable';
@@ -157,6 +160,7 @@ export class MemoryProfiler {
       externalDelta,
       rssDelta,
       pageCountDelta,
+      contextCountDelta,
       trend,
     };
   }
@@ -193,6 +197,9 @@ export class MemoryProfiler {
     analysis.push(
       `   Browser Pages: ${trend.pageCountDelta > 0 ? '+' : ''}${trend.pageCountDelta}`
     );
+    analysis.push(
+      `   Browser Contexts: ${trend.contextCountDelta > 0 ? '+' : ''}${trend.contextCountDelta}`
+    );
 
     // Identify potential issues
     const issues: string[] = [];
@@ -207,6 +214,9 @@ export class MemoryProfiler {
     }
     if (trend.pageCountDelta > 0) {
       issues.push('⚠️ Browser pages accumulating - pages not being closed properly');
+    }
+    if (trend.contextCountDelta > 0) {
+      issues.push('🚨 Browser contexts accumulating - contexts not being closed properly');
     }
 
     if (issues.length > 0) {

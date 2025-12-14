@@ -122,6 +122,7 @@ export class DiscordWebhook {
               `**RSS:** ${trend.rssDelta > 0 ? '+' : ''}${trend.rssDelta.toFixed(2)}MB`,
               `**External:** ${trend.externalDelta > 0 ? '+' : ''}${trend.externalDelta.toFixed(2)}MB`,
               `**Browser Pages:** ${trend.pageCountDelta > 0 ? '+' : ''}${trend.pageCountDelta}`,
+              `**Browser Contexts:** ${trend.contextCountDelta > 0 ? '+' : ''}${trend.contextCountDelta}`,
             ].join('\n'),
             inline: false,
           },
@@ -145,6 +146,9 @@ export class DiscordWebhook {
       }
       if (trend.pageCountDelta > 0) {
         issues.push('⚠️ Browser pages accumulating - pages not being closed properly');
+      }
+      if (trend.contextCountDelta > 0) {
+        issues.push('🚨 Browser contexts accumulating - contexts not being closed properly');
       }
 
       if (issues.length > 0) {

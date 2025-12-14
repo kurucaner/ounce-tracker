@@ -437,6 +437,43 @@ async function clearBrowserStorage(context: ReturnType<Page['context']>): Promis
 }
 
 /**
+ * Clear browser caches via CDP (Chrome DevTools Protocol)
+ * This aggressively clears network cache, image cache, and other browser caches
+ */
+async function clearBrowserCachesViaCDP(page: Page): Promise<void> {
+  try {
+    const context = page.context();
+    const cdpSession = await context.newCDPSession(page);
+
+    // Clear browser cache
+    await cdpSession.send('Network.clearBrowserCache').catch(() => {
+      // Ignore errors
+    });
+
+    // Clear browser cookies (complementary to context.clearCookies)
+    await cdpSession.send('Network.clearBrowserCookies').catch(() => {
+      // Ignore errors
+    });
+
+    // Clear data for all storage types
+    await cdpSession
+      .send('Storage.clearDataForOrigin', {
+        origin: '*',
+        storageTypes: 'all',
+      })
+      .catch(() => {
+        // Ignore errors
+      });
+
+    await cdpSession.detach().catch(() => {
+      // Ignore errors
+    });
+  } catch {
+    // Silently fail - CDP might not be available or page might be closed
+  }
+}
+
+/**
  * Clean up browser context to free memory
  * Also cleans up route handlers from the default page
  */
@@ -446,6 +483,9 @@ async function cleanupBrowserContext(defaultPage: Page): Promise<void> {
 
     // Clear all browser storage (cookies, localStorage, sessionStorage)
     await clearBrowserStorage(context);
+
+    // Clear browser caches via CDP for more aggressive cleanup
+    await clearBrowserCachesViaCDP(defaultPage);
 
     // Clean up route handlers from default page to prevent accumulation
     // Note: We'll re-add the route handler after cleanup if needed
@@ -497,6 +537,76 @@ async function recreateDefaultPage(browser: Browser, currentPage: Page): Promise
 }
 
 /**
+ * Recreate browser context to fully reset browser state
+ * This is the most aggressive cleanup and prevents long-term memory accumulation
+ * Closes all contexts and creates a fresh one
+ */
+async function recreateBrowserContext(browser: Browser, currentPage: Page): Promise<Page> {
+  try {
+    const oldContext = currentPage.context();
+
+    // Close all pages in the old context
+    const pages = oldContext.pages();
+    for (const page of pages) {
+      try {
+        await cleanupPageRoutes(page);
+        await page.close();
+      } catch {
+        // Ignore errors
+      }
+    }
+
+    // Close the old context
+    await oldContext.close();
+  } catch (error) {
+    console.warn(
+      '⚠️ Error closing old browser context:',
+      error instanceof Error ? error.message : String(error)
+    );
+  }
+
+  // Create fresh page (which creates a new default context)
+  const newPage = await createPageWithHeaders(browser);
+  console.info('🔄 Recreated browser context (fresh state)');
+  return newPage;
+}
+
+/**
+ * Monitor browser context count and alert if growing
+ * This helps detect context leaks early
+ */
+function monitorBrowserContexts(browser: Browser): void {
+  try {
+    const contexts = browser.contexts();
+    const contextCount = contexts.length;
+    const totalPages = contexts.reduce((sum, ctx) => sum + ctx.pages().length, 0);
+
+    // Alert if context count exceeds expected threshold (should be 1 for default context)
+    if (contextCount > 1) {
+      console.warn(
+        `🚨 WARNING: Browser context count is ${contextCount} (expected 1). Possible context leak!`
+      );
+      console.warn(`   Total pages across contexts: ${totalPages}`);
+    }
+
+    // Alert if page count per context is high
+    for (const context of contexts) {
+      const pages = context.pages();
+      if (pages.length > 5) {
+        console.warn(
+          `⚠️ WARNING: Context has ${pages.length} pages (expected 1-2). Possible page leak!`
+        );
+      }
+    }
+  } catch (error) {
+    console.warn(
+      '⚠️ Error monitoring browser contexts:',
+      error instanceof Error ? error.message : String(error)
+    );
+  }
+}
+
+/**
  * Main loop - runs continuously
  * Launches browser once at startup and reuses it forever
  * Periodically recreates the default page to prevent memory accumulation
@@ -517,32 +627,28 @@ export async function scrapeAllDealers(): Promise<void> {
   let cycleCount = 0;
   const CLEANUP_INTERVAL = 3; // Clean up browser context every 3 cycles
   const RECREATE_PAGE_INTERVAL = 10; // Recreate default page every 10 cycles to fully reset state
+  const RECREATE_CONTEXT_INTERVAL = 30; // Recreate browser context every 30 cycles for most aggressive cleanup
   const PROFILING_ANALYSIS_INTERVAL = 20; // Show detailed analysis every 20 cycles
   const SNAPSHOT_CLEANUP_INTERVAL = 5; // Clear old snapshots every 5 cycles to prevent accumulation
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
-      // Take snapshot before scrape
       if (profiler) {
         profiler.incrementCycle();
-        await profiler.takeSnapshot(browser, 'Before scrape');
       }
 
       await scrapeAll(browser, defaultPage);
 
       cycleCount++;
 
-      // Take snapshot after scrape
+      // Take snapshot after scrape (reduced frequency)
       if (profiler) {
         await profiler.takeSnapshot(browser, 'After scrape');
       }
 
       // Periodic cleanup every N cycles to prevent memory accumulation
       if (cycleCount % CLEANUP_INTERVAL === 0) {
-        if (profiler) {
-          await profiler.takeSnapshot(browser, 'Before cleanup');
-        }
         await cleanupBrowserContext(defaultPage);
         if (profiler) {
           await profiler.takeSnapshot(browser, 'After cleanup');
@@ -553,19 +659,25 @@ export async function scrapeAllDealers(): Promise<void> {
       // This is more aggressive than cleanup and prevents long-term accumulation
       if (cycleCount % RECREATE_PAGE_INTERVAL === 0) {
         console.info('🔄 Recreating default page to reset state...');
-        if (profiler) {
-          await profiler.takeSnapshot(browser, 'Before page recreate');
-        }
         defaultPage = await recreateDefaultPage(browser, defaultPage);
         if (profiler) {
           await profiler.takeSnapshot(browser, 'After page recreate');
         }
       }
 
+      // Recreate browser context periodically for most aggressive cleanup
+      if (cycleCount % RECREATE_CONTEXT_INTERVAL === 0) {
+        console.info('🔄 Recreating browser context to reset state...');
+        defaultPage = await recreateBrowserContext(browser, defaultPage);
+      }
+
       // Clear old snapshots more aggressively to prevent accumulation
       if (profiler && cycleCount % SNAPSHOT_CLEANUP_INTERVAL === 0) {
         profiler.clearOldSnapshots(50);
       }
+
+      // Monitor browser contexts and alert if growing
+      monitorBrowserContexts(browser);
 
       // Show detailed analysis periodically
       if (profiler && cycleCount % PROFILING_ANALYSIS_INTERVAL === 0) {
@@ -575,9 +687,6 @@ export async function scrapeAllDealers(): Promise<void> {
       // Force garbage collection if available (requires --expose-gc flag)
       if (globalThis.gc) {
         globalThis.gc();
-        if (profiler) {
-          await profiler.takeSnapshot(browser, 'After GC');
-        }
       }
     } catch (error) {
       console.error('❌ Scrape cycle error:', error);
