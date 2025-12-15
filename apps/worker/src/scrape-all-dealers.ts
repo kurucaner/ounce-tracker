@@ -23,10 +23,6 @@ import {
   blockedResourceTypes,
 } from './scrappers/browser-config';
 import { Browser, Page } from 'playwright';
-import { MemoryProfiler } from './memory-profiler';
-
-// Enable detailed memory profiling if ENABLE_MEMORY_PROFILING is set
-const ENABLE_PROFILING = true;
 
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
   auth: { persistSession: false },
@@ -127,7 +123,6 @@ async function getPageForScraping(
 
   try {
     const page = await createPageWithHeaders(browser);
-    console.info('📄 Created new page for Cloudflare-protected site (fresh navigation history)');
     return { page, shouldClose: true };
   } catch (error) {
     console.warn('⚠️ Failed to create new page, using default page:', error);
@@ -277,8 +272,6 @@ function displaySummary(results: ScrapeResult): void {
  * Tracks and displays summary of successful and failed scrapes
  */
 async function scrapeAll(browser: Browser, defaultPage: Page): Promise<void> {
-  console.info('\n🚀 Starting scrape cycle...\n');
-
   const results: ScrapeResult = {
     successful: [],
     failed: [],
@@ -532,7 +525,6 @@ async function recreateDefaultPage(browser: Browser, currentPage: Page): Promise
 
   // Create fresh page
   const newPage = await createPageWithHeaders(browser);
-  console.info('🔄 Recreated default page (fresh state)');
   return newPage;
 }
 
@@ -567,7 +559,6 @@ async function recreateBrowserContext(browser: Browser, currentPage: Page): Prom
 
   // Create fresh page (which creates a new default context)
   const newPage = await createPageWithHeaders(browser);
-  console.info('🔄 Recreated browser context (fresh state)');
   return newPage;
 }
 
@@ -615,75 +606,43 @@ export async function scrapeAllDealers(): Promise<void> {
   console.info('🚀 Launching browser (will stay open for entire worker lifecycle)...\n');
   const browser = await launchBrowser();
   let defaultPage = await createPageWithHeaders(browser);
-  console.info('✅ Browser ready, starting scrape loop...\n');
 
   // Initialize memory profiler if enabled
-  const profiler = ENABLE_PROFILING ? new MemoryProfiler() : null;
-  if (profiler) {
-    console.info('📊 Memory profiling ENABLED - detailed diagnostics will be logged\n');
-    await profiler.takeSnapshot(browser, 'Initial state');
-  }
 
   let cycleCount = 0;
   const CLEANUP_INTERVAL = 3; // Clean up browser context every 3 cycles
   const RECREATE_PAGE_INTERVAL = 10; // Recreate default page every 10 cycles to fully reset state
   const RECREATE_CONTEXT_INTERVAL = 30; // Recreate browser context every 30 cycles for most aggressive cleanup
-  const PROFILING_ANALYSIS_INTERVAL = 20; // Show detailed analysis every 20 cycles
-  const SNAPSHOT_CLEANUP_INTERVAL = 5; // Clear old snapshots every 5 cycles to prevent accumulation
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
-      if (profiler) {
-        profiler.incrementCycle();
-      }
-
       await scrapeAll(browser, defaultPage);
 
       cycleCount++;
 
       // Take snapshot after scrape (reduced frequency)
-      if (profiler) {
-        await profiler.takeSnapshot(browser, 'After scrape');
-      }
-
       // Periodic cleanup every N cycles to prevent memory accumulation
       if (cycleCount % CLEANUP_INTERVAL === 0) {
         await cleanupBrowserContext(defaultPage);
-        if (profiler) {
-          await profiler.takeSnapshot(browser, 'After cleanup');
-        }
       }
 
       // Recreate default page periodically to fully reset its state
       // This is more aggressive than cleanup and prevents long-term accumulation
       if (cycleCount % RECREATE_PAGE_INTERVAL === 0) {
-        console.info('🔄 Recreating default page to reset state...');
         defaultPage = await recreateDefaultPage(browser, defaultPage);
-        if (profiler) {
-          await profiler.takeSnapshot(browser, 'After page recreate');
-        }
       }
 
       // Recreate browser context periodically for most aggressive cleanup
       if (cycleCount % RECREATE_CONTEXT_INTERVAL === 0) {
-        console.info('🔄 Recreating browser context to reset state...');
         defaultPage = await recreateBrowserContext(browser, defaultPage);
       }
 
       // Clear old snapshots more aggressively to prevent accumulation
-      if (profiler && cycleCount % SNAPSHOT_CLEANUP_INTERVAL === 0) {
-        profiler.clearOldSnapshots(50);
-      }
-
       // Monitor browser contexts and alert if growing
       monitorBrowserContexts(browser);
 
       // Show detailed analysis periodically
-      if (profiler && cycleCount % PROFILING_ANALYSIS_INTERVAL === 0) {
-        console.info(await profiler.getAnalysis());
-      }
-
       // Force garbage collection if available (requires --expose-gc flag)
       if (globalThis.gc) {
         globalThis.gc();
