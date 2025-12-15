@@ -106,20 +106,20 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-const AdSpace = () => {
-  return (
-    <div className="mx-auto px-4 pt-8 sm:px-6 sm:pt-12 bg-muted/40">
-      <div className="mx-auto max-w-6xl">
-        {/* Custom Ad Space */}
-        <div className="flex min-h-[120px] items-center justify-center rounded-lg border border-dashed bg-background/50 p-6 sm:min-h-[200px]">
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">Ad Space</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+// const AdSpace = () => {
+//   return (
+//     <div className="mx-auto px-4 pt-8 sm:px-6 sm:pt-12 bg-muted/40">
+//       <div className="mx-auto max-w-6xl">
+//         {/* Custom Ad Space */}
+//         <div className="flex min-h-[120px] items-center justify-center rounded-lg border border-dashed bg-background/50 p-6 sm:min-h-[200px]">
+//           <div className="text-center">
+//             <p className="text-sm text-muted-foreground">Ad Space</p>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
 
 export default async function HomePage() {
   // Fetch products for structured data
