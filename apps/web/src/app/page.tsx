@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
     const title = 'OunceTracker - Compare Precious Metal Prices | Gold & Silver Bullion';
     const description = `Compare prices for ${products}+ precious metal products from ${dealers} trusted bullion dealers. Find the best prices on gold bars, silver coins, and more. Real-time price comparison updated every minute.`;
 
-    const url = process.env.NEXT_PUBLIC_SITE_URL || 'https://ouncetracker.com';
+    const url = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.ouncetracker.com';
 
     return {
       title,
@@ -57,7 +57,14 @@ export async function generateMetadata(): Promise<Metadata> {
         'gold coin prices',
         'silver bar prices',
       ],
-      authors: [{ name: 'OunceTracker' }],
+      authors: [
+        { name: 'Evan Marlowe' },
+        { name: 'Nora Ellington' },
+        { name: 'Ayla Fenwick' },
+        { name: 'Leigh Marston' },
+        { name: 'Vance Ayden' },
+        { name: 'Sloane Pierce' },
+      ],
       creator: 'OunceTracker',
       publisher: 'OunceTracker',
       formatDetection: {
@@ -65,7 +72,6 @@ export async function generateMetadata(): Promise<Metadata> {
         address: false,
         telephone: false,
       },
-      metadataBase: new URL(url),
       alternates: {
         canonical: '/',
       },

@@ -17,12 +17,14 @@ const inter = Inter({
   fallback: ['system-ui', 'arial'],
 });
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.ouncetracker.com';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
   title: 'OunceTracker - Bullion Price Comparison',
   description: 'Compare precious metal prices across multiple dealers',
 };
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.ouncetracker.com';
 export default function RootLayout({
   children,
 }: Readonly<{
