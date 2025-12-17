@@ -420,7 +420,9 @@ export function DealersListing() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+                                aria-label="Open product page"
                               >
+                                <span className="sr-only">Open product page</span>
                                 <ExternalLink className="h-4 w-4" />
                               </Link>
                             </TableCell>
