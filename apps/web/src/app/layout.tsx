@@ -32,7 +32,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <link rel="icon" sizes="any" type="image/x-icon" href={`${BASE_URL}/favicon.ico`} />
+      <link
+        rel="icon"
+        type="image/x-icon"
+        sizes="256x256"
+        href={`${BASE_URL}/favicon-256x256.ico`}
+      />
       <link rel="icon" type="image/png" sizes="16x16" href={`${BASE_URL}/favicon-16x16.png`} />
       <link rel="icon" type="image/png" sizes="32x32" href={`${BASE_URL}/favicon-32x32.png`} />
       <link rel="icon" type="image/png" sizes="48x48" href={`${BASE_URL}/favicon-48x48.png`} />
