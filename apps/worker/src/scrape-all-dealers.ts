@@ -563,41 +563,6 @@ async function recreateBrowserContext(browser: Browser, currentPage: Page): Prom
 }
 
 /**
- * Monitor browser context count and alert if growing
- * This helps detect context leaks early
- */
-function monitorBrowserContexts(browser: Browser): void {
-  try {
-    const contexts = browser.contexts();
-    const contextCount = contexts.length;
-    const totalPages = contexts.reduce((sum, ctx) => sum + ctx.pages().length, 0);
-
-    // Alert if context count exceeds expected threshold (should be 1 for default context)
-    if (contextCount > 1) {
-      console.warn(
-        `🚨 WARNING: Browser context count is ${contextCount} (expected 1). Possible context leak!`
-      );
-      console.warn(`   Total pages across contexts: ${totalPages}`);
-    }
-
-    // Alert if page count per context is high
-    for (const context of contexts) {
-      const pages = context.pages();
-      if (pages.length > 5) {
-        console.warn(
-          `⚠️ WARNING: Context has ${pages.length} pages (expected 1-2). Possible page leak!`
-        );
-      }
-    }
-  } catch (error) {
-    console.warn(
-      '⚠️ Error monitoring browser contexts:',
-      error instanceof Error ? error.message : String(error)
-    );
-  }
-}
-
-/**
  * Main loop - runs continuously
  * Launches browser once at startup and reuses it forever
  * Periodically recreates the default page to prevent memory accumulation
@@ -637,10 +602,6 @@ export async function scrapeAllDealers(): Promise<void> {
       if (cycleCount % RECREATE_CONTEXT_INTERVAL === 0) {
         defaultPage = await recreateBrowserContext(browser, defaultPage);
       }
-
-      // Clear old snapshots more aggressively to prevent accumulation
-      // Monitor browser contexts and alert if growing
-      monitorBrowserContexts(browser);
 
       // Show detailed analysis periodically
       // Force garbage collection if available (requires --expose-gc flag)
