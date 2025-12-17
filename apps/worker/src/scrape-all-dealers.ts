@@ -563,13 +563,36 @@ async function recreateBrowserContext(browser: Browser, currentPage: Page): Prom
 }
 
 /**
+ * Completely restart the browser process
+ * This is the most aggressive cleanup - closes browser and launches a new one
+ * Resets ALL state including Chromium process memory
+ */
+async function restartBrowser(currentBrowser: Browser): Promise<Browser> {
+  try {
+    console.info('🔄 Restarting entire browser process to reset memory...');
+    await currentBrowser.close();
+  } catch (error) {
+    console.warn(
+      '⚠️ Error closing browser during restart:',
+      error instanceof Error ? error.message : String(error)
+    );
+  }
+
+  // Launch fresh browser
+  const newBrowser = await launchBrowser();
+  console.info('✅ Browser restarted successfully');
+  return newBrowser;
+}
+
+/**
  * Main loop - runs continuously
  * Launches browser once at startup and reuses it forever
  * Periodically recreates the default page to prevent memory accumulation
+ * For zero memory growth: periodically restarts entire browser process
  */
 export async function scrapeAllDealers(): Promise<void> {
   console.info('🚀 Launching browser (will stay open for entire worker lifecycle)...\n');
-  const browser = await launchBrowser();
+  let browser = await launchBrowser();
   let defaultPage = await createPageWithHeaders(browser);
 
   // Initialize memory profiler if enabled
@@ -578,6 +601,7 @@ export async function scrapeAllDealers(): Promise<void> {
   const CLEANUP_INTERVAL = 3; // Clean up browser context every 3 cycles
   const RECREATE_PAGE_INTERVAL = 10; // Recreate default page every 10 cycles to fully reset state
   const RECREATE_CONTEXT_INTERVAL = 30; // Recreate browser context every 30 cycles for most aggressive cleanup
+  const RESTART_BROWSER_INTERVAL = 100; // Restart entire browser every 100 cycles (~50 minutes) for zero memory growth
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
@@ -601,6 +625,14 @@ export async function scrapeAllDealers(): Promise<void> {
       // Recreate browser context periodically for most aggressive cleanup
       if (cycleCount % RECREATE_CONTEXT_INTERVAL === 0) {
         defaultPage = await recreateBrowserContext(browser, defaultPage);
+      }
+
+      // Nuclear option: Restart entire browser process periodically
+      // This completely resets Chromium process memory and Playwright state
+      // Only do this if you need ZERO memory growth over very long periods
+      if (cycleCount % RESTART_BROWSER_INTERVAL === 0) {
+        browser = await restartBrowser(browser);
+        defaultPage = await createPageWithHeaders(browser);
       }
 
       // Show detailed analysis periodically
