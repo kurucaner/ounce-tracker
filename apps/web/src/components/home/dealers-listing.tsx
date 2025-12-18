@@ -92,9 +92,10 @@ const getPriceGradientColor = (position: number): string => {
 export function DealersListing() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const isDevUrlParam = searchParams.get('dev') === 'true';
 
   const [selectedProductId, setSelectedProductId] = useState<string>('');
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isDevelopment = process.env.NODE_ENV === 'development' || isDevUrlParam;
 
   // Fetch products
   const { data: products = [], isLoading: productsLoading } = useQuery({
