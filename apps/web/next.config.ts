@@ -6,14 +6,14 @@ const getVersion = () => {
   const branch = process.env.RAILWAY_GIT_BRANCH;
   const deploymentId = process.env.RAILWAY_DEPLOYMENT_ID;
 
+  if (deploymentId) {
+    return deploymentId.substring(0, 8);
+  }
+
   if (commitSha) {
     // Use short commit SHA (first 7 characters) for readability
     const shortSha = commitSha.substring(0, 7);
-    return branch ? `${branch}@${shortSha}` : shortSha;
-  }
-
-  if (deploymentId) {
-    return deploymentId.substring(0, 8);
+    return `${branch}@${shortSha}`;
   }
 
   return 'dev';
