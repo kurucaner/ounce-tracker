@@ -6,7 +6,6 @@ import { ThemeToggler } from '@/components/theme-toggler';
 
 // Get version info from build-time environment variables
 const VERSION = process.env.NEXT_PUBLIC_APP_VERSION || 'dev';
-const BUILD_TIME = process.env.NEXT_PUBLIC_BUILD_TIME || new Date().toISOString();
 
 export const SiteFooter = () => {
   const currentYear = new Date().getFullYear();
