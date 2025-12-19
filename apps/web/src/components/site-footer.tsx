@@ -4,6 +4,10 @@ import Link from 'next/link';
 import { FaXTwitter, FaCartShopping } from 'react-icons/fa6';
 import { ThemeToggler } from '@/components/theme-toggler';
 
+// Get version info from build-time environment variables
+const VERSION = process.env.NEXT_PUBLIC_APP_VERSION || 'dev';
+const BUILD_TIME = process.env.NEXT_PUBLIC_BUILD_TIME || new Date().toISOString();
+
 export const SiteFooter = () => {
   const currentYear = new Date().getFullYear();
 
@@ -96,9 +100,14 @@ export const SiteFooter = () => {
         {/* Bottom Bar */}
         <div className="mt-8 border-t pt-8">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-            <p className="text-center text-sm text-muted-foreground md:text-left">
-              © {currentYear} OunceTracker. All rights reserved.
-            </p>
+            <div className="flex flex-col items-center gap-2 md:items-start">
+              <p className="text-center text-sm text-muted-foreground md:text-left">
+                © {currentYear} OunceTracker. All rights reserved.
+              </p>
+              <p className="text-center text-xs text-muted-foreground/70 md:text-left">
+                Version: {VERSION}
+              </p>
+            </div>
             <div className="flex flex-col items-center gap-4 sm:flex-row">
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">Theme:</span>
