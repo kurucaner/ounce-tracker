@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: 'OunceTracker - Bullion Price Comparison',
   description: 'Compare precious metal prices across multiple dealers',
+  other: {
+    'google-adsense-account': 'ca-pub-3872395478241915',
+  },
 };
 
 export default function RootLayout({
