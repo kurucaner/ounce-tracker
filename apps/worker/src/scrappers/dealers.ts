@@ -43,6 +43,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Rand Refinery',
         productUrl: '/gold/gold-bars/1-oz-gold-bar-rand-refinery-new-w-black-assay',
       },
+      {
+        name: '1 oz Gold Bar Asahi',
+        productUrl: '/gold/gold-bars/1-oz-gold-bar-asahi-new-style-in-assay',
+      },
     ],
   },
   {
@@ -74,6 +78,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Rand Refinery',
         productUrl: '/1-oz-rand-refinery-gold-bar-9999-fine-in-assay',
       },
+      {
+        name: '1 oz Gold Bar Asahi',
+        productUrl: '/1-oz-asahi-gold-bar-9999-fine-in-assay',
+      },
     ],
   },
   {
@@ -100,6 +108,10 @@ export const DEALERS: DealerConfig[] = [
       {
         name: '1 oz Gold Bar Valcambi Suisse',
         productUrl: '/1-oz-gold-bar-valcambi-1valg',
+      },
+      {
+        name: '1 oz Gold Bar Asahi',
+        productUrl: '/1-oz-gold-bar-asahi-1gbas',
       },
     ],
   },
@@ -132,6 +144,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Rand Refinery',
         productUrl: '/product/1-oz-rand-refinery-gold-barblack-assay',
       },
+      {
+        name: '1 oz Gold Bar Asahi',
+        productUrl: '/product/1-oz-asahi-gold-bar-9999-fine-in-assay',
+      },
     ],
   },
   {
@@ -163,6 +179,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Rand Refinery',
         productUrl: '/1-oz-rand-refinery-gold-bar-black-assay',
       },
+      {
+        name: '1 oz Gold Bar Asahi',
+        productUrl: '/1-oz-asahi-gold-bar',
+      },
     ],
   },
   {
@@ -193,6 +213,10 @@ export const DEALERS: DealerConfig[] = [
       {
         name: '1 oz Gold Bar Rand Refinery',
         productUrl: '/product/217834/1-oz-gold-bar-rand-black-assay',
+      },
+      {
+        name: '1 oz Gold Bar Asahi',
+        productUrl: '/product/97343/1-oz-gold-bar-asahi-in-assay',
       },
     ],
   },
@@ -252,6 +276,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Rand Refinery',
         productUrl: '/product/1-oz-rand-refinery-gold-bar',
       },
+      {
+        name: '1 oz Gold Bar Asahi',
+        productUrl: '/product/1-oz-asahi-gold-bar',
+      },
     ],
   },
   {
@@ -283,6 +311,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar Rand Refinery',
         productUrl: '/purchase-bullion/1-oz-gold-bar-rand-refinery',
       },
+      {
+        name: '1 oz Gold Bar Asahi',
+        productUrl: '/purchase-bullion/1-oz-gold-bar-asahi',
+      },
     ],
   },
   {
@@ -294,10 +326,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar PAMP Suisse Lady Fortuna',
         productUrl: '/product/pamp-suisse-gold-bar-1-oz',
       },
-      // {
-      //   name: '1 oz Gold Bar Royal Canadian Mint',
-      //   productUrl: '/product/royal-canadian-mint-gold-bar-1-oz',
-      // },
+      {
+        name: '1 oz Gold Bar Royal Canadian Mint',
+        productUrl: '/product/1-oz-gold-bar-royal-canadian-mint-rcm-carded',
+      },
       {
         name: '1 oz Gold Bar Perth Mint',
         productUrl: '/product/perth-gold-bar-1-oz',
