@@ -23,6 +23,10 @@ export async function scrapePimbex(
     const html = await response.text();
     const $ = cheerio.load(html);
 
+    // Check for out-of-stock element
+    const outOfStockElement = $('.out-status-blurb').first();
+    const isOutOfStock = outOfStockElement.length > 0;
+
     // Helper function to clean and parse the price string
     const cleanAndParsePrice = (priceString: string): number | null => {
       const cleanedPrice = priceString.replaceAll(/[^0-9.]/g, '');
@@ -30,51 +34,58 @@ export async function scrapePimbex(
       return !Number.isNaN(price) && price > 0 ? price : null;
     };
 
+    let price: number | null = null;
+    let inStock = true;
+
     // 1. Find the specific tier list item for "1 - 9" quantity.
     // We look inside the main container with the ID 'pricingTable' for a tier list.
-    const pricingTable = $('#pricingTable');
+    if (isOutOfStock) {
+      console.info('⚠️ Product is out of stock');
+      inStock = false;
+      price = 0;
+    } else {
+      const pricingTable = $('#pricingTable');
 
-    if (pricingTable.length === 0) {
-      throw new Error('Could not find the main pricingTable container.');
-    }
-
-    // Look for the tier list item where the first <li> contains "1 - 9"
-    let targetTier: ReturnType<typeof $> | null = null;
-    pricingTable.find('.pricing-tier').each((_, element) => {
-      const firstLi = $(element).find('li').first();
-      const firstLiText = firstLi.text().trim();
-      if (firstLiText === '1 - 9') {
-        targetTier = $(element);
-        return false; // Break the loop
+      if (pricingTable.length === 0) {
+        throw new Error('Could not find the main pricingTable container.');
       }
-      return undefined;
-    });
 
-    if (!targetTier) {
-      throw new Error('Could not find the price for the 1-9 ACH/Wire tier.');
+      // Look for the tier list item where the first <li> contains "1 - 9"
+      let targetTier: ReturnType<typeof $> | null = null;
+      pricingTable.find('.pricing-tier').each((_, element) => {
+        const firstLi = $(element).find('li').first();
+        const firstLiText = firstLi.text().trim();
+        if (firstLiText === '1 - 9') {
+          targetTier = $(element);
+          return false; // Break the loop
+        }
+        return undefined;
+      });
+
+      if (!targetTier) {
+        throw new Error('Could not find the price for the 1-9 ACH/Wire tier.');
+      }
+
+      // 2. The price for "ACH/Wire" is the second <li> in the tier row.
+      // (1st li is Quantity, 2nd li is ACH/Wire, 3rd li is Card/PayPal)
+      const achWirePriceElement = (targetTier as ReturnType<typeof $>).find('li:nth-child(2)');
+
+      if (achWirePriceElement.length === 0) {
+        throw new Error('Could not find ACH/Wire price element in tier.');
+      }
+
+      const rawPriceText = achWirePriceElement.text().trim();
+      if (!rawPriceText) {
+        throw new Error('ACH/Wire price element is empty.');
+      }
+
+      console.info(`📍 Found price via structured UL tier (1-9 ACH/Wire): ${rawPriceText}`);
+
+      price = cleanAndParsePrice(rawPriceText);
+      if (price === null) {
+        throw new Error('Could not parse price from ACH/Wire tier.');
+      }
     }
-
-    // 2. The price for "ACH/Wire" is the second <li> in the tier row.
-    // (1st li is Quantity, 2nd li is ACH/Wire, 3rd li is Card/PayPal)
-    const achWirePriceElement = (targetTier as ReturnType<typeof $>).find('li:nth-child(2)');
-
-    if (achWirePriceElement.length === 0) {
-      throw new Error('Could not find ACH/Wire price element in tier.');
-    }
-
-    const rawPriceText = achWirePriceElement.text().trim();
-    if (!rawPriceText) {
-      throw new Error('ACH/Wire price element is empty.');
-    }
-
-    console.info(`📍 Found price via structured UL tier (1-9 ACH/Wire): ${rawPriceText}`);
-
-    const price = cleanAndParsePrice(rawPriceText);
-    if (price === null) {
-      throw new Error('Could not parse price from ACH/Wire tier.');
-    }
-
-    const inStock = true; // Pimbex doesn't show out-of-stock, assume in stock
 
     console.info(`✅ Pimbex - ${productConfig.name}: $${price.toFixed(2)}`);
     return { price, url, productName: productConfig.name, inStock };
