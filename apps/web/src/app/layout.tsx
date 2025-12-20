@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <link
-        rel="icon"
+        rel="shortcut icon"
         type="image/x-icon"
         sizes="256x256"
         href={`${BASE_URL}/favicon-256x256.ico`}
