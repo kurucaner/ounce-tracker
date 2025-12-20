@@ -1,5 +1,5 @@
 # Build stage
-FROM oven/bun:1.1.34 AS builder
+FROM oven/bun:1.3.5 AS builder
 
 WORKDIR /app
 
@@ -31,7 +31,7 @@ WORKDIR /app/apps/worker
 RUN bunx playwright install chromium
 
 # Production stage
-FROM oven/bun:1.1.34 AS runner
+FROM oven/bun:1.3.5 AS runner
 
 WORKDIR /app
 ENV NODE_ENV=production
