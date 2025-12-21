@@ -14,100 +14,6 @@ import {
   AccordionTrigger,
 } from '@shared';
 import { MINTS } from '@/lib/mints-data';
-import type { MintDetails } from '@/lib/mints-data';
-
-const FuturisticMintCard = memo(({ mint }: { mint: MintDetails }) => {
-  return (
-    <div className="p-1">
-      <div
-        className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br ${mint.gradient} p-[1px] backdrop-blur-xl transition-all duration-700 hover:scale-[1.02] hover:shadow-2xl`}
-      >
-        {/* Glassmorphism background */}
-        <div className="relative h-full rounded-2xl bg-gradient-to-br from-background/80 via-background/60 to-background/40 backdrop-blur-2xl">
-          {/* Animated glow effect */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 opacity-0 blur-xl transition-opacity duration-700 group-hover:opacity-100" />
-
-          {/* Content */}
-          <div className="relative z-10 p-6 sm:p-8">
-            {/* Header */}
-            <div className="mb-6">
-              <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-2xl font-bold tracking-tight text-foreground transition-colors duration-700 group-hover:text-foreground/100">
-                  {mint.name}
-                </h3>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/20 backdrop-blur-sm transition-colors duration-700 group-hover:bg-white/15">
-                  <span className="text-xs font-bold text-foreground transition-colors duration-700 group-hover:text-foreground/100">
-                    {mint.purity}
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="h-1.5 w-1.5 rounded-full bg-cyan-400/80 shadow-[0_0_8px_rgba(34,211,238,0.6)] transition-all duration-700 group-hover:bg-cyan-400 group-hover:shadow-[0_0_12px_rgba(34,211,238,0.8)]" />
-                <span className="text-sm font-medium uppercase tracking-wider text-muted-foreground transition-colors duration-700 group-hover:text-foreground/80">
-                  {mint.country}
-                </span>
-                {mint.founded && (
-                  <>
-                    <span className="text-muted-foreground transition-colors duration-700 group-hover:text-foreground/60">
-                      •
-                    </span>
-                    <span className="text-xs text-muted-foreground transition-colors duration-700 group-hover:text-foreground/70">
-                      {mint.founded}
-                    </span>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Description */}
-            <p className="mb-6 text-sm leading-relaxed text-muted-foreground transition-colors duration-700 group-hover:text-foreground/70 sm:text-base">
-              {mint.description}
-            </p>
-
-            {/* Specialties */}
-            <div className="mb-6 space-y-3">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/60 transition-colors duration-700 group-hover:text-foreground/80">
-                Specialties
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {mint.specialties.map((specialty, idx) => (
-                  <span
-                    key={idx}
-                    className="rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-medium text-foreground/80 backdrop-blur-sm transition-colors duration-700 group-hover:border-white/30 group-hover:bg-white/10 group-hover:text-foreground/100"
-                  >
-                    {specialty}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Notable Products */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/60 transition-colors duration-700 group-hover:text-foreground/80">
-                Notable Products
-              </h4>
-              <ul className="space-y-1.5">
-                {mint.notableProducts.map((product, idx) => (
-                  <li
-                    key={idx}
-                    className="flex items-center gap-2 text-sm text-muted-foreground transition-colors duration-700 group-hover:text-foreground/70"
-                  >
-                    <div className="h-1 w-1 rounded-full bg-cyan-400/60 transition-all duration-700 group-hover:bg-cyan-400" />
-                    <span>{product}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Bottom accent line */}
-            <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-});
-FuturisticMintCard.displayName = 'FuturisticMintCard';
 
 const FeatureCard = memo(({ title, description }: { title: string; description: string }) => {
   return (
@@ -197,77 +103,63 @@ const TrustedMintsAndManufacturers = () => {
       <div className="relative">
         <SectionHeader
           title="Trusted Mints & Manufacturers"
-          subtitle="World-renowned institutions at the forefront of precious metals innovation, combining centuries of tradition with cutting-edge technology"
+          subtitle="World-renowned institutions at the forefront of precious metals innovation"
           icon={Building2}
         />
-        <p className="mb-12 max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+        <p className="mb-8 max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           We track products from the world&apos;s most reputable mints and manufacturers, each
-          representing the pinnacle of quality, purity standards, and global recognition. These
-          institutions set the benchmark for excellence in precious metals production.
+          representing the pinnacle of quality, purity standards, and global recognition.
         </p>
 
-        <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {MINTS.slice(0, 6).map((mint) => (
-            <FuturisticMintCard key={mint.name} mint={mint} />
+        {/* Featured Mints Preview - Just 3 */}
+        <div className="mb-8 grid gap-6 sm:grid-cols-3">
+          {MINTS.slice(0, 3).map((mint) => (
+            <Link key={mint.name} href="/mints" className="block">
+              <Card className="group h-full overflow-hidden border border-border/50 bg-card transition-all duration-300 hover:border-primary/20 hover:shadow-lg">
+                <CardContent className="p-6">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="text-lg font-bold transition-colors group-hover:text-primary">
+                      {mint.name}
+                    </h3>
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold">
+                      {mint.purity}
+                    </div>
+                  </div>
+                  <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+                    <span>{mint.country}</span>
+                    {mint.founded && (
+                      <>
+                        <span>•</span>
+                        <span className="text-xs">{mint.founded}</span>
+                      </>
+                    )}
+                  </div>
+                  <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+                    {mint.description}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
 
-        {/* View All Mints Link */}
-        <div className="flex justify-center">
+        {/* Prominent CTA */}
+        <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 p-8 text-center backdrop-blur-sm sm:p-12">
+          <h3 className="mb-3 text-2xl font-bold sm:text-3xl">
+            Explore All {MINTS.length} Trusted Mints
+          </h3>
+          <p className="mb-6 mx-auto max-w-2xl text-base text-muted-foreground sm:text-lg">
+            Learn about each mint&apos;s history, security features, popular series, and what makes
+            them leaders in precious metals production.
+          </p>
           <Link
             href="/mints"
-            className="group inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-6 py-3 font-medium text-primary transition-all duration-300 hover:border-primary/40 hover:bg-primary/20 hover:shadow-lg"
+            className="group inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-base font-semibold text-primary-foreground shadow-lg transition-all duration-300 hover:bg-primary/90 hover:shadow-xl"
           >
-            <span>Explore All Mints</span>
+            <span>View All Mints</span>
             <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
-        </div>
-
-        {/* Additional info section */}
-        <div className="mt-12 rounded-2xl border border-white/10 bg-gradient-to-br from-background/60 via-background/40 to-background/60 p-8 backdrop-blur-2xl sm:p-10">
-          <div className="mx-auto max-w-3xl">
-            <h3 className="mb-4 text-xl font-bold text-foreground sm:text-2xl">
-              What Makes These Mints Trusted?
-            </h3>
-            <div className="grid gap-6 sm:grid-cols-2">
-              <div className="space-y-2">
-                <h4 className="text-sm font-semibold uppercase tracking-wider text-foreground/80">
-                  Certification & Assay
-                </h4>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  Each product carries distinct hallmarks, serial numbers, and assay certificates
-                  guaranteeing weight, purity, and authenticity.
-                </p>
-              </div>
-              <div className="space-y-2">
-                <h4 className="text-sm font-semibold uppercase tracking-wider text-foreground/80">
-                  Global Recognition
-                </h4>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  Products from these mints are recognized and easily liquidated worldwide, ensuring
-                  maximum liquidity for your investment.
-                </p>
-              </div>
-              <div className="space-y-2">
-                <h4 className="text-sm font-semibold uppercase tracking-wider text-foreground/80">
-                  Quality Standards
-                </h4>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  Rigorous quality control processes ensure consistent weight, purity, and finish
-                  across all products.
-                </p>
-              </div>
-              <div className="space-y-2">
-                <h4 className="text-sm font-semibold uppercase tracking-wider text-foreground/80">
-                  Innovation
-                </h4>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  Continuous innovation in security features, design, and manufacturing processes
-                  keeps these mints at the forefront of the industry.
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </section>
