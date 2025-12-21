@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { ExternalLink, Trophy, Award, Medal } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -157,35 +157,6 @@ export function DealersListing() {
     <div className="flex min-h-screen flex-col">
       <main className="flex-1">
         <section
-          className="border-b bg-muted/40 px-4 py-4 sm:px-6 sm:py-6"
-          aria-label="Product Selection"
-        >
-          <div className="mx-auto max-w-5xl">
-            {/* Product Selector */}
-            <div>
-              <label
-                htmlFor="product-select"
-                className="mb-2 block text-sm font-medium text-muted-foreground"
-              >
-                Select Product
-              </label>
-              <Select value={selectedProductId} onValueChange={handleProductChange}>
-                <SelectTrigger id="product-select" className="w-full bg-background sm:max-w-md">
-                  <SelectValue placeholder="Select a product..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {products.map((product) => (
-                    <SelectItem key={product.id} value={product.id}>
-                      {product.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </section>
-
-        <section
           className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8"
           aria-label="Dealer Listings"
         >
@@ -223,8 +194,25 @@ export function DealersListing() {
             }
 
             return (
-              <div>
-                <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+              <Fragment>
+                <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="w-full sm:w-auto sm:min-w-[280px]">
+                    <label htmlFor="product-select" className="mb-2 block text-sm font-medium">
+                      Select Product
+                    </label>
+                    <Select value={selectedProductId} onValueChange={handleProductChange}>
+                      <SelectTrigger id="product-select" className="w-full bg-background">
+                        <SelectValue placeholder="Select a product..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {products.map((product) => (
+                          <SelectItem key={product.id} value={product.id}>
+                            {product.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-2">
                     <Badge variant="secondary" className="w-fit text-xs sm:text-sm">
                       {listings.length} {listings.length === 1 ? 'listing' : 'listings'}
@@ -438,7 +426,7 @@ export function DealersListing() {
                     </TableBody>
                   </Table>
                 </div>
-              </div>
+              </Fragment>
             );
           })()}
         </section>

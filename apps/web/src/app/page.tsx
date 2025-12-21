@@ -166,6 +166,10 @@ export default async function HomePage() {
   return (
     <>
       <HomeStructuredData products={products} />
+      {/* Hidden H1 for SEO and accessibility */}
+      <h1 className="sr-only">
+        OunceTracker - Compare Precious Metal Prices from Trusted Bullion Dealers
+      </h1>
       <Suspense>
         <DealersListing />
       </Suspense>
