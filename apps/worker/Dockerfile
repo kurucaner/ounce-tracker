@@ -1,6 +1,9 @@
 # Build stage
 FROM oven/bun:1.3.5 AS builder
 
+# Set memory limit (example: 2.5GB)
+ENV NODE_OPTIONS="--max-old-space-size=2560"
+
 WORKDIR /app
 
 # Install system dependencies for Chromium and Node.js/npm
