@@ -326,18 +326,18 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar PAMP Suisse Lady Fortuna',
         productUrl: '/product/pamp-suisse-gold-bar-1-oz',
       },
-      {
-        name: '1 oz Gold Bar Royal Canadian Mint',
-        productUrl: '/product/1-oz-gold-bar-royal-canadian-mint-rcm-carded',
-      },
+      // {
+      //   name: '1 oz Gold Bar Royal Canadian Mint',
+      //   productUrl: '/product/1-oz-gold-bar-royal-canadian-mint-rcm-carded',
+      // },
       {
         name: '1 oz Gold Bar Perth Mint',
         productUrl: '/product/perth-gold-bar-1-oz',
       },
-      // {
-      //   name: '1 oz Gold Bar Credit Suisse',
-      //   productUrl: '/product/credit-suisse-gold-bar-1-oz',
-      // },
+      {
+        name: '1 oz Gold Bar Credit Suisse',
+        productUrl: '/product/credit-suisse-gold-bar-1-oz',
+      },
       {
         name: '1 oz Gold Bar Valcambi Suisse',
         productUrl: '/product/valcambi-suisse-gold-bar-1-oz',
@@ -353,10 +353,10 @@ export const DEALERS: DealerConfig[] = [
         name: '1 oz Gold Bar PAMP Suisse Lady Fortuna',
         productUrl: '/product/1-oz-gold-bar-pamp-fortuna-carded',
       },
-      // {
-      //   name: '1 oz Gold Bar Royal Canadian Mint',
-      //   productUrl: '/product/1-oz-rcm-gold-bar-proudly-canadian-assay',
-      // },
+      {
+        name: '1 oz Gold Bar Royal Canadian Mint',
+        productUrl: '/product/1-oz-gold-bar-royal-canadian-mint-rcm-carded',
+      },
       {
         name: '1 oz Gold Bar Perth Mint',
         productUrl: '/product/1-oz-gold-bar-perth-mint-carded',
