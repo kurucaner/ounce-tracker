@@ -37,7 +37,7 @@ export const MINTS: MintDetails[] = [
     gradient: 'from-cyan-500/20 via-blue-500/20 to-cyan-500/20',
     website: 'https://www.pamp.com',
     fullDescription:
-      'PAMP (Produits Artistiques Métaux Précieux) Suisse SA is one of the world\'s leading bullion brands and a member of the MKS PAMP GROUP. Established in 1977 in Ticino, Switzerland, PAMP has built an international reputation for the manufacture of the highest quality precious metals products.',
+      "PAMP (Produits Artistiques Métaux Précieux) Suisse SA is one of the world's leading bullion brands and a member of the MKS PAMP GROUP. Established in 1977 in Ticino, Switzerland, PAMP has built an international reputation for the manufacture of the highest quality precious metals products.",
     history:
       'Founded in 1977, PAMP Suisse quickly became a pioneer in the precious metals industry. The company revolutionized the market with their innovative designs and was the first to introduce decorated investment bars with their iconic Lady Fortuna series.',
     securityFeatures: [
@@ -82,7 +82,7 @@ export const MINTS: MintDetails[] = [
     gradient: 'from-blue-500/20 via-indigo-500/20 to-blue-500/20',
     website: 'https://www.mint.ca',
     fullDescription:
-      'The Royal Canadian Mint is the Crown corporation that produces all of Canada\'s circulation coins. One of the largest and most versatile mints in the world, it offers a wide range of specialized, high quality coinage products and related services on an international scale.',
+      "The Royal Canadian Mint is the Crown corporation that produces all of Canada's circulation coins. One of the largest and most versatile mints in the world, it offers a wide range of specialized, high quality coinage products and related services on an international scale.",
     history:
       'Established by an act of Parliament in 1908, the Royal Canadian Mint began operations in Ottawa to refine gold and produce Canadian circulation coins. Over a century later, it remains at the forefront of innovation in precious metals.',
     securityFeatures: [
@@ -100,7 +100,7 @@ export const MINTS: MintDetails[] = [
       {
         name: 'Silver Maple Leaf',
         description:
-          'One of the world\'s purest silver bullion coins at .9999 fine silver, featuring advanced security features.',
+          "One of the world's purest silver bullion coins at .9999 fine silver, featuring advanced security features.",
       },
       {
         name: 'Call of the Wild',
@@ -167,7 +167,7 @@ export const MINTS: MintDetails[] = [
     gradient: 'from-emerald-500/20 via-teal-500/20 to-emerald-500/20',
     website: 'https://www.perthmint.com',
     fullDescription:
-      'The Perth Mint is Australia\'s official bullion mint and wholly owned by the Government of Western Australia. Established in 1899, it has over 120 years of expertise in precious metal products.',
+      "The Perth Mint is Australia's official bullion mint and wholly owned by the Government of Western Australia. Established in 1899, it has over 120 years of expertise in precious metal products.",
     history:
       'Originally part of the British Royal Mint, the Perth Mint was established in 1899 to refine gold from the Western Australian goldfields. It is the only operating mint from the colonial era.',
     securityFeatures: [
@@ -190,7 +190,7 @@ export const MINTS: MintDetails[] = [
       {
         name: 'Australian Koala',
         description:
-          'Annual silver coin series featuring Australia\'s beloved marsupial with changing designs each year.',
+          "Annual silver coin series featuring Australia's beloved marsupial with changing designs each year.",
       },
     ],
   },
@@ -207,9 +207,9 @@ export const MINTS: MintDetails[] = [
     gradient: 'from-amber-500/20 via-orange-500/20 to-amber-500/20',
     website: 'https://www.valcambi.com',
     fullDescription:
-      'Valcambi SA is one of the world\'s leading refiners of precious metals, operating one of the most advanced refineries in the world. Located in Balerna, Switzerland, Valcambi is renowned for innovation and quality.',
+      "Valcambi SA is one of the world's leading refiners of precious metals, operating one of the most advanced refineries in the world. Located in Balerna, Switzerland, Valcambi is renowned for innovation and quality.",
     history:
-      'Founded in 1961, Valcambi has grown to become one of Switzerland\'s premier precious metals refiners. The company revolutionized the industry with the introduction of the CombiBar in 2010.',
+      "Founded in 1961, Valcambi has grown to become one of Switzerland's premier precious metals refiners. The company revolutionized the industry with the introduction of the CombiBar in 2010.",
     securityFeatures: [
       'Assay certificates',
       'Serial number tracking',
@@ -238,8 +238,8 @@ export const MINTS: MintDetails[] = [
     specialties: ['Banking Heritage', 'Classic Design', 'Global Recognition'],
     notableProducts: ['Credit Suisse Gold Bars', 'Credit Suisse Silver Bars', 'Platinum Bars'],
     description:
-      'Backed by one of the world\'s most prestigious banks, Credit Suisse precious metals products represent Swiss quality and global trust. Their classic bar designs are among the most recognizable in the precious metals industry.',
-    gradient: 'from-blue-600/20 via-slate-500/20 to-blue-600/20',
+      "Backed by one of the world's most prestigious banks, Credit Suisse precious metals products represent Swiss quality and global trust. Their classic bar designs are among the most recognizable in the precious metals industry.",
+    gradient: 'from-cyan-500/20 via-blue-500/20 to-cyan-500/20',
     website: 'https://www.credit-suisse.com',
     fullDescription:
       'Credit Suisse produces precious metals bars that are recognized and traded globally. With over 160 years of Swiss banking excellence, their precious metals division maintains the highest standards of quality and authenticity.',
@@ -259,8 +259,8 @@ export const MINTS: MintDetails[] = [
     specialties: ['Refining Heritage', 'Industrial Applications', 'Quality Standards'],
     notableProducts: ['JM Gold Bars', 'JM Silver Bars', 'Platinum Bars'],
     description:
-      'With over 200 years of expertise in precious metals, Johnson Matthey is one of the world\'s most respected refiners. Their products are known for exceptional quality and are recognized globally in the precious metals market.',
-    gradient: 'from-red-500/20 via-orange-500/20 to-red-500/20',
+      "With over 200 years of expertise in precious metals, Johnson Matthey is one of the world's most respected refiners. Their products are known for exceptional quality and are recognized globally in the precious metals market.",
+    gradient: 'from-cyan-500/20 via-blue-500/20 to-cyan-500/20',
     website: 'https://www.matthey.com',
     fullDescription:
       'Johnson Matthey has been at the forefront of precious metals science and technology for over two centuries. While they discontinued retail bullion production, their legacy products remain highly sought after in the secondary market.',
@@ -277,10 +277,10 @@ export const MINTS: MintDetails[] = [
     notableProducts: ['Heraeus Gold Bars', 'Kinebars', 'Silver Bars'],
     description:
       'A German precious metals leader with over 170 years of expertise. Heraeus combines German engineering precision with innovative anti-counterfeiting technology, including their unique Kinebar design with holographic security features.',
-    gradient: 'from-gray-500/20 via-zinc-500/20 to-gray-500/20',
+    gradient: 'from-cyan-500/20 via-blue-500/20 to-cyan-500/20',
     website: 'https://www.heraeus.com',
     fullDescription:
-      'Heraeus is a German technology group with a heritage spanning over 170 years. Their precious metals division is one of the world\'s largest producers of precious metals bars and is known for innovation in security features.',
+      "Heraeus is a German technology group with a heritage spanning over 170 years. Their precious metals division is one of the world's largest producers of precious metals bars and is known for innovation in security features.",
     securityFeatures: [
       'Kinegram holographic technology',
       'Serial number verification system',
@@ -297,4 +297,3 @@ export const getMintBySlug = (slug: string): MintDetails | undefined => {
 export const getAllMintSlugs = (): string[] => {
   return MINTS.map((mint) => mint.slug);
 };
-

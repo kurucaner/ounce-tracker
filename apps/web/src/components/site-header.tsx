@@ -4,7 +4,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { FaHome } from 'react-icons/fa';
-import { Building2 } from 'lucide-react';
 
 export const SiteHeader = () => {
   const pathname = usePathname();
@@ -41,13 +40,6 @@ export const SiteHeader = () => {
             <FaHome className="h-4 w-4 shrink-0" />
             <span>Home</span>
             {isActive('/') && (
-              <span className="absolute -bottom-px left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full bg-primary" />
-            )}
-          </Link>
-          <Link href="/mints" className={navLinkClass('/mints')}>
-            <Building2 className="h-4 w-4 shrink-0" />
-            <span>Mints</span>
-            {isActive('/mints') && (
               <span className="absolute -bottom-px left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full bg-primary" />
             )}
           </Link>

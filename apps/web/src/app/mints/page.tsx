@@ -40,7 +40,7 @@ const MintCard = memo(
           className={`group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br ${mint.gradient} p-[1px] backdrop-blur-xl transition-all duration-700 hover:scale-[1.02] hover:shadow-2xl`}
         >
           {/* Glassmorphism background */}
-          <div className="relative h-full rounded-2xl bg-gradient-to-br from-background/80 via-background/60 to-background/40 backdrop-blur-2xl">
+          <div className="relative h-full rounded-2xl bg-gradient-to-br from-card/95 via-card/90 to-card/95 backdrop-blur-2xl">
             {/* Animated glow effect */}
             <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 opacity-0 blur-xl transition-opacity duration-700 group-hover:opacity-100" />
 

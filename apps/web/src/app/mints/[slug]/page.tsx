@@ -81,7 +81,7 @@ export default async function MintDetailPage({ params }: Props) {
         <div
           className={`mb-12 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br ${mint.gradient} p-[1px] backdrop-blur-xl`}
         >
-          <div className="rounded-3xl bg-gradient-to-br from-background/80 via-background/60 to-background/40 p-8 backdrop-blur-2xl sm:p-12">
+          <div className="rounded-3xl bg-gradient-to-br from-card/95 via-card/90 to-card/95 p-8 backdrop-blur-2xl sm:p-12">
             <div className="mb-6 flex items-start gap-6">
               <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20">
                 <Building2 className="h-8 w-8 text-foreground" />

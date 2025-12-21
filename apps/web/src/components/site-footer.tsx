@@ -47,6 +47,12 @@ export const SiteFooter = () => {
                 Home
               </Link>
               <Link
+                href="/mints"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Mints
+              </Link>
+              <Link
                 href="/insights"
                 className="text-muted-foreground transition-colors hover:text-foreground"
               >
