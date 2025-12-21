@@ -37,6 +37,13 @@ export const metadata: Metadata = {
         sizes: '180x180',
       },
     ],
+    other: [
+      {
+        url: '/android-chrome-192x192.png',
+        sizes: '192x192',
+        type: 'image/png',
+      },
+    ],
   },
   alternates: {
     types: {
