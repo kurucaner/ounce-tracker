@@ -10,6 +10,7 @@ import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
 import { FloatingStoreCta } from '@/components/floating-store-cta';
 import { ThemeProvider } from 'next-themes';
+import { siteMetadata } from '@/lib/site-metadata';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -22,8 +23,8 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.ouncetracker.c
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
-  title: 'OunceTracker - Bullion Price Comparison',
-  description: 'Compare precious metal prices across multiple dealers',
+  title: siteMetadata.title,
+  description: siteMetadata.description,
   icons: {
     icon: [
       {

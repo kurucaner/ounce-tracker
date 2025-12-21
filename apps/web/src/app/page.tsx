@@ -4,6 +4,7 @@ import { InformativeSections } from '@/components/home/informative-sections';
 import type { Metadata } from 'next';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { Suspense } from 'react';
+import { siteMetadata } from '@/lib/site-metadata';
 
 /**
  * Generate dynamic metadata for SEO
@@ -30,8 +31,6 @@ export async function generateMetadata(): Promise<Metadata> {
     const url = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.ouncetracker.com';
 
     return {
-      title,
-      description,
       keywords: [
         'precious metals',
         'gold prices',
@@ -103,11 +102,8 @@ export async function generateMetadata(): Promise<Metadata> {
     };
   } catch (error) {
     console.error('Error generating metadata:', error);
-    // Fallback metadata
     return {
-      title: 'OunceTracker - Compare Precious Metal Prices',
-      description:
-        'Compare prices for precious metal products from trusted bullion dealers. Find the best prices on gold bars, silver coins, and more.',
+      title: siteMetadata.title,
     };
   }
 }
