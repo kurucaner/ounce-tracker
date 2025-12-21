@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { sanityFetch } from './insights/sanity/lib/live';
 import { sitemapData } from './insights/sanity/lib/queries';
+import { getAllMintSlugs } from '@/lib/mints-data';
 
 // Revalidate sitemap every hour (3600 seconds)
 export const revalidate = 3600;
@@ -54,6 +55,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/mints`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
       url: `${baseUrl}/privacy`,
       lastModified: now,
       changeFrequency: 'monthly',
@@ -82,5 +89,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Error fetching dynamic sitemap routes:', error);
   }
 
-  return [...staticRoutes, ...dynamicRoutes];
+  // Add mints pages to sitemap
+  const mintSlugs = getAllMintSlugs();
+  const mintRoutes: MetadataRoute.Sitemap = mintSlugs.map((slug) => ({
+    url: `${baseUrl}/mints/${slug}`,
+    lastModified: now,
+    changeFrequency: 'monthly' as ChangeFrequency,
+    priority: 0.7,
+  }));
+
+  return [...staticRoutes, ...mintRoutes, ...dynamicRoutes];
 }
