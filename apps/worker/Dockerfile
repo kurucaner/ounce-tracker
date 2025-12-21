@@ -1,8 +1,8 @@
 # Build stage
 FROM oven/bun:1.3.5 AS builder
 
-# Set memory limit (example: 2.5GB)
-ENV NODE_OPTIONS="--max-old-space-size=2560"
+# Set memory limit (example: 2GB)
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 
 WORKDIR /app
 
