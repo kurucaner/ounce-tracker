@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+
 import { QueryProvider } from '@/components/query-provider';
 import { DatadogRumProvider } from '@/components/datadog-rum-provider';
 import { GoogleTagManager } from '@/components/gtm';
@@ -23,6 +24,20 @@ export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: 'OunceTracker - Bullion Price Comparison',
   description: 'Compare precious metal prices across multiple dealers',
+  icons: {
+    icon: [
+      {
+        url: '/favicon.ico',
+        type: 'image/x-icon',
+      },
+    ],
+    apple: [
+      {
+        url: '/apple-touch-icon.png',
+        sizes: '180x180',
+      },
+    ],
+  },
   alternates: {
     types: {
       'application/rss+xml': `${BASE_URL}/feed.xml`,
@@ -33,36 +48,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+interface RootLayoutProps {
   children: React.ReactNode;
-}>) {
+}
+
+export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <link
-        rel="shortcut icon"
-        type="image/x-icon"
-        sizes="256x256"
-        href={`${BASE_URL}/favicon-256x256.ico`}
-      />
-      <link rel="icon" type="image/png" sizes="16x16" href={`${BASE_URL}/favicon-16x16.png`} />
-      <link rel="icon" type="image/png" sizes="32x32" href={`${BASE_URL}/favicon-32x32.png`} />
-      <link rel="icon" type="image/png" sizes="96x96" href={`${BASE_URL}/favicon-96x96.png`} />
-      <link rel="apple-touch-icon" sizes="180x180" href={`${BASE_URL}/apple-touch-icon.png`} />
-      <link
-        rel="icon"
-        type="image/png"
-        sizes="192x192"
-        href={`${BASE_URL}/android-chrome-192x192.png`}
-      />
-      <link
-        rel="icon"
-        type="image/png"
-        sizes="512x512"
-        href={`${BASE_URL}/android-chrome-512x512.png`}
-      />
-      <link rel="manifest" href={`${BASE_URL}/site.webmanifest`} />
       <body className={inter.className}>
         <Toaster />
         <GoogleTagManager />
