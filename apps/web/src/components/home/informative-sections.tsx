@@ -185,7 +185,7 @@ const MINTS: MintDetails[] = [
     specialties: ['Combibars', 'Innovation', 'Swiss Quality'],
     notableProducts: ['Combibar Technology', 'Valcambi Gold Bars', 'Silver Bars', 'Platinum Bars'],
     description:
-      'A premium Swiss refiner known for revolutionary products like the Combibar—a bar that can be broken into smaller units while maintaining individual assay certification. Valcambi combines Swiss precision with innovative design, making them a leader in flexible precious metals products.',
+      'A premium Swiss refiner known for revolutionary products like the Combibar, a bar that can be broken into smaller units while maintaining individual assay certification. Valcambi combines Swiss precision with innovative design, making them a leader in flexible precious metals products.',
     gradient: 'from-amber-500/20 via-orange-500/20 to-amber-500/20',
   },
   {
@@ -371,8 +371,8 @@ const TheEconomicRoleOfPreciousMetals = () => {
         </p>
         <p>
           Silver, while also a monetary metal, has extensive industrial applications in electronics,
-          solar panels, medical equipment, and more. This dual nature—both monetary and
-          industrial—creates unique supply and demand dynamics that influence pricing.
+          solar panels, medical equipment, and more. This dual nature and both monetary and
+          industrial and creates unique supply and demand dynamics that influence pricing.
         </p>
       </div>
       <div className="mt-12 grid gap-6 sm:grid-cols-2">
