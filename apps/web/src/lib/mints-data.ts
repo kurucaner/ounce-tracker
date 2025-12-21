@@ -288,6 +288,52 @@ export const MINTS: MintDetails[] = [
       'Advanced anti-counterfeiting measures',
     ],
   },
+  {
+    name: 'Asahi Refining',
+    slug: 'asahi',
+    country: 'United States',
+    founded: '1952',
+    purity: '99.99%',
+    specialties: ['Refining Excellence', 'Industrial Heritage', 'Global Operations'],
+    notableProducts: [
+      'Asahi Gold Bars',
+      'Asahi Silver Bars',
+      'Asahi Silver Rounds',
+      'Custom Bullion Products',
+    ],
+    description:
+      "Asahi Refining is a leading precious metals refiner with global operations. Known for acquiring Johnson Matthey's North American precious metals refining, minting, and assaying operations in 2015, Asahi has established itself as a trusted name in the industry with state-of-the-art refining facilities.",
+    gradient: 'from-blue-500/20 via-blue-500/20 to-cyan-500/20',
+    website: 'https://www.asahirefining.com',
+    fullDescription:
+      'Asahi Refining is a global precious metals refining company with operations spanning North America, Europe, and Asia. As part of the Asahi Holdings group, they combine Japanese precision with American innovation to deliver world-class precious metals products and services.',
+    history:
+      "Founded in 1952 in Japan, Asahi Holdings expanded globally and made a significant impact in 2015 by acquiring Johnson Matthey's precious metals refining operations in North America. This acquisition included state-of-the-art facilities in Salt Lake City, establishing Asahi as a major player in North American precious metals refining.",
+    securityFeatures: [
+      'Serial number tracking',
+      'Tamper-evident packaging',
+      'Assay certificates',
+      'Advanced authentication systems',
+      'Quality control certifications',
+    ],
+    popularSeries: [
+      {
+        name: 'Asahi Gold Bars',
+        description:
+          'High-quality gold bars ranging from 1 gram to 1 kilogram, featuring the distinctive Asahi hallmark and meeting international standards for purity and weight.',
+      },
+      {
+        name: 'Asahi Silver Rounds',
+        description:
+          'Popular 1 oz silver rounds featuring various designs, known for their .999 fine silver content and competitive pricing in the bullion market.',
+      },
+      {
+        name: 'Fortuna Design',
+        description:
+          'Following their acquisition of JM refining operations, Asahi continues to produce bars featuring classic designs including Fortuna, maintaining continuity with established market preferences.',
+      },
+    ],
+  },
 ];
 
 export const getMintBySlug = (slug: string): MintDetails | undefined => {
